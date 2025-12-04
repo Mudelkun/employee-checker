@@ -10,6 +10,14 @@
   const pSortant = document.getElementById("sortant");
   const message = document.getElementById("message");
 
+  function getMessage(msg, color = "black") {
+    message.textContent = msg;
+    message.style.color = color;
+    setTimeout(() => {
+      message.textContent = "";
+    }, 5000);
+  }
+
   function updateHdePointage(emp, act) {
     let currentDate = new Date();
     let options = {
@@ -33,9 +41,9 @@
         entrer: heure
         }
       });
-      message.style.color = "black";  
-      message.textContent = `${emp.name.toUpperCase()} Pointage Entrant accepte ${heure}`;
+      getMessage(`${emp.name.toUpperCase()} Pointage Entrant accepte ${heure}`);
     }
+
     if (act === 'sortant') {
       empPointage.forEach(pObj => {
         if (pObj.Pointage.date === dateLocal) {
@@ -43,12 +51,8 @@
           pObj.Pointage.heureTravailer = heureTravailer(pObj.Pointage.entrer, pObj.Pointage.sorti);
         }
       });
-      message.style.color = "black";
-      message.textContent = `${emp.name.toUpperCase()} Pointage Sortant accepte ${heure}`;
+      getMessage(`${emp.name.toUpperCase()} Pointage Sortant accepte ${heure}`);
     }
-    setTimeout(() => {
-      message.textContent = "";
-    }, 5000)
     console.log(empPointage);
   }
 
@@ -100,71 +104,65 @@
 
   pEntrant.addEventListener("click", () => {
     if (inputField.value === "") {
-      message.style.color = "red";
-      message.textContent = `Entrez votre numero de pointage!`
-      setTimeout(() => {
-      message.textContent = "";
-    }, 5000);
+      getMessage("Entrez votre numero de pointage!", "red");
       return;
     }
-    const uInputId = inputField.value.trim();
-    message.style.color = "red";
-    message.textContent = `Identification de l'employer ${uInputId} Echouer!`;
-    inputField.value = "";
-    setTimeout(() => {
-      message.textContent = "";
-    }, 5000);
 
-    employes.forEach(emp => {
-      if (uInputId === emp.id) {
-        if (emp.estEntrer === true) {
-          message.textContent = `Vous avez deja pointez votre arrive: ${emp.name}
-          `
-          return;
-      };
-        emp.estSorti = false;
-        emp.estEntrer = true;
-        updateHdePointage(emp, 'entrant');
-        inputField.value = "";
-        return;
-      }
+    const uInputId = inputField.value.trim();
+
+    const emp = employes.find(emp => {
+      return emp.id === uInputId;
     });
+
+    if (!emp) {
+      getMessage(`Identification de l'employer ${uInputId} Echouer!`, "red");
+      inputField.value = "";
+      return;
+    }
+
+    if (emp.estEntrer === true) {
+      getMessage(`Vous avez deja pointez votre arrive: ${emp.name}`);
+      return;
+    } else {
+      emp.estSorti = false;
+      emp.estEntrer = true;
+      updateHdePointage(emp, 'entrant');
+      inputField.value = "";
+      return;
+    }
   });
 
   pSortant.addEventListener("click", () => {
     if (inputField.value === "") {
-      message.style.color = "red";
-      message.textContent = `Entrez votre numero de pointage!`
-      setTimeout(() => {
-      message.textContent = "";
-    }, 5000);
+      getMessage("Entrez votre numero de pointage!", "red");
       return;
     }
-    const uInputId = inputField.value.trim();
-    message.style.color = "red";
-    message.textContent = `Identification de l'employer ${uInputId} Echouer!`;
-    inputField.value = "";
-    setTimeout(() => {
-      message.textContent = "";
-    }, 5000);
 
-    employes.forEach(emp => {
-      if (uInputId === emp.id) {
-        if (emp.estEntrer === false) {
-          message.textContent = `Vous n'avez pas pointez votre arrivez: ${emp.name}`;
-          return;
-        }
-        if (emp.estSorti === true) {
-          message.textContent = `Vous avez deja pointez votre sorti: ${emp.name}`;
-          return;
-        }
-        emp.estEntrer = false;
-        emp.estSorti = true;
-        updateHdePointage(emp, 'sortant');
-        inputField.value = "";
-        return;
-      }
+    const uInputId = inputField.value.trim();
+
+    const emp = employes.find(emp => {
+      return emp.id === uInputId;
     });
+
+    if (!emp) {
+      getMessage(`Identification de l'employer ${uInputId} Echouer!`, "red");
+      inputField.value = "";
+      return;
+    }
+    if (emp.estEntrer === false) {
+      getMessage(`Vous n'avez pas pointez votre arrivez: ${emp.name}`);
+      return;
+    } 
+
+    if (emp.estSorti === true) {
+      message.textContent = `Vous avez deja pointez votre sorti: ${emp.name}`;
+      return;
+    }
+    emp.estEntrer = false;
+    emp.estSorti = true;
+    updateHdePointage(emp, 'sortant');
+    inputField.value = "";
+    return;
 });
 
 /* let empTravail = []
