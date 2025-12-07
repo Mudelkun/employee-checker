@@ -89,8 +89,7 @@ employes.forEach((emp) => {
 
           <div class="employee-info">
             <div class="id-container">
-              <span class="show-id"><u>Show id</u></span>
-              <span class="id">${emp.id}</span>
+              <span class="id">ID: ${emp.id}</span>
             </div>
             <p class="employee-name">${emp.name}</p>
             <p class="employee-role">${emp.role}</p>

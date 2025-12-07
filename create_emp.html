@@ -11,7 +11,11 @@
       <span>Fierbout</span>
       <span>Sign out</span>
     </nav>
-
+    <div class="employee-confirmed">
+      <img src="imgs/confirmed.webp" alt="" />
+      <p class="emp-name">Rodarly perilus</p>
+      <p class="congrats">was successfully added to your employee list</p>
+    </div>
     <section class="add-employee">
       <!-- Upload image -->
       <div class="upload-box">
@@ -23,30 +27,45 @@
       <div class="form-grid">
         <div class="field">
           <label>First Name</label>
-          <input type="text" name="first-name" />
+          <input type="text" id="first-name" />
         </div>
 
         <div class="field">
           <label>Last Name</label>
-          <input type="text" name="last-name" />
+          <input type="text" id="last-name" />
         </div>
 
         <button class="generate-id">Generate ID</button>
 
-        <p class="id">ID: <span>078853</span></p>
+        <p class="id">ID: <span></span></p>
 
         <div class="field">
           <label>Role</label>
-          <input type="text" name="role" />
+          <input type="text" id="role" />
         </div>
 
         <div class="field">
           <label>Details</label>
-          <input type="text" name="additional-details" />
+          <input type="text" id="additional-details" />
         </div>
 
         <button class="confirme-button">Confirme</button>
       </div>
     </section>
+
+    <!-- Confirmation Modal -->
+    <div class="confirm-modal hidden">
+      <div class="modal-content">
+        <h2>Confirm Employee Information</h2>
+        <p class="modal-message"></p>
+
+        <div class="modal-buttons">
+          <button class="cancel-modal">Cancel</button>
+          <button class="final-confirm">Confirm</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="script/create_emp.js"></script>
   </body>
 </html>
