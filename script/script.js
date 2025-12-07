@@ -26,7 +26,8 @@
       month: 'long',
       day: 'numeric'
     }
-    let dateLocal = currentDate.toLocaleDateString('fr-FR', options);
+    let dateLocal = `${currentDate.getMonth() + 1}/${currentDate.getDate()}/${currentDate.getFullYear()}`;
+
     let heure = new Intl.DateTimeFormat('fr-FR', {
       hour: 'numeric',
       minute: 'numeric',
@@ -36,19 +37,19 @@
     const empPointage = emp.hdePointage;
 
     if (act === 'entrant') {
-        empPointage.push({Pointage: {
+        empPointage.push({
         date: dateLocal, 
-        entrer: heure
-        }
+        entrer: heure,
+        sorti: "",
       });
       getMessage(`${emp.name.toUpperCase()} Pointage Entrant accepte ${heure}`);
     }
 
     if (act === 'sortant') {
       empPointage.forEach(pObj => {
-        if (pObj.Pointage.date === dateLocal) {
-          pObj.Pointage.sorti = heure;
-          pObj.Pointage.heureTravailer = heureTravailer(pObj.Pointage.entrer, pObj.Pointage.sorti);
+        if (pObj.date === dateLocal) {
+          pObj.sorti = heure;
+          pObj.heureTravailer = heureTravailer(pObj.entrer, pObj.sorti);
         }
       });
       getMessage(`${emp.name.toUpperCase()} Pointage Sortant accepte ${heure}`);
@@ -121,7 +122,8 @@
     }
 
     if (emp.estEntrer === true) {
-      getMessage(`Vous avez deja pointez votre arrive: ${emp.name}`);
+      getMessage(`Vous avez deja pointez votre arrive: ${emp.name.toUpperCase()}`, "red");
+      inputField.value = "";
       return;
     } else {
       emp.estSorti = false;
@@ -150,7 +152,8 @@
       return;
     }
     if (emp.estEntrer === false) {
-      getMessage(`Vous n'avez pas pointez votre arrivez: ${emp.name}`);
+      getMessage(`Vous n'avez pas pointez votre arrivez: ${emp.name.toUpperCase()}`, "red");
+      inputField.value = "";
       return;
     } 
 
