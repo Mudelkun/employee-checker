@@ -1,0 +1,309 @@
+/* GLOBAL */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", Arial, sans-serif;
+  background: #f5f7fa;
+  color: #1a1a1a;
+}
+
+/* NAV */
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1e88e5;
+  color: #fff;
+  padding: 15px 25px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+nav span {
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+nav span:hover {
+  opacity: 0.8;
+}
+
+nav img {
+  margin: 0px;
+  width: 2.5%;
+  background-color: white;
+  border-radius: 20px;
+  align-items: end;
+  cursor: pointer;
+}
+
+nav img:hover {
+  transform: translateY(1px);
+}
+
+/* MANAGER BAR */
+#manager {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px;
+}
+
+#manager input {
+  padding: 10px 14px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  width: 180px;
+  outline: none;
+  transition: 0.2s;
+}
+
+#manager input:focus {
+  border-color: #1e88e5;
+  box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.2);
+}
+
+#manager button {
+  background: #1e88e5;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  margin-left: 10px;
+  transition: 0.2s;
+}
+
+#manager button:hover {
+  background: #156ebd;
+}
+
+.manager-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.manager-buttons button {
+  background: #1e88e5;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: 0.2s;
+}
+
+.manager-buttons button:hover {
+  background: #156ebd;
+}
+
+#calculate-pay {
+  background: #4caf50;
+}
+
+#calculate-pay:hover {
+  background: #45a049;
+}
+
+/* EMPLOYEE GRID */
+#employee-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 25px;
+  padding: 20px 25px;
+}
+
+/* EMPLOYEE CARD */
+.employee {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.employee:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.employee img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+/* TEXT DETAILS */
+.employee-details {
+  padding: 15px;
+}
+
+.status {
+  font-weight: 600;
+  color: #1e9e45;
+  margin: 5px 0;
+}
+
+.out {
+  color: red;
+}
+
+.name {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 5px 0;
+}
+
+.role {
+  margin-top: 2px;
+  color: #555;
+  font-size: 14px;
+}
+
+.pay-per-hour {
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4caf50;
+  padding-top: 5px;
+  border-top: 1px solid #f0f0f0;
+}
+
+/* MODALS */
+.edit-modal,
+.remove-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.edit-modal.hidden,
+.remove-modal.hidden {
+  display: none;
+}
+
+.edit-modal .modal-content,
+.remove-modal .modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  width: 90%;
+}
+
+.edit-modal h2,
+.remove-modal h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #1a1a1a;
+}
+
+.edit-modal p,
+.remove-modal p {
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: #1e88e5;
+  box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.2);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.modal-buttons button {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.cancel-edit-btn,
+.cancel-remove-btn {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.cancel-edit-btn:hover,
+.cancel-remove-btn:hover {
+  background: #d0d0d0;
+}
+
+.save-edit-btn {
+  background: #4caf50;
+  color: white;
+}
+
+.save-edit-btn:hover {
+  background: #45a049;
+}
+
+.confirm-remove-btn {
+  background: #f44336;
+  color: white;
+}
+
+.confirm-remove-btn:hover {
+  background: #da190b;
+}

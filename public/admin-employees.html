@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="styles/admin-employees.css" />
+    <link rel="stylesheet" href="styles/hdepointage.css" />
+    <title>Fierbout\employess</title>
+  </head>
+  <body>
+    <nav>
+      <span id="compagny-name">Fierbout</span>
+      <img src="imgs/pointer.png" alt="" id="pointage" />
+      <span>Sign out</span>
+    </nav>
+
+    <main class="employee-manager">
+      <section id="manager">
+        <section id="search">
+          <input type="text" id="search-input" placeholder="name" />
+          <button>Working today</button>
+        </section>
+        <div class="manager-buttons">
+          <button id="add">Add employee</button>
+          <button id="calculate-pay" class="calculate-pay-nav">
+            Calculate Pay
+          </button>
+        </div>
+      </section>
+
+      <div id="employee-container">
+        <div class="employee" id="078853">
+          <img src="imgs/078853.png" alt="employee" />
+          <div class="employee-details">
+            <p class="status">Is working</p>
+            <p class="name">Rodarly Perilus</p>
+            <p class="role">Manager</p>
+          </div>
+        </div>
+
+        <div class="employee" id="12345">
+          <img src="imgs/12345.png" alt="employee" />
+          <div class="employee-details">
+            <p class="status">Is working</p>
+            <p class="name">Sarah Perilus</p>
+            <p class="role">Executif officer</p>
+          </div>
+        </div>
+
+        <div class="employee" id="07873">
+          <img src="imgs/07873.png" alt="employee" />
+          <div class="employee-details">
+            <p class="status">Is working</p>
+            <p class="name">Random</p>
+            <p class="role">Director</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div class="card-container">
+      <div class="employee-card" aria-controls="078853" hidden>
+        <!-- Top Section: Employee Info -->
+        <div class="employee-header">
+          <img src="imgs/078853.png" alt="Employee photo" />
+
+          <div class="employee-info">
+            <div class="id-container">
+              <span class="show-id"><u class="hide-show">Show id</u></span>
+              <span class="id">078853</span>
+            </div>
+            <p class="employee-name">Rodarly Perilus</p>
+            <p class="employee-role">Manager</p>
+            <p class="employee-more">
+              Is a full time math teacher working in 6th and 11th grade
+            </p>
+          </div>
+
+          <div class="employee-actions">
+            <!-- Action Buttons -->
+            <button class="edit-button">Edit</button>
+            <button class="remove-button">Remove</button>
+          </div>
+        </div>
+
+        <!-- Historique Container -->
+        <div class="history-section">
+          <p class="title">Historique de Pointage</p>
+
+          <!-- Filters -->
+          <div class="filter-bar">
+            <label for="filter-by-year">Year</label>
+            <select id="filter-by-year">
+              <!-- Filled years -->
+              <option value="2025">2025</option>
+              <option value="2024">2024</option>
+              <option value="2023">2023</option>
+              <option value="2022">2022</option>
+            </select>
+
+            <label for="filter-by-month">Month</label>
+            <select id="filter-by-month">
+              <!-- Filled months -->
+              <option value="01">January</option>
+              <option value="02">February</option>
+              <option value="03">March</option>
+              <option value="04">April</option>
+              <option value="05">May</option>
+              <option value="06">June</option>
+              <option value="07">July</option>
+              <option value="08">August</option>
+              <option value="09">September</option>
+              <option value="10">October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select>
+            <button class="modifier-button">&#9998; Modifier Pointage</button>
+          </div>
+
+          <!-- Table Container -->
+          <div class="history-table">
+            <!-- Table Header -->
+            <div class="table-header">
+              <p>Date</p>
+              <p>Entrer</p>
+              <p>Sorti</p>
+            </div>
+
+            <!-- Table Rows -->
+            <div class="table-row">
+              <p>12/5/2025</p>
+              <p>8:15 AM</p>
+              <p>5:01 PM</p>
+            </div>
+
+            <div class="table-row">
+              <p>12/4/2025</p>
+              <p>8:15 AM</p>
+              <p>5:00 PM</p>
+            </div>
+
+            <div class="table-row">
+              <p>12/3/2025</p>
+              <p>8:00 AM</p>
+              <p>4:55 PM</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="employee-card" aria-controls="12345" hidden>
+        <!-- Top Section: Employee Info -->
+        <div class="employee-header">
+          <img src="imgs/078853.png" alt="Employee photo" />
+
+          <div class="employee-info">
+            <div class="id-container">
+              <span class="show-id"><u>Show id</u></span>
+              <span class="id">078853</span>
+            </div>
+            <p class="employee-name">Sarah Perilus</p>
+            <p class="employee-role">Manager</p>
+            <p class="employee-more">
+              Is a full time math teacher working in 6th and 11th grade
+            </p>
+          </div>
+
+          <div class="employee-actions">
+            <!-- Action Buttons -->
+            <button class="edit-button">Edit</button>
+            <button class="remove-button">Remove</button>
+          </div>
+        </div>
+
+        <!-- Historique Container -->
+        <div class="history-section" aria-controls="12345">
+          <p class="title">Historique de Pointage</p>
+
+          <!-- Filters -->
+          <div class="filter-bar">
+            <label for="filter-by-year">Year</label>
+            <select id="filter-by-year">
+              <!-- Filled years -->
+              <option value="2025">2025</option>
+              <option value="2024">2024</option>
+              <option value="2023">2023</option>
+              <option value="2022">2022</option>
+            </select>
+
+            <label for="filter-by-month">Month</label>
+            <select id="filter-by-month">
+              <!-- Filled months -->
+              <option value="01">January</option>
+              <option value="02">February</option>
+              <option value="03">March</option>
+              <option value="04">April</option>
+              <option value="05">May</option>
+              <option value="06">June</option>
+              <option value="07">July</option>
+              <option value="08">August</option>
+              <option value="09">September</option>
+              <option value="10">October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select>
+            <button class="modifier-button">&#9998; Modifier Pointage</button>
+          </div>
+
+          <!-- Table Container -->
+          <div class="history-table" aria-owns="12345">
+            <!-- Table Header -->
+            <div class="table-header">
+              <p>Date</p>
+              <p>Entrer</p>
+              <p>Sorti</p>
+            </div>
+
+            <!-- Table Rows -->
+            <div class="table-row">
+              <p>12/5/2025</p>
+              <p>8:15 AM</p>
+              <p>5:01 PM</p>
+            </div>
+
+            <div class="table-row">
+              <p>12/4/2025</p>
+              <p>8:15 AM</p>
+              <p>5:00 PM</p>
+            </div>
+
+            <div class="table-row">
+              <p>12/3/2025</p>
+              <p>8:00 AM</p>
+              <p>4:55 PM</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="employee-card" aria-controls="07873" hidden>
+        <!-- Top Section: Employee Info -->
+        <div class="employee-header">
+          <img src="imgs/078853.png" alt="Employee photo" />
+
+          <div class="employee-info">
+            <div class="id-container">
+              <span class="show-id"><u>Show id</u></span>
+              <span class="id">078853</span>
+            </div>
+            <p class="employee-name">Random</p>
+            <p class="employee-role">Manager</p>
+            <p class="employee-more">
+              Is a full time math teacher working in 6th and 11th grade
+            </p>
+          </div>
+
+          <div class="employee-actions">
+            <!-- Action Buttons -->
+            <button class="edit-button">Edit</button>
+            <button class="remove-button">Remove</button>
+          </div>
+        </div>
+
+        <!-- Historique Container -->
+        <div class="history-section" aria-controls="07873">
+          <p class="title">Historique de Pointage</p>
+
+          <!-- Filters -->
+          <div class="filter-bar">
+            <label for="filter-by-year">Year</label>
+            <select id="filter-by-year">
+              <!-- Filled years -->
+              <option value="2025">2025</option>
+              <option value="2024">2024</option>
+              <option value="2023">2023</option>
+              <option value="2022">2022</option>
+            </select>
+
+            <label for="filter-by-month">Month</label>
+            <select id="filter-by-month">
+              <!-- Filled months -->
+              <option value="01">January</option>
+              <option value="02">February</option>
+              <option value="03">March</option>
+              <option value="04">April</option>
+              <option value="05">May</option>
+              <option value="06">June</option>
+              <option value="07">July</option>
+              <option value="08">August</option>
+              <option value="09">September</option>
+              <option value="10">October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select>
+            <button class="modifier-button">&#9998; Modifier Pointage</button>
+          </div>
+
+          <!-- Table Container -->
+          <div class="history-table" aria-owns="07873">
+            <!-- Table Header -->
+            <div class="table-header">
+              <p>Date</p>
+              <p>Entrer</p>
+              <p>Sorti</p>
+            </div>
+
+            <!-- Table Rows -->
+            <div class="table-row">
+              <p>12/5/2025</p>
+              <p>8:15 AM</p>
+              <p>5:01 PM</p>
+            </div>
+
+            <div class="table-row">
+              <p>12/4/2025</p>
+              <p>8:15 AM</p>
+              <p>5:00 PM</p>
+            </div>
+
+            <div class="table-row">
+              <p>12/3/2025</p>
+              <p>8:00 AM</p>
+              <p>4:55 PM</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EDIT EMPLOYEE MODAL -->
+    <div class="edit-modal hidden">
+      <div class="modal-content">
+        <h2>Edit Employee</h2>
+        <div class="edit-form">
+          <div class="form-group">
+            <label>Profile Picture</label>
+            <div class="edit-image-upload-section">
+              <img
+                id="edit-image-preview"
+                src=""
+                alt="Employee preview"
+                style="
+                  width: 100px;
+                  height: 100px;
+                  border-radius: 8px;
+                  object-fit: cover;
+                  margin-bottom: 10px;
+                "
+              />
+              <input
+                type="file"
+                id="edit-image-input"
+                accept="image/*"
+                style="display: none"
+              />
+              <button
+                type="button"
+                class="edit-upload-image-btn"
+                style="
+                  padding: 8px 16px;
+                  background: #2196f3;
+                  color: white;
+                  border: none;
+                  border-radius: 4px;
+                  cursor: pointer;
+                "
+              >
+                Upload New Picture
+              </button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>ID</label>
+            <div class="id-display-section">
+              <span
+                id="edit-id-display"
+                style="
+                  font-weight: bold;
+                  padding: 8px;
+                  background: #f0f0f0;
+                  border-radius: 4px;
+                  display: inline-block;
+                  min-width: 100px;
+                "
+              ></span>
+              <button
+                type="button"
+                class="generate-edit-id-btn"
+                style="
+                  margin-left: 10px;
+                  padding: 8px 16px;
+                  background: #4caf50;
+                  color: white;
+                  border: none;
+                  border-radius: 4px;
+                  cursor: pointer;
+                "
+              >
+                Generate New ID
+              </button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" id="edit-name" placeholder="Full Name" />
+          </div>
+          <div class="form-group">
+            <label>Role</label>
+            <input type="text" id="edit-role" placeholder="Job Title" />
+          </div>
+          <div class="form-group">
+            <label>Details</label>
+            <textarea
+              id="edit-details"
+              placeholder="Additional details"
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label>Pay Type (Optional)</label>
+            <select id="edit-pay-type">
+              <option value="">No Fixed Pay</option>
+              <option value="hourly">Pay Per Hour</option>
+              <option value="weekly">Pay Per Week</option>
+              <option value="monthly">Pay Per Month</option>
+            </select>
+          </div>
+          <div
+            class="form-group"
+            id="edit-pay-amount-field"
+            style="display: none"
+          >
+            <label id="edit-pay-amount-label">Amount (Optional)</label>
+            <input
+              type="number"
+              id="edit-pay-amount"
+              placeholder="e.g., 15.50"
+              step="0.01"
+            />
+          </div>
+          <div class="modal-buttons">
+            <button class="cancel-edit-btn">Cancel</button>
+            <button class="save-edit-btn">Save Changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REMOVE EMPLOYEE MODAL -->
+    <div class="remove-modal hidden">
+      <div class="modal-content">
+        <h2>Confirm Removal</h2>
+        <p id="remove-message">
+          Are you sure you want to remove this employee?
+        </p>
+        <div class="modal-buttons">
+          <button class="cancel-remove-btn">Cancel</button>
+          <button class="confirm-remove-btn">Remove</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="script/admin-employees.js"></script>
+  </body>
+</html>
