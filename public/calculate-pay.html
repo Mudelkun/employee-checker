@@ -1,25 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Calculate Employee Pay</title>
+    <title>Calculer la paie des employés</title>
     <link rel="stylesheet" href="styles/calculate-pay.css" />
   </head>
   <body>
     <nav>
-      <span>Fierbout - Pay Calculator</span>
-      <button class="back-button">← Back</button>
+      <span>Fierbout - Calculatrice de paie</span>
+      <button class="back-button">← Retour</button>
     </nav>
 
     <main>
       <div class="container">
         <!-- Filter Section -->
         <section class="filter-section">
-          <h2>Select Pay Period</h2>
+          <h2>Sélectionner la période de paie</h2>
           <div class="filter-controls">
             <div class="filter-group">
-              <label for="filter-year">Year</label>
+              <label for="filter-year">Année</label>
               <select id="filter-year">
                 <option value="2025">2025</option>
                 <option value="2024">2024</option>
@@ -29,59 +29,59 @@
             </div>
 
             <div class="filter-group">
-              <label for="filter-month">Month</label>
+              <label for="filter-month">Mois</label>
               <select id="filter-month">
-                <option value="">All Months</option>
-                <option value="01">January</option>
-                <option value="02">February</option>
-                <option value="03">March</option>
-                <option value="04">April</option>
-                <option value="05">May</option>
-                <option value="06">June</option>
-                <option value="07">July</option>
-                <option value="08">August</option>
-                <option value="09">September</option>
-                <option value="10">October</option>
-                <option value="11">November</option>
-                <option value="12">December</option>
+                <option value="">Tous les mois</option>
+                <option value="01">Janvier</option>
+                <option value="02">Février</option>
+                <option value="03">Mars</option>
+                <option value="04">Avril</option>
+                <option value="05">Mai</option>
+                <option value="06">Juin</option>
+                <option value="07">Juillet</option>
+                <option value="08">Août</option>
+                <option value="09">Septembre</option>
+                <option value="10">Octobre</option>
+                <option value="11">Novembre</option>
+                <option value="12">Décembre</option>
               </select>
             </div>
 
             <div class="filter-group">
-              <label for="filter-week">Week (Optional)</label>
+              <label for="filter-week">Semaine (Optionnel)</label>
               <select id="filter-week">
-                <option value="">All Weeks</option>
-                <option value="1">Week 1</option>
-                <option value="2">Week 2</option>
-                <option value="3">Week 3</option>
-                <option value="4">Week 4</option>
-                <option value="5">Week 5</option>
+                <option value="">Toutes les semaines</option>
+                <option value="1">Semaine 1</option>
+                <option value="2">Semaine 2</option>
+                <option value="3">Semaine 3</option>
+                <option value="4">Semaine 4</option>
+                <option value="5">Semaine 5</option>
               </select>
             </div>
 
-            <button class="calculate-btn">Calculate</button>
-            <button class="export-csv-btn">📥 Export CSV</button>
+            <button class="calculate-btn">Calculer</button>
+            <button class="export-csv-btn">📥 Exporter CSV</button>
           </div>
         </section>
 
         <!-- Summary Stats Section -->
         <section class="summary-section hidden">
-          <h2>Pay Period Summary</h2>
+          <h2>Résumé de la période de paie</h2>
           <div class="summary-cards">
             <div class="summary-card">
-              <div class="label">Total Employees</div>
+              <div class="label">Total employés</div>
               <div class="value" id="total-employees">0</div>
             </div>
             <div class="summary-card">
-              <div class="label">Total Hours</div>
+              <div class="label">Total heures</div>
               <div class="value" id="total-hours">0</div>
             </div>
             <div class="summary-card">
-              <div class="label">Total Pay</div>
+              <div class="label">Total paie</div>
               <div class="value" id="total-pay">$0.00</div>
             </div>
             <div class="summary-card">
-              <div class="label">Avg Pay/Employee</div>
+              <div class="label">Paie moy/employé</div>
               <div class="value" id="avg-pay">$0.00</div>
             </div>
           </div>
@@ -89,18 +89,20 @@
 
         <!-- Employees Pay Table -->
         <section class="employees-section hidden">
-          <h2>Employee Pay Breakdown</h2>
+          <h2>Détails des salaires des employés</h2>
 
           <div class="table-controls">
             <input
               type="text"
               id="search-employee"
-              placeholder="Search employee..."
+              placeholder="Rechercher un employé..."
             />
             <div class="sort-controls">
-              <button class="sort-btn" data-sort="name">Sort by Name</button>
-              <button class="sort-btn" data-sort="hours">Sort by Hours</button>
-              <button class="sort-btn" data-sort="pay">Sort by Pay</button>
+              <button class="sort-btn" data-sort="name">Trier par nom</button>
+              <button class="sort-btn" data-sort="hours">
+                Trier par heures
+              </button>
+              <button class="sort-btn" data-sort="pay">Trier par paie</button>
             </div>
           </div>
 
@@ -108,13 +110,13 @@
             <table class="employees-table">
               <thead>
                 <tr>
-                  <th>Employee</th>
+                  <th>Employé</th>
                   <th>ID</th>
-                  <th>Pay/Hour</th>
-                  <th>Days Worked</th>
-                  <th>Total Hours</th>
-                  <th>Total Pay</th>
-                  <th>Details</th>
+                  <th>Paie/Heure</th>
+                  <th>Jours travaillés</th>
+                  <th>Total heures</th>
+                  <th>Total paie</th>
+                  <th>Détails</th>
                 </tr>
               </thead>
               <tbody id="employees-tbody">
@@ -129,7 +131,7 @@
           <div class="modal-content">
             <button class="close-btn">✕</button>
             <div class="modal-header">
-              <img id="modal-emp-image" src="" alt="Employee" />
+              <img id="modal-emp-image" src="" alt="Employé" />
               <div class="modal-employee-info">
                 <h2 id="modal-emp-name"></h2>
                 <p id="modal-emp-role"></p>
@@ -139,29 +141,29 @@
 
             <div class="modal-body">
               <div class="info-section">
-                <h3>Pay Summary</h3>
+                <h3>Résumé de la paie</h3>
                 <div class="info-grid">
                   <div class="info-item">
-                    <span class="label">Pay Per Hour:</span>
+                    <span class="label">Paie par heure:</span>
                     <span class="value" id="modal-pay-per-hour">N/A</span>
                   </div>
                   <div class="info-item">
-                    <span class="label">Total Hours:</span>
+                    <span class="label">Total heures:</span>
                     <span class="value" id="modal-total-hours">0</span>
                   </div>
                   <div class="info-item">
-                    <span class="label">Total Pay:</span>
+                    <span class="label">Total paie:</span>
                     <span class="value" id="modal-total-pay">$0.00</span>
                   </div>
                   <div class="info-item">
-                    <span class="label">Days Worked:</span>
+                    <span class="label">Jours travaillés:</span>
                     <span class="value" id="modal-days-worked">0</span>
                   </div>
                 </div>
               </div>
 
               <div class="info-section">
-                <h3>Daily Breakdown</h3>
+                <h3>Détails quotidiens</h3>
                 <div class="daily-breakdown" id="modal-daily-breakdown">
                   <!-- Populated by JavaScript -->
                 </div>
@@ -169,14 +171,15 @@
             </div>
 
             <div class="modal-footer">
-              <button class="close-modal-btn">Close</button>
-              <button class="print-btn">🖨️ Print</button>
+              <button class="close-modal-btn">Fermer</button>
+              <button class="print-btn">🖨️ Imprimer</button>
             </div>
           </div>
         </div>
       </div>
     </main>
 
+    <script src="script/data-monitor.js"></script>
     <script src="script/calculate-pay.js"></script>
   </body>
 </html>

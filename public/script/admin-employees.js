@@ -10,6 +10,15 @@ async function loadEmployees() {
 // Store employees globally for filtering
 let globalEmployees = [];
 
+// Performance optimization: debounce helper function
+function debounce(func, delay) {
+  let timeoutId;
+  return function (...args) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func.apply(this, args), delay);
+  };
+}
+
 // Containers
 const emp_container = document.getElementById("employee-container");
 const card_container = document.querySelector(".card-container");
@@ -63,10 +72,13 @@ function get_emp_history(emp, year = null, month = null) {
 }
 
 // Helper function to convert time string to minutes for sorting
+// Performance optimization: cache regex pattern
+const timeRegexPattern = /(\d+):(\d+)\s(AM|PM)/i;
+
 function parseTimeToMinutes(timeStr) {
   if (!timeStr || timeStr.trim() === "") return 0;
 
-  const parts = timeStr.match(/(\d+):(\d+)\s(AM|PM)/i);
+  const parts = timeStr.match(timeRegexPattern);
   if (!parts) return 0;
 
   let hours = parseInt(parts[1]);
@@ -90,17 +102,17 @@ function buildUI(employes) {
   employes.forEach((emp) => {
     // Determine if employee is working today
     const isWorking = emp.estEntrer === true && emp.estSorti === false;
-    const statusText = isWorking ? "Is working" : "Out";
+    const statusText = isWorking ? "En train de travailler" : "Absent";
     const statusClass = isWorking ? "" : "out";
 
     // Format pay display based on pay type
-    let payDisplay = "No pay rate";
+    let payDisplay = "Aucun taux horaire";
     if (emp.payType === "hourly" && emp.payAmount) {
-      payDisplay = `$${emp.payAmount.toFixed(2)}/hr`;
+      payDisplay = `$${emp.payAmount.toFixed(2)}/h`;
     } else if (emp.payType === "weekly" && emp.payAmount) {
-      payDisplay = `$${emp.payAmount.toFixed(2)}/week`;
+      payDisplay = `$${emp.payAmount.toFixed(2)}/sem`;
     } else if (emp.payType === "monthly" && emp.payAmount) {
-      payDisplay = `$${emp.payAmount.toFixed(2)}/month`;
+      payDisplay = `$${emp.payAmount.toFixed(2)}/mois`;
     }
 
     arr_emp.push(`
@@ -118,13 +130,13 @@ function buildUI(employes) {
     `);
 
     // Format pay display for card
-    let cardPayDisplay = "Pay rate: Not set";
+    let cardPayDisplay = "Taux de paie: Non défini";
     if (emp.payType === "hourly" && emp.payAmount) {
-      cardPayDisplay = `Pay: $${emp.payAmount.toFixed(2)}/hr`;
+      cardPayDisplay = `Salaire: $${emp.payAmount.toFixed(2)}/h`;
     } else if (emp.payType === "weekly" && emp.payAmount) {
-      cardPayDisplay = `Pay: $${emp.payAmount.toFixed(2)}/week`;
+      cardPayDisplay = `Salaire: $${emp.payAmount.toFixed(2)}/sem`;
     } else if (emp.payType === "monthly" && emp.payAmount) {
-      cardPayDisplay = `Pay: $${emp.payAmount.toFixed(2)}/month`;
+      cardPayDisplay = `Salaire: $${emp.payAmount.toFixed(2)}/mois`;
     }
 
     employee_card.push(`
@@ -145,8 +157,8 @@ function buildUI(employes) {
           </div>
 
           <div class="employee-actions">
-            <button class="edit-button">Edit</button>
-            <button class="remove-button">Remove</button>
+            <button class="edit-button">Modifier</button>
+            <button class="remove-button">Supprimer</button>
           </div>
         </div>
 
@@ -154,7 +166,7 @@ function buildUI(employes) {
           <p class="title">Historique de Pointage</p>
 
           <div class="filter-bar">
-            <label for="filter-by-year">Year</label>
+            <label for="filter-by-year">Année</label>
             <select id="filter-by-year">
               <option value="2025">2025</option>
               <option value="2024">2024</option>
@@ -162,20 +174,20 @@ function buildUI(employes) {
               <option value="2022">2022</option>
             </select>
 
-            <label for="filter-by-month">Month</label>
+            <label for="filter-by-month">Mois</label>
             <select id="filter-by-month">
-              <option value="01">January</option>
-              <option value="02">February</option>
-              <option value="03">March</option>
-              <option value="04">April</option>
-              <option value="05">May</option>
-              <option value="06">June</option>
-              <option value="07">July</option>
-              <option value="08">August</option>
-              <option value="09">September</option>
-              <option value="10">October</option>
-              <option value="11">November</option>
-              <option value="12">December</option>
+              <option value="01">Janvier</option>
+              <option value="02">Février</option>
+              <option value="03">Mars</option>
+              <option value="04">Avril</option>
+              <option value="05">Mai</option>
+              <option value="06">Juin</option>
+              <option value="07">Juillet</option>
+              <option value="08">Août</option>
+              <option value="09">Septembre</option>
+              <option value="10">Octobre</option>
+              <option value="11">Novembre</option>
+              <option value="12">Décembre</option>
             </select>
 
             <button class="modifier-button">&#9998; Modifier Pointage</button>
@@ -184,8 +196,8 @@ function buildUI(employes) {
           <div class="history-table">
             <div class="table-header">
               <p>Date</p>
-              <p>Entrer</p>
-              <p>Sorti</p>
+              <p>Entrée</p>
+              <p>Sortie</p>
             </div>
             ${get_emp_history(emp)}
           </div>
@@ -289,7 +301,7 @@ const go_pointage = document.querySelector("#pointage");
 const add = document.getElementById("add");
 
 go_pointage.addEventListener("click", () => {
-  window.open("http://localhost:3000/index.html");
+  window.open("/index.html");
 });
 
 // ---------------------- EDIT/MODIFY POINTAGE FUNCTIONALITY ----------------------
@@ -297,6 +309,8 @@ function toggleEditMode(card, empData, historyTable) {
   const tableRows = historyTable.querySelectorAll(".table-row");
   const modifierBtn = card.querySelector(".modifier-button");
   const isEditMode = modifierBtn.classList.contains("edit-mode");
+  // Performance optimization: cache regex for time validation
+  const timeRegex = /^(0?[1-9]|1[0-2]):[0-5][0-9]\s(AM|PM)$/i;
 
   if (!isEditMode) {
     // Enter edit mode
@@ -329,7 +343,6 @@ function toggleEditMode(card, empData, historyTable) {
     modifierBtn.style.backgroundColor = "";
 
     const modifiedEntries = [];
-    const timeRegex = /^(0?[1-9]|1[0-2]):[0-5][0-9]\s(AM|PM)$/i;
 
     tableRows.forEach((row) => {
       const cells = row.querySelectorAll("p");
@@ -356,7 +369,7 @@ function toggleEditMode(card, empData, historyTable) {
       if (entrerInput && entrerInput.value.trim() !== "") {
         if (!timeRegex.test(entrerInput.value)) {
           alert(
-            `Invalid time format: "${entrerInput.value}". Please use format: HH:MM AM/PM (e.g., 8:15 AM)`
+            `Format d'heure invalide: "${entrerInput.value}". Veuillez utiliser le format: HH:MM AM/PM (ex: 8:15 AM)`
           );
           return;
         }
@@ -368,7 +381,7 @@ function toggleEditMode(card, empData, historyTable) {
       if (sortiInput && sortiInput.value.trim() !== "") {
         if (!timeRegex.test(sortiInput.value)) {
           alert(
-            `Invalid time format: "${sortiInput.value}". Please use format: HH:MM AM/PM (e.g., 5:30 PM)`
+            `Format d'heure invalide: "${sortiInput.value}". Veuillez utiliser le format: HH:MM AM/PM (ex: 5:30 PM)`
           );
           return;
         }
@@ -431,10 +444,10 @@ async function saveEmployeeChanges(empData) {
 
     const data = await res.json();
     console.log("Employee updated:", data);
-    alert("Pointage modifications saved successfully!");
+    alert("Les modifications de pointage ont été enregistrées avec succès!");
   } catch (err) {
     console.error("Failed to save employee:", err);
-    alert(`Failed to save modifications: ${err.message}`);
+    alert(`Échec de l'enregistrement des modifications: ${err.message}`);
   }
 }
 
@@ -481,10 +494,12 @@ function showAllEmployees() {
   });
 }
 
-// Attach search input listener
-searchInput.addEventListener("input", (e) => {
+// Attach search input listener with debouncing for performance
+const debouncedSearch = debounce((e) => {
   filterEmployeesBySearch(e.target.value);
-});
+}, 300);
+
+searchInput.addEventListener("input", debouncedSearch);
 
 // Attach working today button listener
 const workingTodayBtn = document.querySelector("#search button");
@@ -598,13 +613,13 @@ function openEditModal(empData) {
 
     // Validate file type
     if (!file.type.startsWith("image/")) {
-      alert("Please upload an image file.");
+      alert("Veuillez télécharger un fichier image.");
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert("Image size must be less than 5MB.");
+      alert("La taille de l'image doit être inférieure à 5 Mo.");
       return;
     }
 
@@ -612,10 +627,10 @@ function openEditModal(empData) {
       newImageForSave = await fileToBase64(file);
       // Update preview
       editImagePreview.src = newImageForSave;
-      editUploadImageBtn.textContent = "Image uploaded ✓";
+      editUploadImageBtn.textContent = "Image téléchargée ✓";
     } catch (err) {
       console.error("Error reading file:", err);
-      alert("Failed to read image file.");
+      alert("Échec de la lecture du fichier image.");
     }
   };
 
@@ -640,7 +655,7 @@ function openEditModal(empData) {
     const newDetails = editDetailsInput.value.trim();
 
     if (!newName || !newRole || !newDetails) {
-      alert("All fields (Name, Role, Details) are required!");
+      alert("Tous les champs (Nom, Poste, Détails) sont obligatoires!");
       return;
     }
 
@@ -715,14 +730,14 @@ function openEditModal(empData) {
 
       const data = await res.json();
       console.log("Employee updated:", data);
-      alert("Employee information updated successfully!");
+      alert("Les informations de l'employé ont été mises à jour avec succès!");
       editModal.classList.add("hidden");
 
       // Rebuild UI with updated employees
       buildUI(globalEmployees);
     } catch (err) {
       console.error("Failed to update employee:", err);
-      alert(`Failed to update employee: ${err.message}`);
+      alert(`Échec de la mise à jour de l'employé: ${err.message}`);
     }
   };
 }
@@ -734,7 +749,7 @@ function openRemoveModal(empData, card, manager) {
   const confirmRemoveBtn = document.querySelector(".confirm-remove-btn");
   const cancelRemoveBtn = document.querySelector(".cancel-remove-btn");
 
-  removeMessage.textContent = `Are you sure you want to remove "${empData.name}" from the system? This action cannot be undone.`;
+  removeMessage.textContent = `Êtes-vous sûr de vouloir supprimer "${empData.name}" du système? Cette action ne peut pas être annulée.`;
   removeModal.classList.remove("hidden");
 
   // Cancel button
@@ -755,7 +770,7 @@ function openRemoveModal(empData, card, manager) {
       }
 
       console.log("Employee deleted:", empData.id);
-      alert(`${empData.name} has been successfully removed!`);
+      alert(`${empData.name} a été supprimé avec succès!`);
 
       removeModal.classList.add("hidden");
 
@@ -773,11 +788,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const calculatePayBtn = document.getElementById("calculate-pay");
 
   add.addEventListener("click", () => {
-    window.location.href = "http://localhost:3000/public/create_emp.html";
+    window.location.href = "/create_emp.html";
   });
 
   calculatePayBtn.addEventListener("click", () => {
-    window.location.href = "http://localhost:3000/calculate-pay.html";
+    window.location.href = "/calculate-pay.html";
   });
 
   const employees = await loadEmployees();

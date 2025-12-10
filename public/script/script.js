@@ -6,7 +6,6 @@ let employes = [];
 async function loadEmployees() {
   const res = await fetch("http://localhost:3000/employees");
   employes = await res.json();
-  console.log("Loaded employees from server:", employes);
 }
 
 loadEmployees();

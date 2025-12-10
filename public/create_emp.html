@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Fierbout/add-employee</title>
+    <title>Fierbout/ajouter-employé</title>
     <link rel="stylesheet" href="styles/create_emp.css" />
   </head>
   <body>
@@ -11,92 +11,93 @@
       <span>Fierbout</span>
       <button
         class="back-button"
-        onclick="window.location.href='http://localhost:3000/public/admin-employees.html'"
+        onclick="window.location.href='/admin-employees.html'"
       >
-        ← Back
+        ← Retour
       </button>
-      <span>Sign out</span>
+      <span>Se déconnecter</span>
     </nav>
     <div class="employee-confirmed">
       <img src="imgs/confirmed.webp" alt="" />
       <p class="emp-name">Rodarly perilus</p>
-      <p class="congrats">was successfully added to your employee list</p>
+      <p class="congrats">a été ajouté avec succès à votre liste d'employés</p>
     </div>
     <section class="add-employee">
       <!-- Upload image -->
       <div class="upload-box" id="upload-box">
         <img
           src="imgs/upload-icon-png-7.jpg"
-          alt="upload image"
+          alt="télécharger l'image"
           id="preview-or-icon"
         />
-        <p id="upload-text">Upload Image</p>
+        <p id="upload-text">Télécharger l'image</p>
         <input type="file" id="image-input" accept="image/*" hidden />
       </div>
 
       <!-- Form Container -->
       <div class="form-grid">
         <div class="field">
-          <label>First Name</label>
+          <label>Prénom</label>
           <input type="text" id="first-name" />
         </div>
 
         <div class="field">
-          <label>Last Name</label>
+          <label>Nom de famille</label>
           <input type="text" id="last-name" />
         </div>
 
-        <button class="generate-id">Generate ID</button>
+        <button class="generate-id">Générer un ID</button>
 
         <p class="id">ID: <span></span></p>
 
         <div class="field">
-          <label>Role</label>
+          <label>Poste</label>
           <input type="text" id="role" />
         </div>
 
         <div class="field">
-          <label>Details</label>
+          <label>Détails</label>
           <input type="text" id="additional-details" />
         </div>
 
         <div class="field">
-          <label>Pay Type (Optional)</label>
+          <label>Type de salaire (Optionnel)</label>
           <select id="pay-type">
-            <option value="">No Fixed Pay</option>
-            <option value="hourly">Pay Per Hour</option>
-            <option value="weekly">Pay Per Week</option>
-            <option value="monthly">Pay Per Month</option>
+            <option value="">Pas de salaire fixe</option>
+            <option value="hourly">Salaire horaire</option>
+            <option value="weekly">Salaire hebdomadaire</option>
+            <option value="monthly">Salaire mensuel</option>
           </select>
         </div>
 
         <div class="field" id="pay-amount-field" style="display: none">
-          <label id="pay-amount-label">Amount (Optional)</label>
+          <label id="pay-amount-label">Montant (Optionnel)</label>
           <input
             type="number"
             id="pay-amount"
-            placeholder="e.g., 15.50"
+            placeholder="ex: 15.50"
             step="0.01"
           />
         </div>
 
-        <button class="confirme-button">Confirme</button>
+        <button class="confirme-button">Confirmer</button>
       </div>
     </section>
 
     <!-- Confirmation Modal -->
     <div class="confirm-modal hidden">
       <div class="modal-content">
-        <h2>Confirm Employee Information</h2>
+        <h2>Confirmer les informations de l'employé</h2>
         <p class="modal-message"></p>
 
         <div class="modal-buttons">
-          <button class="cancel-modal">Cancel</button>
-          <button class="final-confirm">Confirm</button>
+          <button class="cancel-modal">Annuler</button>
+          <button class="final-confirm">Confirmer</button>
         </div>
       </div>
     </div>
 
+    <script src="script/data-monitor.js"></script>
     <script src="script/create_emp.js"></script>
   </body>
 </html>

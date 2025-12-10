@@ -3,6 +3,15 @@ let allEmployees = [];
 let filteredData = [];
 let currentSort = null;
 
+// Performance optimization: debounce helper function
+function debounce(func, delay) {
+  let timeoutId;
+  return function (...args) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func.apply(this, args), delay);
+  };
+}
+
 // DOM elements
 const filterYearSelect = document.getElementById("filter-year");
 const filterMonthSelect = document.getElementById("filter-month");
@@ -25,10 +34,10 @@ async function loadEmployees() {
   try {
     const res = await fetch("http://localhost:3000/employees");
     allEmployees = await res.json();
-    console.log("Employees loaded:", allEmployees);
+    console.log("Employés chargés:", allEmployees);
   } catch (err) {
-    console.error("Failed to load employees:", err);
-    alert("Failed to load employee data");
+    console.error("Échec du chargement des employés:", err);
+    alert("Échec du chargement des données des employés");
   }
 }
 
@@ -83,6 +92,7 @@ function calculatePay() {
     let totalHours = 0;
     let daysWorked = 0;
     const dayBreakdown = [];
+    const uniqueDates = new Set(); // Track unique dates for accurate day count
 
     employee.hdePointage.forEach((record) => {
       const [recordMonth, recordDay, recordYear] = record.date.split("/");
@@ -100,7 +110,9 @@ function calculatePay() {
       if (record.entrer && record.sorti) {
         const hours = calculateHours(record.entrer, record.sorti);
         totalHours += hours;
-        daysWorked++;
+
+        // Count unique dates only
+        uniqueDates.add(record.date);
 
         // Calculate daily pay based on pay type
         let dailyPay = 0;
@@ -123,6 +135,9 @@ function calculatePay() {
         });
       }
     });
+
+    // Set daysWorked based on unique dates
+    daysWorked = uniqueDates.size;
 
     if (daysWorked > 0 || totalHours > 0) {
       let totalPay = 0;
@@ -191,11 +206,11 @@ function populateTable(dataToDisplay = filteredData) {
     // Format pay display based on pay type
     let payDisplay = "N/A";
     if (emp.payType === "hourly") {
-      payDisplay = `$${emp.payAmount.toFixed(2)}/hr`;
+      payDisplay = `$${emp.payAmount.toFixed(2)}/h`;
     } else if (emp.payType === "weekly") {
-      payDisplay = `$${emp.payAmount.toFixed(2)}/week`;
+      payDisplay = `$${emp.payAmount.toFixed(2)}/sem`;
     } else if (emp.payType === "monthly") {
-      payDisplay = `$${emp.payAmount.toFixed(2)}/month`;
+      payDisplay = `$${emp.payAmount.toFixed(2)}/mois`;
     }
 
     const row = document.createElement("tr");
@@ -209,7 +224,7 @@ function populateTable(dataToDisplay = filteredData) {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       })}</strong></td>
-      <td><button class="details-btn">View Details</button></td>
+      <td><button class="details-btn">Voir les détails</button></td>
     `;
 
     row.querySelector(".details-btn").addEventListener("click", () => {
@@ -225,11 +240,11 @@ function openEmployeeModal(emp) {
   // Format pay display based on pay type
   let payDisplay = "N/A";
   if (emp.payType === "hourly") {
-    payDisplay = `$${emp.payAmount.toFixed(2)}/hr`;
+    payDisplay = `$${emp.payAmount.toFixed(2)}/h`;
   } else if (emp.payType === "weekly") {
-    payDisplay = `$${emp.payAmount.toFixed(2)}/week`;
+    payDisplay = `$${emp.payAmount.toFixed(2)}/sem`;
   } else if (emp.payType === "monthly") {
-    payDisplay = `$${emp.payAmount.toFixed(2)}/month`;
+    payDisplay = `$${emp.payAmount.toFixed(2)}/mois`;
   }
 
   document.getElementById("modal-emp-name").textContent = emp.name;
@@ -249,36 +264,50 @@ function openEmployeeModal(emp) {
   })}`;
   document.getElementById("modal-days-worked").textContent = emp.daysWorked;
 
-  // Populate daily breakdown
+  // Populate daily breakdown as a structured table
   const dailyBreakdownDiv = document.getElementById("modal-daily-breakdown");
   dailyBreakdownDiv.innerHTML = "";
 
-  emp.dayBreakdown.forEach((day) => {
-    const dayDiv = document.createElement("div");
-    dayDiv.className = "daily-entry";
-    dayDiv.innerHTML = `
-      <div class="daily-entry-item">
-        <span class="label">Date</span>
-        <span class="value">${day.date}</span>
-      </div>
-      <div class="daily-entry-item">
-        <span class="label">In - Out</span>
-        <span class="value">${day.entrer} - ${day.sorti}</span>
-      </div>
-      <div class="daily-entry-item">
-        <span class="label">Hours</span>
-        <span class="value">${day.hours}h</span>
-      </div>
-      <div class="daily-entry-item">
-        <span class="label">Daily Pay</span>
-        <span class="value">$${parseFloat(day.dailyPay).toLocaleString(
-          "en-US",
-          { minimumFractionDigits: 2, maximumFractionDigits: 2 }
-        )}</span>
-      </div>
-    `;
-    dailyBreakdownDiv.appendChild(dayDiv);
+  // Sort dates in descending order (newest first)
+  const sortedDays = [...emp.dayBreakdown].sort((a, b) => {
+    const dateA = new Date(a.date.split("/").reverse().join("-"));
+    const dateB = new Date(b.date.split("/").reverse().join("-"));
+    return dateB - dateA;
   });
+
+  // Create structured table
+  const table = document.createElement("table");
+  table.className = "daily-breakdown-table";
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Entrée</th>
+        <th>Sortie</th>
+        <th>Heures</th>
+        <th>Paie</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${sortedDays
+        .map(
+          (day) => `
+        <tr>
+          <td class="date-cell">${day.date}</td>
+          <td class="time-cell">${day.entrer}</td>
+          <td class="time-cell">${day.sorti}</td>
+          <td class="hours-cell">${day.hours}h</td>
+          <td class="pay-cell">$${parseFloat(day.dailyPay).toLocaleString(
+            "en-US",
+            { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+          )}</td>
+        </tr>
+      `
+        )
+        .join("")}
+    </tbody>
+  `;
+  dailyBreakdownDiv.appendChild(table);
 
   modal.classList.remove("hidden");
 }
@@ -322,43 +351,44 @@ function sortEmployees(sortBy) {
 // Export to CSV
 function exportToCSV() {
   if (filteredData.length === 0) {
-    alert("No data to export. Please calculate pay first.");
+    alert("Aucune donnée à exporter. Veuillez d'abord calculer la paie.");
     return;
   }
 
   const year = filterYearSelect.value;
-  const month = filterMonthSelect.value || "All";
-  const week = filterWeekSelect.value || "All";
+  const month = filterMonthSelect.value || "Tous";
+  const week = filterWeekSelect.value || "Tous";
 
-  let csv = `Pay Report - Year: ${year}, Month: ${month}, Week: ${week}\n\n`;
-  csv += `Total Employees,${filteredData.length}\n`;
-  csv += `Total Hours,${filteredData
+  let csv = `Rapport de paie - Année: ${year}, Mois: ${month}, Semaine: ${week}\n\n`;
+  csv += `Total employés,${filteredData.length}\n`;
+  csv += `Total heures,${filteredData
     .reduce((sum, emp) => sum + parseFloat(emp.totalHours), 0)
     .toFixed(2)}\n`;
-  csv += `Total Pay,${filteredData
+  csv += `Total paie,${filteredData
     .reduce((sum, emp) => sum + parseFloat(emp.totalPay), 0)
     .toFixed(2)}\n\n`;
 
-  csv += "Employee,ID,Pay Type,Pay Rate,Days Worked,Total Hours,Total Pay\n";
+  csv +=
+    "Employé,ID,Type de paie,Taux de paie,Jours travaillés,Total heures,Total paie\n";
   filteredData.forEach((emp) => {
     let payDisplay = "N/A";
     if (emp.payType === "hourly") {
-      payDisplay = `$${emp.payAmount.toFixed(2)}/hr`;
+      payDisplay = `$${emp.payAmount.toFixed(2)}/h`;
     } else if (emp.payType === "weekly") {
-      payDisplay = `$${emp.payAmount.toFixed(2)}/week`;
+      payDisplay = `$${emp.payAmount.toFixed(2)}/sem`;
     } else if (emp.payType === "monthly") {
-      payDisplay = `$${emp.payAmount.toFixed(2)}/month`;
+      payDisplay = `$${emp.payAmount.toFixed(2)}/mois`;
     }
-    csv += `"${emp.name}",${emp.id},${emp.payType || "None"},${payDisplay},${
+    csv += `"${emp.name}",${emp.id},${emp.payType || "Aucun"},${payDisplay},${
       emp.daysWorked
     },${emp.totalHours},${emp.totalPay}\n`;
   });
 
   // Add daily breakdown for each employee
-  csv += "\n\nDetailed Daily Breakdown\n";
+  csv += "\n\nDétails quotidiens par employé\n";
   filteredData.forEach((emp) => {
     csv += `\n${emp.name} (${emp.id})\n`;
-    csv += `Date,In,Out,Hours,Daily Pay\n`;
+    csv += `Date,Entrée,Sortie,Heures,Paie quotidienne\n`;
     emp.dayBreakdown.forEach((day) => {
       csv += `${day.date},${day.entrer},${day.sorti},${day.hours},${day.dailyPay}\n`;
     });
@@ -370,7 +400,7 @@ function exportToCSV() {
     "href",
     `data:text/csv;charset=utf-8,${encodeURIComponent(csv)}`
   );
-  element.setAttribute("download", `pay-report-${year}-${month}.csv`);
+  element.setAttribute("download", `rapport-paie-${year}-${month}.csv`);
   element.style.display = "none";
   document.body.appendChild(element);
   element.click();
@@ -384,7 +414,7 @@ function printModal() {
   printWindow.document.write(`
     <html>
       <head>
-        <title>Employee Pay Report</title>
+        <title>Rapport de paie des employés</title>
         <style>
           body { font-family: Arial, sans-serif; padding: 20px; }
           .modal-header { background: #667eea; color: white; padding: 20px; border-radius: 8px; }
@@ -410,9 +440,11 @@ function setDefaultYear() {
 calculateBtn.addEventListener("click", calculatePay);
 exportCsvBtn.addEventListener("click", exportToCSV);
 backButton.addEventListener("click", () => {
-  window.history.back();
+  window.location.href = "/admin-employees.html";
 });
-searchEmployee.addEventListener("input", searchEmployees);
+// Performance optimization: debounce search input
+const debouncedSearch = debounce(searchEmployees, 300);
+searchEmployee.addEventListener("input", debouncedSearch);
 sortBtns.forEach((btn) => {
   btn.addEventListener("click", (e) => sortEmployees(e.target.dataset.sort));
 });

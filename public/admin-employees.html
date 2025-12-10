@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,25 +7,25 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="styles/admin-employees.css" />
     <link rel="stylesheet" href="styles/hdepointage.css" />
-    <title>Fierbout\employess</title>
+    <title>Fierbout\employés</title>
   </head>
   <body>
     <nav>
       <span id="compagny-name">Fierbout</span>
       <img src="imgs/pointer.png" alt="" id="pointage" />
-      <span>Sign out</span>
+      <span>Se déconnecter</span>
     </nav>
 
     <main class="employee-manager">
       <section id="manager">
         <section id="search">
-          <input type="text" id="search-input" placeholder="name" />
-          <button>Working today</button>
+          <input type="text" id="search-input" placeholder="nom" />
+          <button>Travaillant aujourd'hui</button>
         </section>
         <div class="manager-buttons">
-          <button id="add">Add employee</button>
+          <button id="add">Ajouter un employé</button>
           <button id="calculate-pay" class="calculate-pay-nav">
-            Calculate Pay
+            Calculer la paie
           </button>
         </div>
       </section>
@@ -34,7 +34,7 @@
         <div class="employee" id="078853">
           <img src="imgs/078853.png" alt="employee" />
           <div class="employee-details">
-            <p class="status">Is working</p>
+            <p class="status">En train de travailler</p>
             <p class="name">Rodarly Perilus</p>
             <p class="role">Manager</p>
           </div>
@@ -43,18 +43,18 @@
         <div class="employee" id="12345">
           <img src="imgs/12345.png" alt="employee" />
           <div class="employee-details">
-            <p class="status">Is working</p>
+            <p class="status">En train de travailler</p>
             <p class="name">Sarah Perilus</p>
-            <p class="role">Executif officer</p>
+            <p class="role">Directeur</p>
           </div>
         </div>
 
         <div class="employee" id="07873">
           <img src="imgs/07873.png" alt="employee" />
           <div class="employee-details">
-            <p class="status">Is working</p>
+            <p class="status">En train de travailler</p>
             <p class="name">Random</p>
-            <p class="role">Director</p>
+            <p class="role">Directeur</p>
           </div>
         </div>
       </div>
@@ -68,20 +68,23 @@
 
           <div class="employee-info">
             <div class="id-container">
-              <span class="show-id"><u class="hide-show">Show id</u></span>
+              <span class="show-id"
+                ><u class="hide-show">Afficher l'ID</u></span
+              >
               <span class="id">078853</span>
             </div>
             <p class="employee-name">Rodarly Perilus</p>
             <p class="employee-role">Manager</p>
             <p class="employee-more">
-              Is a full time math teacher working in 6th and 11th grade
+              Est un enseignant de mathématiques à temps plein travaillant en 6e
+              et 11e année
             </p>
           </div>
 
           <div class="employee-actions">
             <!-- Action Buttons -->
-            <button class="edit-button">Edit</button>
-            <button class="remove-button">Remove</button>
+            <button class="edit-button">Modifier</button>
+            <button class="remove-button">Supprimer</button>
           </div>
         </div>
 
@@ -91,7 +94,7 @@
 
           <!-- Filters -->
           <div class="filter-bar">
-            <label for="filter-by-year">Year</label>
+            <label for="filter-by-year">Année</label>
             <select id="filter-by-year">
               <!-- Filled years -->
               <option value="2025">2025</option>
@@ -100,21 +103,21 @@
               <option value="2022">2022</option>
             </select>
 
-            <label for="filter-by-month">Month</label>
+            <label for="filter-by-month">Mois</label>
             <select id="filter-by-month">
               <!-- Filled months -->
-              <option value="01">January</option>
-              <option value="02">February</option>
-              <option value="03">March</option>
-              <option value="04">April</option>
-              <option value="05">May</option>
-              <option value="06">June</option>
-              <option value="07">July</option>
-              <option value="08">August</option>
-              <option value="09">September</option>
-              <option value="10">October</option>
-              <option value="11">November</option>
-              <option value="12">December</option>
+              <option value="01">Janvier</option>
+              <option value="02">Février</option>
+              <option value="03">Mars</option>
+              <option value="04">Avril</option>
+              <option value="05">Mai</option>
+              <option value="06">Juin</option>
+              <option value="07">Juillet</option>
+              <option value="08">Août</option>
+              <option value="09">Septembre</option>
+              <option value="10">Octobre</option>
+              <option value="11">Novembre</option>
+              <option value="12">Décembre</option>
             </select>
             <button class="modifier-button">&#9998; Modifier Pointage</button>
           </div>
@@ -124,8 +127,8 @@
             <!-- Table Header -->
             <div class="table-header">
               <p>Date</p>
-              <p>Entrer</p>
-              <p>Sorti</p>
+              <p>Entrée</p>
+              <p>Sortie</p>
             </div>
 
             <!-- Table Rows -->
@@ -157,13 +160,14 @@
 
           <div class="employee-info">
             <div class="id-container">
-              <span class="show-id"><u>Show id</u></span>
+              <span class="show-id"><u>Afficher l'ID</u></span>
               <span class="id">078853</span>
             </div>
             <p class="employee-name">Sarah Perilus</p>
             <p class="employee-role">Manager</p>
             <p class="employee-more">
-              Is a full time math teacher working in 6th and 11th grade
+              Est une enseignante en mathématiques à temps plein travaillant en
+              6ème et 11ème année
             </p>
           </div>
 
@@ -332,15 +336,15 @@
     <!-- EDIT EMPLOYEE MODAL -->
     <div class="edit-modal hidden">
       <div class="modal-content">
-        <h2>Edit Employee</h2>
+        <h2>Modifier l'employé</h2>
         <div class="edit-form">
           <div class="form-group">
-            <label>Profile Picture</label>
+            <label>Photo de profil</label>
             <div class="edit-image-upload-section">
               <img
                 id="edit-image-preview"
                 src=""
-                alt="Employee preview"
+                alt="Aperçu de l'employé"
                 style="
                   width: 100px;
                   height: 100px;
@@ -367,7 +371,7 @@
                   cursor: pointer;
                 "
               >
-                Upload New Picture
+                Télécharger une nouvelle photo
               </button>
             </div>
           </div>
@@ -398,32 +402,32 @@
                   cursor: pointer;
                 "
               >
-                Generate New ID
+                Générer un nouvel ID
               </button>
             </div>
           </div>
           <div class="form-group">
-            <label>Name</label>
-            <input type="text" id="edit-name" placeholder="Full Name" />
+            <label>Nom</label>
+            <input type="text" id="edit-name" placeholder="Nom complet" />
           </div>
           <div class="form-group">
-            <label>Role</label>
-            <input type="text" id="edit-role" placeholder="Job Title" />
+            <label>Poste</label>
+            <input type="text" id="edit-role" placeholder="Titre du poste" />
           </div>
           <div class="form-group">
-            <label>Details</label>
+            <label>Détails</label>
             <textarea
               id="edit-details"
-              placeholder="Additional details"
+              placeholder="Détails supplémentaires"
             ></textarea>
           </div>
           <div class="form-group">
-            <label>Pay Type (Optional)</label>
+            <label>Type de salaire (Optionnel)</label>
             <select id="edit-pay-type">
-              <option value="">No Fixed Pay</option>
-              <option value="hourly">Pay Per Hour</option>
-              <option value="weekly">Pay Per Week</option>
-              <option value="monthly">Pay Per Month</option>
+              <option value="">Pas de salaire fixe</option>
+              <option value="hourly">Salaire horaire</option>
+              <option value="weekly">Salaire hebdomadaire</option>
+              <option value="monthly">Salaire mensuel</option>
             </select>
           </div>
           <div
@@ -431,17 +435,17 @@
             id="edit-pay-amount-field"
             style="display: none"
           >
-            <label id="edit-pay-amount-label">Amount (Optional)</label>
+            <label id="edit-pay-amount-label">Montant (Optionnel)</label>
             <input
               type="number"
               id="edit-pay-amount"
-              placeholder="e.g., 15.50"
+              placeholder="ex: 15.50"
               step="0.01"
             />
           </div>
           <div class="modal-buttons">
-            <button class="cancel-edit-btn">Cancel</button>
-            <button class="save-edit-btn">Save Changes</button>
+            <button class="cancel-edit-btn">Annuler</button>
+            <button class="save-edit-btn">Enregistrer les modifications</button>
           </div>
         </div>
       </div>
@@ -450,17 +454,18 @@
     <!-- REMOVE EMPLOYEE MODAL -->
     <div class="remove-modal hidden">
       <div class="modal-content">
-        <h2>Confirm Removal</h2>
+        <h2>Confirmer la suppression</h2>
         <p id="remove-message">
-          Are you sure you want to remove this employee?
+          Êtes-vous sûr de vouloir supprimer cet employé?
         </p>
         <div class="modal-buttons">
-          <button class="cancel-remove-btn">Cancel</button>
-          <button class="confirm-remove-btn">Remove</button>
+          <button class="cancel-remove-btn">Annuler</button>
+          <button class="confirm-remove-btn">Supprimer</button>
         </div>
       </div>
     </div>
 
+    <script src="script/data-monitor.js"></script>
     <script src="script/admin-employees.js"></script>
   </body>
 </html>

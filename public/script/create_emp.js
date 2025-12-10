@@ -4,6 +4,10 @@
 let employees = [];
 let uploadedImage = null; // Store base64 image data
 
+// Performance optimization: cache name validation regex
+const nameRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ'-]+$/;
+const roleRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]+$/;
+
 // Inputs
 const first_input = document.getElementById("first-name");
 const last_input = document.getElementById("last-name");
@@ -118,23 +122,22 @@ function validateForm() {
   }
 
   if (!uploadedImage) {
-    alert("Please upload an image.");
+    alert("Veuillez télécharger une image.");
     return false;
   }
 
   const nameRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ'-]+$/;
   if (!nameRegex.test(first)) {
-    alert("First name contains invalid characters.");
+    alert("Le prénom contient des caractères invalides.");
     return false;
   }
   if (!nameRegex.test(last)) {
-    alert("Last name contains invalid characters.");
+    alert("Le nom de famille contient des caractères invalides.");
     return false;
   }
 
-  const roleRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]+$/;
   if (!roleRegex.test(role)) {
-    alert("Role contains invalid characters.");
+    alert("Le poste contient des caractères invalides.");
     return false;
   }
 
@@ -157,11 +160,14 @@ payTypeSelect.addEventListener("change", () => {
   if (payType) {
     payAmountField.style.display = "flex";
     if (payType === "hourly") {
-      document.getElementById("pay-amount-label").textContent = "Pay Per Hour";
+      document.getElementById("pay-amount-label").textContent =
+        "Salaire horaire";
     } else if (payType === "weekly") {
-      document.getElementById("pay-amount-label").textContent = "Pay Per Week";
+      document.getElementById("pay-amount-label").textContent =
+        "Salaire hebdomadaire";
     } else if (payType === "monthly") {
-      document.getElementById("pay-amount-label").textContent = "Pay Per Month";
+      document.getElementById("pay-amount-label").textContent =
+        "Salaire mensuel";
     }
   } else {
     payAmountField.style.display = "none";
@@ -186,19 +192,19 @@ confirme.addEventListener("click", () => {
 
   if (payType && payAmount) {
     if (payType === "hourly") {
-      payDisplay = `<strong>Pay Per Hour:</strong> $${payAmount}<br>`;
+      payDisplay = `<strong>Salaire horaire:</strong> $${payAmount}<br>`;
     } else if (payType === "weekly") {
-      payDisplay = `<strong>Pay Per Week:</strong> $${payAmount}<br>`;
+      payDisplay = `<strong>Salaire hebdomadaire:</strong> $${payAmount}<br>`;
     } else if (payType === "monthly") {
-      payDisplay = `<strong>Pay Per Month:</strong> $${payAmount}<br>`;
+      payDisplay = `<strong>Salaire mensuel:</strong> $${payAmount}<br>`;
     }
   }
 
   modalMessage.innerHTML = `
-    <strong>First Name:</strong> ${capitalize(first_input.value)}<br>
-    <strong>Last Name:</strong> ${last_input.value.toUpperCase()}<br>
-    <strong>Role:</strong> ${role_input.value}<br>
-    <strong>Details:</strong> ${details_input.value}<br>
+    <strong>Prénom:</strong> ${capitalize(first_input.value)}<br>
+    <strong>Nom de famille:</strong> ${last_input.value.toUpperCase()}<br>
+    <strong>Poste:</strong> ${role_input.value}<br>
+    <strong>Détails:</strong> ${details_input.value}<br>
     ${payDisplay}<strong>ID:</strong> ${show_id.textContent}
   `;
 

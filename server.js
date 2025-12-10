@@ -1,6 +1,7 @@
 const express = require("express");
 const fs = require("fs");
 const cors = require("cors");
+const crypto = require("crypto");
 
 const app = express();
 // Increase payload limit to handle base64 images
@@ -39,6 +40,16 @@ function saveDB(data) {
 app.get("/employees", (req, res) => {
   const db = getDB();
   res.json(db.employees);
+});
+
+// -------------------------------------------
+// GET data hash (for change detection)
+// -------------------------------------------
+app.get("/data-hash", (req, res) => {
+  const db = getDB();
+  const dataString = JSON.stringify(db);
+  const hash = crypto.createHash("md5").update(dataString).digest("hex");
+  res.json({ hash });
 });
 
 // -------------------------------------------
