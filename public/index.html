@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fierbout/pointage</title>
     <link rel="stylesheet" href="styles/style.css" />
+    <script src="script/auth-check.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -13,7 +14,10 @@
     />
   </head>
   <body>
-    <div><i>Bienvenue!</i></div>
+    <header>
+      <div><i>Bienvenue!</i></div>
+      <div id="current-time"></div>
+    </header>
     <p id="message"></p>
     <input
       type="text"

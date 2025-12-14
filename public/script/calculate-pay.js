@@ -32,7 +32,7 @@ const printBtn = document.querySelector(".print-btn");
 // Load employees from backend
 async function loadEmployees() {
   try {
-    const res = await fetch("http://localhost:3000/employees");
+    const res = await fetch("/employees");
     allEmployees = await res.json();
     console.log("Employés chargés:", allEmployees);
   } catch (err) {

@@ -121,11 +121,6 @@ function validateForm() {
     return false;
   }
 
-  if (!uploadedImage) {
-    alert("Veuillez télécharger une image.");
-    return false;
-  }
-
   const nameRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ'-]+$/;
   if (!nameRegex.test(first)) {
     alert("Le prénom contient des caractères invalides.");
@@ -225,12 +220,15 @@ finalConfirm.addEventListener("click", async () => {
   const payType = payTypeSelect.value;
   const payAmount = payAmountInput.value.trim();
 
+  // Use uploaded image or default to 078873.png
+  const imageToUse = uploadedImage || "imgs/07873.png";
+
   const newEmployee = {
     name: `${capitalize(first_input.value)} ${last_input.value.toUpperCase()}`,
     role: role_input.value.trim(),
     details: details_input.value.trim(),
     id: show_id.textContent.trim(),
-    image: uploadedImage, // Include base64 image
+    image: imageToUse, // Include base64 image or default image path
     hdePointage: [],
     payType: payType || null, // "hourly", "weekly", "monthly", or null
     payAmount: payType && payAmount ? parseFloat(payAmount) : null, // The actual amount
@@ -274,7 +272,7 @@ finalConfirm.addEventListener("click", async () => {
     payAmountField.style.display = "none";
     show_id.textContent = "";
     uploadedImage = null;
-    previewOrIcon.src = "imgs/upload-icon-png-7.jpg";
+    previewOrIcon.src = "imgs/07873.png";
     uploadText.textContent = "Upload Image";
     imageInput.value = "";
 

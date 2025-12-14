@@ -19,13 +19,17 @@ function getDB() {
 
     // Ensure correct structure
     if (!parsed || !Array.isArray(parsed.employees)) {
-      return { employees: [] };
+      parsed = parsed || {};
+      parsed.employees = [];
     }
 
     return parsed;
   } catch (err) {
     console.error("Error reading employees.json:", err);
-    return { employees: [] };
+    return {
+      admin: { username: "admin@fierbout.com", password: "Goldcamel26!" },
+      employees: [],
+    };
   }
 }
 
@@ -33,6 +37,38 @@ function getDB() {
 function saveDB(data) {
   fs.writeFileSync("employees.json", JSON.stringify(data, null, 2));
 }
+
+// -------------------------------------------
+// AUTHENTICATION ENDPOINT
+// -------------------------------------------
+app.post("/auth/login", (req, res) => {
+  const { username, password } = req.body;
+
+  // Validate input
+  if (!username || !password) {
+    return res.status(400).json({
+      success: false,
+      message: "Username and password are required",
+    });
+  }
+
+  // Load credentials from database
+  const db = getDB();
+  const adminCreds = db.admin || {};
+
+  // Check credentials against database
+  if (username === adminCreds.username && password === adminCreds.password) {
+    return res.json({
+      success: true,
+      message: "Authentication successful",
+    });
+  } else {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid username or password",
+    });
+  }
+});
 
 // -------------------------------------------
 // GET all employees
@@ -130,6 +166,7 @@ app.delete("/employees/:id", (req, res) => {
 });
 
 // -------------------------------------------
-app.listen(3000, () => {
-  console.log("Server running at http://localhost:3000");
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
 });

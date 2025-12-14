@@ -1,10 +1,30 @@
 let employes = [];
 
 // ---------------------------------------------
+// DISPLAY CURRENT TIME IN HEADER
+// ---------------------------------------------
+function updateTime() {
+  const timeElement = document.getElementById("current-time");
+  if (timeElement) {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString("fr-FR", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+    timeElement.textContent = timeString;
+  }
+}
+
+// Update time immediately and then every second
+updateTime();
+setInterval(updateTime, 1000);
+
+// ---------------------------------------------
 // LOAD EMPLOYEES FROM JSON VIA SERVER
 // ---------------------------------------------
 async function loadEmployees() {
-  const res = await fetch("http://localhost:3000/employees");
+  const res = await fetch("/employees");
   employes = await res.json();
 }
 
@@ -18,6 +38,11 @@ const buttons = document.querySelectorAll(".button-container button");
 const pEntrant = document.getElementById("entrant");
 const pSortant = document.getElementById("sortant");
 const message = document.getElementById("message");
+
+// Reset input field every 2 minutes
+setInterval(() => {
+  inputField.value = "";
+}, 2 * 60 * 1000); // 2 minutes in milliseconds
 
 // ---------------------------------------------
 // Message Display
@@ -100,7 +125,7 @@ function heureTravailer(entrer, sorti) {
 // SAVE UPDATED EMPLOYEES TO SERVER
 // ---------------------------------------------
 async function saveToServer(emp) {
-  await fetch(`http://localhost:3000/employees/${emp.id}`, {
+  await fetch(`/employees/${emp.id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(emp),

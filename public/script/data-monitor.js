@@ -7,7 +7,7 @@ let currentDataHash = null;
 // Initialize data monitor when page loads
 async function initDataMonitor() {
   try {
-    const response = await fetch("http://localhost:3000/data-hash");
+    const response = await fetch("/data-hash");
     const data = await response.json();
     currentDataHash = data.hash;
   } catch (err) {
@@ -21,7 +21,7 @@ async function initDataMonitor() {
 // Check if data has changed and reload page if it has
 async function checkForDataChanges() {
   try {
-    const response = await fetch("http://localhost:3000/data-hash");
+    const response = await fetch("/data-hash");
     const data = await response.json();
 
     if (currentDataHash && data.hash !== currentDataHash) {

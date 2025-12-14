@@ -2,7 +2,7 @@
 // 1. LOAD EMPLOYEES FROM BACKEND JSON
 // ---------------------------------------------
 async function loadEmployees() {
-  const res = await fetch("http://localhost:3000/employees");
+  const res = await fetch("/employees");
   const employees = await res.json();
   return employees;
 }
@@ -432,7 +432,7 @@ function toggleEditMode(card, empData, historyTable) {
 // Save employee changes to backend
 async function saveEmployeeChanges(empData) {
   try {
-    const res = await fetch(`http://localhost:3000/employees/${empData.id}`, {
+    const res = await fetch(`/employees/${empData.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(empData),
@@ -682,7 +682,7 @@ function openEditModal(empData) {
       if (oldId !== newId) {
         // Delete old employee first
         const deleteRes = await fetch(
-          `http://localhost:3000/employees/${oldId}`,
+          `/employees/${oldId}`,
           {
             method: "DELETE",
           }
@@ -693,7 +693,7 @@ function openEditModal(empData) {
         }
 
         // Then POST the new employee with the new ID
-        res = await fetch(`http://localhost:3000/employees`, {
+        res = await fetch(`/employees`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(updatedEmp),
@@ -711,7 +711,7 @@ function openEditModal(empData) {
         globalEmployees.push(updatedEmp);
       } else {
         // If ID didn't change, just UPDATE the existing employee
-        res = await fetch(`http://localhost:3000/employees/${oldId}`, {
+        res = await fetch(`/employees/${oldId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(updatedEmp),
@@ -761,7 +761,7 @@ function openRemoveModal(empData, card, manager) {
   confirmRemoveBtn.onclick = async () => {
     try {
       // Delete employee from backend
-      const res = await fetch(`http://localhost:3000/employees/${empData.id}`, {
+      const res = await fetch(`/employees/${empData.id}`, {
         method: "DELETE",
       });
 

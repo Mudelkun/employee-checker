@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles/pasword-require.css" />
+
+    <title>Espace Entreprise - Authentification</title>
+  </head>
+
+  <body>
+    <div class="card">
+      <div class="card-header">
+        <div class="logo-icon">🔐</div>
+        <h1>Espace Sécurisé</h1>
+        <p class="subtitle">Authentification requise</p>
+      </div>
+
+      <form id="authForm">
+        <div class="form-group">
+          <label for="username">Identifiant</label>
+          <input
+            type="text"
+            id="username"
+            placeholder="admin@example.com"
+            autocomplete="username"
+            required
+          />
+          <div class="error" id="usernameError"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Mot de passe</label>
+          <input
+            type="password"
+            id="password"
+            placeholder="••••••••"
+            autocomplete="current-password"
+            required
+          />
+          <div class="error" id="passwordError"></div>
+        </div>
+
+        <button type="submit">
+          <span class="loading" id="loader"></span>
+          Accéder au système
+        </button>
+
+        <div class="error" id="generalError"></div>
+      </form>
+    </div>
+    <script src="script/pasword-require.js"></script>
+  </body>
+</html>
