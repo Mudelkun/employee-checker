@@ -1,5 +1,6 @@
 const express = require("express");
 const fs = require("fs");
+const path = require("path");
 const cors = require("cors");
 const crypto = require("crypto");
 
@@ -11,10 +12,25 @@ app.use(cors());
 // Serve your frontend
 app.use(express.static("public"));
 
+// Data file path - use /app/data for Railway persistent volume, fallback to local
+const DATA_DIR = process.env.NODE_ENV === "production" ? "/app/data" : __dirname;
+const DATA_FILE = path.join(DATA_DIR, "employees.json");
+
+// Ensure data directory exists
+if (process.env.NODE_ENV === "production" && !fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
+// Copy initial data if not exists in persistent volume
+if (!fs.existsSync(DATA_FILE) && fs.existsSync(path.join(__dirname, "employees.json"))) {
+  fs.copyFileSync(path.join(__dirname, "employees.json"), DATA_FILE);
+  console.log("Copied initial employees.json to persistent volume");
+}
+
 // ----------- HELPER: Load database safely -----------
 function getDB() {
   try {
-    const raw = fs.readFileSync("employees.json", "utf8");
+    const raw = fs.readFileSync(DATA_FILE, "utf8");
     const parsed = JSON.parse(raw);
 
     // Ensure correct structure
@@ -35,7 +51,7 @@ function getDB() {
 
 // ----------- HELPER: Save database safely -----------
 function saveDB(data) {
-  fs.writeFileSync("employees.json", JSON.stringify(data, null, 2));
+  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
 }
 
 // -------------------------------------------
