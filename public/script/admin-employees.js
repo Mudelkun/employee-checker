@@ -681,12 +681,9 @@ function openEditModal(empData) {
       // If ID changed, delete old and create new
       if (oldId !== newId) {
         // Delete old employee first
-        const deleteRes = await fetch(
-          `/employees/${oldId}`,
-          {
-            method: "DELETE",
-          }
-        );
+        const deleteRes = await fetch(`/employees/${oldId}`, {
+          method: "DELETE",
+        });
 
         if (!deleteRes.ok) {
           throw new Error(`Failed to delete old employee: ${deleteRes.status}`);
