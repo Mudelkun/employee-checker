@@ -827,4 +827,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   const employees = await loadEmployees();
   globalEmployees = employees;
   buildUI(employees);
+
+  // Logout button functionality
+  const logoutBtn = document.getElementById("logout-btn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      sessionStorage.removeItem("authenticated");
+      sessionStorage.removeItem("authTime");
+      window.location.href = "/pasword-require.html";
+    });
+  }
 });

@@ -38,11 +38,11 @@ if (
     if (fs.existsSync(DATA_FILE)) {
       const raw = fs.readFileSync(DATA_FILE, "utf8");
       const data = JSON.parse(raw);
-      
+
       if (!data.pointageLogin) {
         data.pointageLogin = {
           username: "pointage",
-          password: "1234"
+          password: "1234",
         };
         fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
         console.log("Migration: Added pointageLogin credentials to database");

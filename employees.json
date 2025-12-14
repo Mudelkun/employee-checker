@@ -194,9 +194,20 @@
           "entrer": "08:00 AM",
           "sorti": "04:30 PM",
           "heureTravailer": 8.5
+        },
+        {
+          "date": "12/14/2025",
+          "entrer": "2:44 PM",
+          "sorti": "2:44 PM",
+          "heureTravailer": 0
+        },
+        {
+          "date": "12/14/2025",
+          "entrer": "2:46 PM",
+          "sorti": ""
         }
       ],
-      "estEntrer": false,
+      "estEntrer": true,
       "estSorti": false,
       "payType": "monthly",
       "payAmount": 5000

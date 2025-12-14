@@ -52,7 +52,7 @@ function getMessage(msg, color = "black") {
   message.style.color = color;
   setTimeout(() => {
     message.textContent = "";
-  }, 5000);
+  }, 8000);
 }
 
 // ---------------------------------------------

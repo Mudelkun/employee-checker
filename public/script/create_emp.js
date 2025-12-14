@@ -295,4 +295,14 @@ finalConfirm.addEventListener("click", async () => {
 // ---------------------- On load: get current employees ----------------------
 window.addEventListener("load", async () => {
   await loadEmployees();
+
+  // Logout button functionality
+  const logoutBtn = document.getElementById("logout-btn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      sessionStorage.removeItem("authenticated");
+      sessionStorage.removeItem("authTime");
+      window.location.href = "/pasword-require.html";
+    });
+  }
 });
