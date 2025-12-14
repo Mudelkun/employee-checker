@@ -5,7 +5,7 @@ let employees = [];
 let uploadedImage = null; // Store base64 image data
 
 // Performance optimization: cache name validation regex
-const nameRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ'-]+$/;
+const nameRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]+$/;
 const roleRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]+$/;
 
 // Inputs
@@ -116,17 +116,18 @@ function validateForm() {
   const details = details_input.value.trim();
   const id = show_id.textContent.trim();
 
-  if (!first || !last || !role || !details) {
-    alert("Please fill out all fields.");
+  if (!first || !last || !role) {
+    alert("Veuillez remplir le prénom, le nom et le poste.");
     return false;
   }
 
-  const nameRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ'-]+$/;
-  if (!nameRegex.test(first)) {
+  // Allow letters, spaces, dashes and apostrophes in names
+  const nameValidationRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]+$/;
+  if (!nameValidationRegex.test(first)) {
     alert("Le prénom contient des caractères invalides.");
     return false;
   }
-  if (!nameRegex.test(last)) {
+  if (!nameValidationRegex.test(last)) {
     alert("Le nom de famille contient des caractères invalides.");
     return false;
   }
@@ -136,13 +137,14 @@ function validateForm() {
     return false;
   }
 
-  if (details.length < 5) {
-    alert("Details must be at least 5 characters long.");
+  // Details is optional, but if provided must be at least 5 characters
+  if (details && details.length < 5) {
+    alert("Les détails doivent contenir au moins 5 caractères.");
     return false;
   }
 
   if (!id) {
-    alert("Please generate an ID first.");
+    alert("Veuillez générer un ID d'abord.");
     return false;
   }
 
