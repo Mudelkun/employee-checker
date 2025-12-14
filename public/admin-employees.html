@@ -23,6 +23,16 @@
           <input type="text" id="search-input" placeholder="nom" />
           <button>Travaillant aujourd'hui</button>
         </section>
+        <div class="size-control">
+          <label for="size-select">Taille:</label>
+          <select id="size-select" class="size-dropdown">
+            <option value="xs">Très petit (XS)</option>
+            <option value="sm">Petit (S)</option>
+            <option value="md" selected>Moyen (M)</option>
+            <option value="lg">Grand (L)</option>
+            <option value="xl">Très grand (XL)</option>
+          </select>
+        </div>
         <div class="manager-buttons">
           <button id="add">Ajouter un employé</button>
           <button id="calculate-pay" class="calculate-pay-nav">

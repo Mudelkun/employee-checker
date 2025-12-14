@@ -46,15 +46,19 @@ body {
 
 /* NAV */
 nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: #fff;
-  padding: 18px 30px;
+  padding: 14px 30px;
   font-weight: 600;
-  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
-  animation: slideIn 0.6s ease;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
 }
 
 nav span {
@@ -84,19 +88,25 @@ nav img:hover {
 
 /* MANAGER BAR */
 #manager {
+  position: fixed;
+  top: 66px; /* Below the nav with some gap */
+  left: 0;
+  right: 0;
+  z-index: 999;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 25px 30px;
-  animation: slideIn 0.6s ease 0.1s backwards;
+  padding: 12px 30px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf3 100%);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
 }
 
 #manager input {
-  padding: 12px 16px;
-  font-size: 15px;
+  padding: 10px 14px;
+  font-size: 14px;
   border: 2px solid #e0e0e0;
-  border-radius: 12px;
-  width: 200px;
+  border-radius: 10px;
+  width: 180px;
   outline: none;
   background: white;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -139,6 +149,42 @@ nav img:hover {
   margin-left: 0;
 }
 
+/* SIZE CONTROL */
+.size-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.size-control label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+}
+
+.size-dropdown {
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  color: #333;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+  min-width: 140px;
+}
+
+.size-dropdown:hover {
+  border-color: #667eea;
+}
+
+.size-dropdown:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+
 #calculate-pay {
   background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
   box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
@@ -151,17 +197,129 @@ nav img:hover {
 /* EMPLOYEE GRID */
 #employee-container {
   display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  padding: 20px 30px;
+  animation: fadeIn 0.8s ease;
+}
+
+/* Employee manager main container */
+.employee-manager {
+  padding-top: 115px; /* Space for fixed nav (56px) + manager bar (~59px) */
+}
+
+/* SIZE VARIANTS */
+#employee-container.size-xs {
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 8px;
+}
+
+#employee-container.size-xs .employee img {
+  height: 50px;
+}
+
+#employee-container.size-xs .employee-details {
+  padding: 4px 6px;
+}
+
+#employee-container.size-xs .employee-details h3,
+#employee-container.size-xs .employee-details .name {
+  font-size: 9px;
+}
+
+#employee-container.size-xs .employee-details p {
+  font-size: 8px;
+}
+
+#employee-container.size-xs .status {
+  font-size: 7px;
+}
+
+#employee-container.size-sm {
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+#employee-container.size-sm .employee img {
+  height: 65px;
+}
+
+#employee-container.size-sm .employee-details {
+  padding: 6px 8px;
+}
+
+#employee-container.size-sm .employee-details h3,
+#employee-container.size-sm .employee-details .name {
+  font-size: 10px;
+}
+
+#employee-container.size-sm .employee-details p {
+  font-size: 9px;
+}
+
+#employee-container.size-sm .status {
+  font-size: 8px;
+}
+
+/* MD is default - no extra class needed */
+
+#employee-container.size-lg {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 18px;
+}
+
+#employee-container.size-lg .employee img {
+  height: 120px;
+}
+
+#employee-container.size-lg .employee-details {
+  padding: 12px 14px;
+}
+
+#employee-container.size-lg .employee-details h3,
+#employee-container.size-lg .employee-details .name {
+  font-size: 14px;
+}
+
+#employee-container.size-lg .employee-details p {
+  font-size: 12px;
+}
+
+#employee-container.size-lg .status {
+  font-size: 11px;
+}
+
+#employee-container.size-xl {
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 25px;
-  padding: 30px 30px;
-  animation: fadeIn 0.8s ease;
+}
+
+#employee-container.size-xl .employee img {
+  height: 180px;
+}
+
+#employee-container.size-xl .employee-details {
+  padding: 16px 18px;
+}
+
+#employee-container.size-xl .employee-details h3,
+#employee-container.size-xl .employee-details .name {
+  font-size: 16px;
+}
+
+#employee-container.size-xl .employee-details p {
+  font-size: 14px;
+}
+
+#employee-container.size-xl .status {
+  font-size: 12px;
 }
 
 /* EMPLOYEE CARD */
 .employee {
   background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -171,45 +329,61 @@ nav img:hover {
 }
 
 .employee:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.2);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
 }
 
 .employee img {
   width: 100%;
-  height: 200px;
+  height: 80px;
   object-fit: cover;
 }
 
 /* TEXT DETAILS */
 .employee-details {
-  padding: 18px;
+  padding: 8px 10px;
 }
 
-.status {
+.employee-details h3 {
+  font-size: 12px;
+  margin: 0 0 2px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.employee-details p {
+  font-size: 10px;
+  margin: 2px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.employee-details .status {
   font-weight: 700;
-  color: #4caf50;
-  margin: 8px 0;
-  font-size: 13px;
+  color: #4caf50 !important;
+  margin: 4px 0;
+  font-size: 9px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
 }
 
-.out {
-  color: #f44336;
+.employee-details .status.out {
+  color: #f44336 !important;
 }
 
-.name {
-  font-size: 18px;
+.employee-details .name {
+  font-size: 11px;
   font-weight: 700;
-  margin: 8px 0;
-  color: #1a1a1a;
+  margin: 4px 0;
+  color: #1a1a1a !important;
 }
 
-.role {
-  margin-top: 4px;
+.employee-details .role {
+  margin-top: 2px;
   color: #666;
-  font-size: 13px;
+  font-size: 10px;
 }
 
 .pay-per-hour {

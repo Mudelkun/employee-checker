@@ -301,7 +301,7 @@ const go_pointage = document.querySelector("#pointage");
 const add = document.getElementById("add");
 
 go_pointage.addEventListener("click", () => {
-  window.open("/index.html");
+  window.open("/index.html?fromAdmin=true");
 });
 
 // ---------------------- EDIT/MODIFY POINTAGE FUNCTIONALITY ----------------------
@@ -790,6 +790,38 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   calculatePayBtn.addEventListener("click", () => {
     window.location.href = "/calculate-pay.html";
+  });
+
+  // Size control dropdown
+  const sizeSelect = document.getElementById("size-select");
+  const employeeContainer = document.getElementById("employee-container");
+
+  // Load saved size preference
+  const savedSize = localStorage.getItem("employeeCardSize") || "md";
+  if (savedSize !== "md") {
+    employeeContainer.classList.add(`size-${savedSize}`);
+    sizeSelect.value = savedSize;
+  }
+
+  sizeSelect.addEventListener("change", () => {
+    const size = sizeSelect.value;
+
+    // Remove all size classes
+    employeeContainer.classList.remove(
+      "size-xs",
+      "size-sm",
+      "size-md",
+      "size-lg",
+      "size-xl"
+    );
+
+    // Add new size class (md is default, no class needed)
+    if (size !== "md") {
+      employeeContainer.classList.add(`size-${size}`);
+    }
+
+    // Save preference
+    localStorage.setItem("employeeCardSize", size);
   });
 
   const employees = await loadEmployees();

@@ -14,7 +14,8 @@ app.use(cors());
 app.use(express.static("public"));
 
 // Data file path - use /app/data for Railway persistent volume, fallback to local
-const DATA_DIR = process.env.NODE_ENV === "production" ? "/app/data" : __dirname;
+const DATA_DIR =
+  process.env.NODE_ENV === "production" ? "/app/data" : __dirname;
 const DATA_FILE = path.join(DATA_DIR, "employees.json");
 
 // Ensure data directory exists
@@ -23,10 +24,34 @@ if (process.env.NODE_ENV === "production" && !fs.existsSync(DATA_DIR)) {
 }
 
 // Copy initial data if not exists in persistent volume
-if (!fs.existsSync(DATA_FILE) && fs.existsSync(path.join(__dirname, "employees.json"))) {
+if (
+  !fs.existsSync(DATA_FILE) &&
+  fs.existsSync(path.join(__dirname, "employees.json"))
+) {
   fs.copyFileSync(path.join(__dirname, "employees.json"), DATA_FILE);
   console.log("Copied initial employees.json to persistent volume");
 }
+
+// ----------- MIGRATION: Add pointageLogin if missing -----------
+(function migratePointageLogin() {
+  try {
+    if (fs.existsSync(DATA_FILE)) {
+      const raw = fs.readFileSync(DATA_FILE, "utf8");
+      const data = JSON.parse(raw);
+      
+      if (!data.pointageLogin) {
+        data.pointageLogin = {
+          username: "pointage",
+          password: "1234"
+        };
+        fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+        console.log("Migration: Added pointageLogin credentials to database");
+      }
+    }
+  } catch (err) {
+    console.error("Migration error:", err);
+  }
+})();
 
 // ----------- HELPER: Load database safely -----------
 function getDB() {
@@ -75,6 +100,44 @@ app.post("/auth/login", (req, res) => {
 
   // Check credentials against database
   if (username === adminCreds.username && password === adminCreds.password) {
+    return res.json({
+      success: true,
+      message: "Authentication successful",
+    });
+  } else {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid username or password",
+    });
+  }
+});
+
+// -------------------------------------------
+// POINTAGE LOGIN ENDPOINT (for index.html)
+// -------------------------------------------
+app.post("/auth/pointage-login", (req, res) => {
+  const { username, password } = req.body;
+
+  // Validate input
+  if (!username || !password) {
+    return res.status(400).json({
+      success: false,
+      message: "Username and password are required",
+    });
+  }
+
+  // Load credentials from database
+  const db = getDB();
+  const pointageCreds = db.pointageLogin || {
+    username: "pointage",
+    password: "1234",
+  };
+
+  // Check credentials against database
+  if (
+    username === pointageCreds.username &&
+    password === pointageCreds.password
+  ) {
     return res.json({
       success: true,
       message: "Authentication successful",
