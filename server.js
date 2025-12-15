@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const cors = require("cors");
 const crypto = require("crypto");
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 
 const app = express();
 // Increase payload limit to handle base64 images
@@ -286,45 +286,40 @@ app.post("/send-id-email", async (req, res) => {
     });
   }
 
-  // Create transporter with Gmail (explicit SMTP settings for Railway)
-  const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true, // use SSL
-    auth: {
-      user: "fierbouthaiti@gmail.com",
-      pass: process.env.GMAIL_APP_PASSWORD, // App Password from environment variable
-    },
-    connectionTimeout: 30000, // 30 seconds
-    greetingTimeout: 30000,
-    socketTimeout: 30000,
-  });
-
-  // Email content
-  const mailOptions = {
-    from: "fierbouthaiti@gmail.com",
-    to: employeeEmail,
-    subject: "Votre numéro de pointage - Fierbout",
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h2 style="color: #667eea;">Fierbout - Système de Pointage</h2>
-        <p>Bonjour${employeeName ? ` ${employeeName}` : ""},</p>
-        <p>Vous trouverez ci-dessous votre numéro de pointage pour accéder au système de pointage électronique de l'École Fierbout:</p>
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; margin: 20px 0;">
-          <p style="margin: 0; font-size: 14px;">Votre numéro de pointage:</p>
-          <p style="margin: 10px 0; font-size: 32px; font-weight: bold; letter-spacing: 3px;">${employeeId}</p>
-        </div>
-        <p>Veuillez conserver ce numéro en lieu sûr. Vous en aurez besoin pour enregistrer vos heures d'entrée et de sortie.</p>
-        <p>Si vous avez des questions, veuillez contacter votre responsable.</p>
-        <br>
-        <p>Cordialement,<br><strong>Direction centrale, Canada</strong></p>
-      </div>
-    `,
-  };
+  // Create Resend client (uses HTTP API - works on Railway)
+  const resend = new Resend(process.env.RESEND_API_KEY);
 
   try {
-    await transporter.sendMail(mailOptions);
-    console.log(`Email sent to ${employeeEmail}`);
+    const { data, error } = await resend.emails.send({
+      from: "Fierbout <onboarding@resend.dev>", // Use verified domain or resend.dev for testing
+      to: employeeEmail,
+      subject: "Votre numéro de pointage - Fierbout",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #667eea;">Fierbout - Système de Pointage</h2>
+          <p>Bonjour${employeeName ? ` ${employeeName}` : ""},</p>
+          <p>Vous trouverez ci-dessous votre numéro de pointage pour accéder au système de pointage électronique de l'École Fierbout:</p>
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; margin: 20px 0;">
+            <p style="margin: 0; font-size: 14px;">Votre numéro de pointage:</p>
+            <p style="margin: 10px 0; font-size: 32px; font-weight: bold; letter-spacing: 3px;">${employeeId}</p>
+          </div>
+          <p>Veuillez conserver ce numéro en lieu sûr. Vous en aurez besoin pour enregistrer vos heures d'entrée et de sortie.</p>
+          <p>Si vous avez des questions, veuillez contacter votre responsable.</p>
+          <br>
+          <p>Cordialement,<br><strong>Direction centrale, Canada</strong></p>
+        </div>
+      `,
+    });
+
+    if (error) {
+      console.error("Email error:", error);
+      return res.status(500).json({
+        success: false,
+        message: `Échec de l'envoi: ${error.message}`,
+      });
+    }
+
+    console.log(`Email sent to ${employeeEmail}`, data);
     res.json({
       success: true,
       message: "Email envoyé avec succès!",
