@@ -14,7 +14,11 @@
     "type": "git",
     "url": "git+https://github.com/Mudelkun/employee-checker.git"
   },
-  "keywords": ["employee", "time-tracking", "management"],
+  "keywords": [
+    "employee",
+    "time-tracking",
+    "management"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
@@ -24,6 +28,7 @@
   "homepage": "https://github.com/Mudelkun/employee-checker#readme",
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "nodemailer": "^7.0.11"
   }
 }

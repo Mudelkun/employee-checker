@@ -3,6 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const cors = require("cors");
 const crypto = require("crypto");
+const nodemailer = require("nodemailer");
 
 const app = express();
 // Increase payload limit to handle base64 images
@@ -46,6 +47,33 @@ if (
         };
         fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
         console.log("Migration: Added pointageLogin credentials to database");
+      }
+    }
+  } catch (err) {
+    console.error("Migration error:", err);
+  }
+})();
+
+// ----------- MIGRATION: Add email field to employees if missing -----------
+(function migrateEmployeeEmail() {
+  try {
+    if (fs.existsSync(DATA_FILE)) {
+      const raw = fs.readFileSync(DATA_FILE, "utf8");
+      const data = JSON.parse(raw);
+      let migrated = false;
+
+      if (data.employees && Array.isArray(data.employees)) {
+        data.employees.forEach((emp) => {
+          if (emp.email === undefined) {
+            emp.email = null;
+            migrated = true;
+          }
+        });
+      }
+
+      if (migrated) {
+        fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+        console.log("Migration: Added email field to employees");
       }
     }
   } catch (err) {
@@ -243,6 +271,66 @@ app.delete("/employees/:id", (req, res) => {
   saveDB(db);
 
   res.json({ message: "Employee deleted!", employee: deletedEmployee[0] });
+});
+
+// -------------------------------------------
+// SEND EMAIL ENDPOINT
+// -------------------------------------------
+app.post("/send-id-email", async (req, res) => {
+  const { employeeEmail, employeeName, employeeId } = req.body;
+
+  if (!employeeEmail || !employeeId) {
+    return res.status(400).json({
+      success: false,
+      message: "Email et ID de l'employé requis",
+    });
+  }
+
+  // Create transporter with Gmail
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: "fierbouthaiti@gmail.com",
+      pass: process.env.GMAIL_APP_PASSWORD, // App Password from environment variable
+    },
+  });
+
+  // Email content
+  const mailOptions = {
+    from: "fierbouthaiti@gmail.com",
+    to: employeeEmail,
+    subject: "Votre numéro de pointage - Fierbout",
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #667eea;">Fierbout - Système de Pointage</h2>
+        <p>Bonjour${employeeName ? ` ${employeeName}` : ""},</p>
+        <p>Vous trouverez ci-dessous votre numéro de pointage pour accéder au système de pointage électronique de l'École Fierbout:</p>
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; margin: 20px 0;">
+          <p style="margin: 0; font-size: 14px;">Votre numéro de pointage:</p>
+          <p style="margin: 10px 0; font-size: 32px; font-weight: bold; letter-spacing: 3px;">${employeeId}</p>
+        </div>
+        <p>Veuillez conserver ce numéro en lieu sûr. Vous en aurez besoin pour enregistrer vos heures d'entrée et de sortie.</p>
+        <p>Si vous avez des questions, veuillez contacter votre responsable.</p>
+        <br>
+        <p>Cordialement,<br><strong>Direction centrale, Canada</strong></p>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Email sent to ${employeeEmail}`);
+    res.json({
+      success: true,
+      message: "Email envoyé avec succès!",
+    });
+  } catch (error) {
+    console.error("Email error:", error);
+    res.status(500).json({
+      success: false,
+      message: `Échec de l'envoi: ${error.message}`,
+    });
+  }
 });
 
 // -------------------------------------------

@@ -34,6 +34,7 @@
           </select>
         </div>
         <div class="manager-buttons">
+          <span id="employee-count" class="employee-count">0 employés</span>
           <button id="add">Ajouter un employé</button>
           <button id="calculate-pay" class="calculate-pay-nav">
             Calculer la paie
@@ -431,6 +432,14 @@
               id="edit-details"
               placeholder="Détails supplémentaires"
             ></textarea>
+          </div>
+          <div class="form-group">
+            <label>Email (Optionnel)</label>
+            <input
+              type="email"
+              id="edit-email"
+              placeholder="exemple@email.com"
+            />
           </div>
           <div class="form-group">
             <label>Type de salaire (Optionnel)</label>

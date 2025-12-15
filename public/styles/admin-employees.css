@@ -142,11 +142,22 @@ nav img:hover {
 
 .manager-buttons {
   display: flex;
+  align-items: center;
   gap: 10px;
 }
 
 .manager-buttons button {
   margin-left: 0;
+}
+
+.employee-count {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(17, 153, 142, 0.3);
 }
 
 /* SIZE CONTROL */
@@ -559,4 +570,29 @@ nav img:hover {
 .confirm-remove-btn:hover {
   box-shadow: 0 8px 20px rgba(244, 67, 54, 0.4);
   transform: translateY(-2px);
+}
+
+/* SEND ID BUTTON */
+.send-id-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  margin-left: 8px;
+  transition: all 0.2s ease;
+}
+
+.send-id-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+}
+
+.employee-email {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
 }

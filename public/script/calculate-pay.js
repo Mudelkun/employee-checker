@@ -94,7 +94,10 @@ function calculatePay() {
     const dayBreakdown = [];
     const uniqueDates = new Set(); // Track unique dates for accurate day count
 
-    employee.hdePointage.forEach((record) => {
+    // Only process pointage if the employee has records
+    const pointageRecords = employee.hdePointage || [];
+
+    pointageRecords.forEach((record) => {
       const [recordMonth, recordDay, recordYear] = record.date.split("/");
 
       // Filter by year and month
@@ -139,7 +142,12 @@ function calculatePay() {
     // Set daysWorked based on unique dates
     daysWorked = uniqueDates.size;
 
-    if (daysWorked > 0 || totalHours > 0) {
+    // For hourly workers, they need hours worked to calculate pay
+    // For weekly/monthly workers, they get paid regardless of hours tracked
+    const isHourly = employee.payType === "hourly";
+    const hasWorkedHours = daysWorked > 0 || totalHours > 0;
+
+    if (hasWorkedHours || !isHourly) {
       let totalPay = 0;
       if (employee.payType === "hourly") {
         totalPay = (totalHours * employee.payAmount).toFixed(2);

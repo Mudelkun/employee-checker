@@ -4,15 +4,12 @@
 let employees = [];
 let uploadedImage = null; // Store base64 image data
 
-// Performance optimization: cache name validation regex
-const nameRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]+$/;
-const roleRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]+$/;
-
 // Inputs
 const first_input = document.getElementById("first-name");
 const last_input = document.getElementById("last-name");
 const role_input = document.getElementById("role");
 const details_input = document.getElementById("additional-details");
+const email_input = document.getElementById("employee-email");
 const payTypeSelect = document.getElementById("pay-type");
 const payAmountInput = document.getElementById("pay-amount");
 const payAmountField = document.getElementById("pay-amount-field");
@@ -113,33 +110,11 @@ function validateForm() {
   const first = first_input.value.trim();
   const last = last_input.value.trim();
   const role = role_input.value.trim();
-  const details = details_input.value.trim();
   const id = show_id.textContent.trim();
 
+  // Only check that required fields are not empty
   if (!first || !last || !role) {
     alert("Veuillez remplir le prénom, le nom et le poste.");
-    return false;
-  }
-
-  // Allow letters, spaces, dashes and apostrophes in names
-  const nameValidationRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]+$/;
-  if (!nameValidationRegex.test(first)) {
-    alert("Le prénom contient des caractères invalides.");
-    return false;
-  }
-  if (!nameValidationRegex.test(last)) {
-    alert("Le nom de famille contient des caractères invalides.");
-    return false;
-  }
-
-  if (!roleRegex.test(role)) {
-    alert("Le poste contient des caractères invalides.");
-    return false;
-  }
-
-  // Details is optional, but if provided must be at least 5 characters
-  if (details && details.length < 5) {
-    alert("Les détails doivent contenir au moins 5 caractères.");
     return false;
   }
 
@@ -229,6 +204,7 @@ finalConfirm.addEventListener("click", async () => {
     name: `${capitalize(first_input.value)} ${last_input.value.toUpperCase()}`,
     role: role_input.value.trim(),
     details: details_input.value.trim(),
+    email: email_input.value.trim() || null,
     id: show_id.textContent.trim(),
     image: imageToUse, // Include base64 image or default image path
     hdePointage: [],
@@ -269,6 +245,7 @@ finalConfirm.addEventListener("click", async () => {
     last_input.value = "";
     role_input.value = "";
     details_input.value = "";
+    email_input.value = "";
     payTypeSelect.value = "";
     payAmountInput.value = "";
     payAmountField.style.display = "none";

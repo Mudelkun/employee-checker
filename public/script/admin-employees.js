@@ -153,6 +153,14 @@ function buildUI(employes) {
             <p class="employee-name">${emp.name}</p>
             <p class="employee-role">${emp.role}</p>
             <p class="employee-more">${emp.details}</p>
+            <p class="employee-email">
+              ${emp.email ? `📧 ${emp.email}` : ""}
+              ${
+                emp.email
+                  ? `<button class="send-id-btn" title="Envoyer ID par email">📤 Envoyer ID</button>`
+                  : ""
+              }
+            </p>
             <p class="employee-pay-rate">${cardPayDisplay}</p>
           </div>
 
@@ -288,6 +296,46 @@ function attachCardListeners() {
       removeBtn.addEventListener("click", () => {
         openRemoveModal(empData, card, manager);
       });
+
+      // Attach send ID button listener (if email exists)
+      const sendIdBtn = card.querySelector(".send-id-btn");
+      if (sendIdBtn) {
+        sendIdBtn.addEventListener("click", async () => {
+          // Confirm before sending
+          if (!confirm(`Envoyer l'ID de pointage à ${empData.email}?`)) {
+            return;
+          }
+
+          sendIdBtn.disabled = true;
+          sendIdBtn.textContent = "Envoi...";
+
+          try {
+            const response = await fetch("/send-id-email", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                employeeEmail: empData.email,
+                employeeName: empData.name,
+                employeeId: empData.id,
+              }),
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+              alert(`✅ Email envoyé à ${empData.email}!`);
+            } else {
+              alert(`❌ Échec: ${result.message}`);
+            }
+          } catch (error) {
+            console.error("Send email error:", error);
+            alert(`❌ Erreur: ${error.message}`);
+          } finally {
+            sendIdBtn.disabled = false;
+            sendIdBtn.textContent = "📤 Envoyer ID";
+          }
+        });
+      }
 
       cName.addEventListener("click", () => {
         manager.hidden = false;
@@ -548,6 +596,7 @@ function openEditModal(empData) {
   const editNameInput = document.getElementById("edit-name");
   const editRoleInput = document.getElementById("edit-role");
   const editDetailsInput = document.getElementById("edit-details");
+  const editEmailInput = document.getElementById("edit-email");
   const editPayTypeSelect = document.getElementById("edit-pay-type");
   const editPayAmountInput = document.getElementById("edit-pay-amount");
   const editPayAmountField = document.getElementById("edit-pay-amount-field");
@@ -565,6 +614,7 @@ function openEditModal(empData) {
   editNameInput.value = empData.name;
   editRoleInput.value = empData.role;
   editDetailsInput.value = empData.details;
+  editEmailInput.value = empData.email || "";
   editPayTypeSelect.value = empData.payType || "";
   editPayAmountInput.value = empData.payAmount || "";
 
@@ -653,9 +703,11 @@ function openEditModal(empData) {
     const newName = editNameInput.value.trim();
     const newRole = editRoleInput.value.trim();
     const newDetails = editDetailsInput.value.trim();
+    const newEmail = editEmailInput.value.trim();
 
-    if (!newName || !newRole || !newDetails) {
-      alert("Tous les champs (Nom, Poste, Détails) sont obligatoires!");
+    // Only name and role are required, details is optional
+    if (!newName || !newRole) {
+      alert("Le nom et le poste sont obligatoires!");
       return;
     }
 
@@ -673,6 +725,7 @@ function openEditModal(empData) {
         name: newName,
         role: newRole,
         details: newDetails,
+        email: newEmail || null,
         image: newImageForSave, // Include the new image
         payType: payType || null, // "hourly", "weekly", "monthly", or null
         payAmount: payType && payAmount ? parseFloat(payAmount) : null, // The actual amount
@@ -827,6 +880,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   const employees = await loadEmployees();
   globalEmployees = employees;
   buildUI(employees);
+
+  // Update employee count
+  const employeeCountEl = document.getElementById("employee-count");
+  if (employeeCountEl) {
+    employeeCountEl.textContent = `${employees.length} employé${
+      employees.length !== 1 ? "s" : ""
+    }`;
+  }
 
   // Logout button functionality
   const logoutBtn = document.getElementById("logout-btn");
