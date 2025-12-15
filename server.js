@@ -289,9 +289,13 @@ app.post("/send-id-email", async (req, res) => {
   // Create Resend client (uses HTTP API - works on Railway)
   const resend = new Resend(process.env.RESEND_API_KEY);
 
+  // Use RESEND_FROM_EMAIL env var or default
+  const fromEmail =
+    process.env.RESEND_FROM_EMAIL || "Fierbout <onboarding@resend.dev>";
+
   try {
     const { data, error } = await resend.emails.send({
-      from: "Fierbout <onboarding@resend.dev>", // Use verified domain or resend.dev for testing
+      from: fromEmail,
       to: employeeEmail,
       subject: "Votre numéro de pointage - Fierbout",
       html: `
