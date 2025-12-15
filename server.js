@@ -311,6 +311,8 @@ app.post("/send-id-email", async (req, res) => {
           <p>Si vous avez des questions, veuillez contacter votre responsable.</p>
           <br>
           <p>Cordialement,<br><strong>Direction centrale, Canada</strong></p>
+          <hr style="border: none; border-top: 1px solid #ccc; margin: 20px 0;">
+          <p style="font-size: 11px; color: #888; text-align: center;">Note : Ce courriel est transmis à titre informatif uniquement. Merci de ne pas y répondre et de ne pas envoyer de messages à cette adresse électronique.</p>
         </div>
       `,
     });
