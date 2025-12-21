@@ -206,10 +206,15 @@
           "entrer": "08:00 AM",
           "sorti": "05:30 PM",
           "heureTravailer": 9.5
+        },
+        {
+          "date": "12/20/2025",
+          "entrer": "7:05 PM",
+          "sorti": ""
         }
       ],
-      "estEntrer": false,
-      "estSorti": true,
+      "estEntrer": true,
+      "estSorti": false,
       "payType": "monthly",
       "payAmount": 5000,
       "email": "perilusrod123@gmail.com"
@@ -605,7 +610,8 @@
       "estEntrer": false,
       "estSorti": false,
       "payType": "monthly",
-      "payAmount": 3000
+      "payAmount": 3000,
+      "email": null
     },
     {
       "id": "100004",
@@ -798,7 +804,8 @@
       "estEntrer": false,
       "estSorti": false,
       "payType": "hourly",
-      "payAmount": 15
+      "payAmount": 15,
+      "email": null
     },
     {
       "id": "100005",
@@ -991,7 +998,8 @@
       "estEntrer": false,
       "estSorti": false,
       "payType": "hourly",
-      "payAmount": 15
+      "payAmount": 15,
+      "email": null
     },
     {
       "id": "100006",
@@ -1184,7 +1192,8 @@
       "estEntrer": false,
       "estSorti": false,
       "payType": "monthly",
-      "payAmount": 2800
+      "payAmount": 2800,
+      "email": null
     },
     {
       "id": "100007",
@@ -1377,7 +1386,8 @@
       "estEntrer": false,
       "estSorti": false,
       "payType": "hourly",
-      "payAmount": 14
+      "payAmount": 14,
+      "email": null
     },
     {
       "id": "100008",
@@ -1570,7 +1580,8 @@
       "estEntrer": false,
       "estSorti": false,
       "payType": "monthly",
-      "payAmount": 2200
+      "payAmount": 2200,
+      "email": null
     },
     {
       "id": "100009",
@@ -1763,7 +1774,8 @@
       "estEntrer": false,
       "estSorti": false,
       "payType": "monthly",
-      "payAmount": 2600
+      "payAmount": 2600,
+      "email": null
     },
     {
       "id": "100010",
@@ -1956,7 +1968,8 @@
       "estEntrer": false,
       "estSorti": false,
       "payType": "monthly",
-      "payAmount": 3200
+      "payAmount": 3200,
+      "email": null
     },
     {
       "name": "Sarah PERILUS",
@@ -1966,7 +1979,8 @@
       "image": "imgs/07873.png",
       "hdePointage": [],
       "payType": "monthly",
-      "payAmount": 1000000
+      "payAmount": 1000000,
+      "email": null
     },
     {
       "name": "Eded EDED121212rtgr",
@@ -1976,7 +1990,8 @@
       "image": "imgs/07873.png",
       "hdePointage": [],
       "payType": null,
-      "payAmount": null
+      "payAmount": null,
+      "email": null
     }
   ]
 }

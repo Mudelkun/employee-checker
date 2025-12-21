@@ -1,14 +1,27 @@
 body {
   font-family: Roboto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 3%;
   background-color: #f8f9fc;
 }
 
+.input-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.show-id {
+  margin-left: 10px;
+  width: 5%;
+  height: 5%;
+  background-color: lightblue;
+  padding: 2px 5px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
 .input-element-style {
-  width: 42%;
+  width: 52%;
+  height: auto;
   font-size: 2vw;
   padding: 0.6em;
   border: 2px solid #000;
@@ -34,6 +47,13 @@ button:active {
   padding: 10px;
   border-radius: 10px;
   margin-top: 2.5%;
+}
+
+.main-buttons .button-container #clear-button {
+  background-color: white;
+  border-style: double;
+  border-color: red;
+  color: red;
 }
 
 .button-container button {
@@ -75,24 +95,4 @@ button:active {
 
 .action-button button:hover {
   background-color: #f0f0f0;
-}
-
-/* --- Mobile adjustments --- */
-@media (max-width: 700px) {
-  .input-element-style,
-  .button-container {
-    width: 80%;
-  }
-
-  .main-buttons {
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-  }
-
-  .action-button {
-    flex-direction: row;
-    justify-content: center;
-    width: 80%;
-  }
 }

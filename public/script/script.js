@@ -38,6 +38,7 @@ const buttons = document.querySelectorAll(".button-container button");
 const pEntrant = document.getElementById("entrant");
 const pSortant = document.getElementById("sortant");
 const message = document.getElementById("message");
+const showId = document.querySelector(".show-id");
 
 // Reset input field every 2 minutes
 setInterval(() => {
@@ -52,7 +53,7 @@ function getMessage(msg, color = "black") {
   message.style.color = color;
   setTimeout(() => {
     message.textContent = "";
-  }, 8000);
+  }, 9000);
 }
 
 // ---------------------------------------------
@@ -135,11 +136,24 @@ async function saveToServer(emp) {
 // ---------------------------------------------
 // Keypad buttons
 // ---------------------------------------------
+
+showId.addEventListener("click", () => {
+  if (inputField.type === "password") {
+    inputField.type = "text";
+    showId.src = "imgs/hide-password.png";
+    return;
+  }
+  inputField.type = "password";
+  showId.src = "imgs/show-password.png";
+});
+
 buttons.forEach((button) => {
   button.addEventListener("click", () => {
     const value = button.textContent.trim();
 
-    if (value === "<") {
+    if (value === "X") {
+      inputField.value = "";
+    } else if (value === "<") {
       inputField.value = inputField.value.slice(0, -1);
     } else {
       inputField.value += value;
