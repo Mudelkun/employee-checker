@@ -56,6 +56,11 @@ function getMessage(msg, color = "black") {
   }, 9000);
 }
 
+function playConfirmed() {
+  let audio = new Audio("audio/confirmed.mp3");
+  return audio.play();
+}
+
 // ---------------------------------------------
 // Update Pointage
 // ---------------------------------------------
@@ -138,12 +143,12 @@ async function saveToServer(emp) {
 // ---------------------------------------------
 
 showId.addEventListener("click", () => {
-  if (inputField.type === "password") {
-    inputField.type = "text";
+  if (inputField.classList.contains("dot")) {
+    inputField.classList.remove("dot");
     showId.src = "imgs/hide-password.png";
     return;
   }
-  inputField.type = "password";
+  inputField.classList.add("dot");
   showId.src = "imgs/show-password.png";
 });
 
@@ -189,6 +194,7 @@ pEntrant.addEventListener("click", () => {
   } else {
     emp.estSorti = false;
     emp.estEntrer = true;
+    playConfirmed();
     updateHdePointage(emp, "entrant");
     inputField.value = "";
   }
@@ -228,6 +234,7 @@ pSortant.addEventListener("click", () => {
 
   emp.estEntrer = false;
   emp.estSorti = true;
+  playConfirmed();
   updateHdePointage(emp, "sortant");
   inputField.value = "";
 });

@@ -211,10 +211,52 @@
           "date": "12/20/2025",
           "entrer": "7:05 PM",
           "sorti": ""
+        },
+        {
+          "date": "12/21/2025",
+          "entrer": "2:59 PM",
+          "sorti": "3:22 PM",
+          "heureTravailer": 0.38
+        },
+        {
+          "date": "12/21/2025",
+          "entrer": "3:10 PM",
+          "sorti": "3:22 PM",
+          "heureTravailer": 0.2
+        },
+        {
+          "date": "12/21/2025",
+          "entrer": "3:11 PM",
+          "sorti": "3:22 PM",
+          "heureTravailer": 0.18
+        },
+        {
+          "date": "12/21/2025",
+          "entrer": "3:18 PM",
+          "sorti": "3:22 PM",
+          "heureTravailer": 0.07
+        },
+        {
+          "date": "12/21/2025",
+          "entrer": "3:19 PM",
+          "sorti": "3:22 PM",
+          "heureTravailer": 0.05
+        },
+        {
+          "date": "12/21/2025",
+          "entrer": "3:21 PM",
+          "sorti": "3:22 PM",
+          "heureTravailer": 0.02
+        },
+        {
+          "date": "12/21/2025",
+          "entrer": "3:21 PM",
+          "sorti": "3:22 PM",
+          "heureTravailer": 0.02
         }
       ],
-      "estEntrer": true,
-      "estSorti": false,
+      "estEntrer": false,
+      "estSorti": true,
       "payType": "monthly",
       "payAmount": 5000,
       "email": "perilusrod123@gmail.com"

@@ -29,6 +29,10 @@ body {
   outline: none;
 }
 
+.dot {
+  -webkit-text-security: disc;
+}
+
 button {
   cursor: pointer;
   transition: transform 0.1s ease, background-color 0.2s ease;
