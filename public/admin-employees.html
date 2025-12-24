@@ -20,24 +20,57 @@
     <main class="employee-manager">
       <section id="manager">
         <section id="search">
-          <input type="text" id="search-input" placeholder="nom" />
+          <input type="text" id="search-input" placeholder="Rechercher..." />
           <button>Travaillant aujourd'hui</button>
         </section>
-        <div class="size-control">
-          <label for="size-select">Taille:</label>
-          <select id="size-select" class="size-dropdown">
-            <option value="xs">Très petit (XS)</option>
-            <option value="sm">Petit (S)</option>
-            <option value="md" selected>Moyen (M)</option>
-            <option value="lg">Grand (L)</option>
-            <option value="xl">Très grand (XL)</option>
-          </select>
+
+        <div class="controls-row">
+          <div class="size-control">
+            <label for="size-select">Taille:</label>
+            <select id="size-select" class="size-dropdown">
+              <option value="xs">Très petit (XS)</option>
+              <option value="sm">Petit (S)</option>
+              <option value="md" selected>Moyen (M)</option>
+              <option value="lg">Grand (L)</option>
+              <option value="xl">Très grand (XL)</option>
+            </select>
+          </div>
+          <div class="filter-control">
+            <label for="filter-select">Filtrer:</label>
+            <select id="filter-select" class="filter-dropdown">
+              <option value="none">-- Aucun filtre --</option>
+              <optgroup label="Ordre alphabétique">
+                <option value="alpha-asc">A → Z</option>
+                <option value="alpha-desc">Z → A</option>
+              </optgroup>
+              <optgroup label="Salaire">
+                <option value="pay-asc">Salaire: Bas → Haut</option>
+                <option value="pay-desc">Salaire: Haut → Bas</option>
+              </optgroup>
+              <optgroup label="Type de salaire">
+                <option value="pay-type-hourly">Salaire horaire</option>
+                <option value="pay-type-weekly">Salaire hebdomadaire</option>
+                <option value="pay-type-monthly">Salaire mensuel</option>
+                <option value="pay-type-none">Sans salaire défini</option>
+              </optgroup>
+              <optgroup label="Email">
+                <option value="has-email">Avec email</option>
+                <option value="no-email">Sans email</option>
+              </optgroup>
+            </select>
+          </div>
         </div>
+
         <div class="manager-buttons">
-          <span id="employee-count" class="employee-count">0 employés</span>
-          <button id="add">Ajouter un employé</button>
+          <span id="employee-count" class="employee-count">0</span>
+          <button title="Envoyer ID par email" id="send-id-to-all-button">
+            📤 Envoyer ID
+          </button>
           <button id="calculate-pay" class="calculate-pay-nav">
-            Calculer la paie
+            💰 Calculer paie
+          </button>
+          <button id="add" class="add-btn" title="Ajouter un employé">
+            <span class="plus-icon">+</span>
           </button>
         </div>
       </section>
@@ -481,6 +514,30 @@
         <div class="modal-buttons">
           <button class="cancel-remove-btn">Annuler</button>
           <button class="confirm-remove-btn">Supprimer</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEND ID TO EMPLOYEES MODAL -->
+    <div class="send-id-modal hidden">
+      <div class="modal-content">
+        <h2>📤 Envoyer ID par email</h2>
+        <p>Sélectionnez les employés à qui envoyer leur ID de pointage:</p>
+
+        <div class="select-all-container">
+          <label class="checkbox-label">
+            <input type="checkbox" id="select-all-employees" />
+            <span>Sélectionner tout</span>
+          </label>
+        </div>
+
+        <div class="employee-list-container" id="send-id-employee-list">
+          <!-- Employee checkboxes will be populated here -->
+        </div>
+
+        <div class="modal-buttons">
+          <button class="cancel-send-id-btn">Annuler</button>
+          <button class="confirm-send-id-btn">📤 Envoyer</button>
         </div>
       </div>
     </div>

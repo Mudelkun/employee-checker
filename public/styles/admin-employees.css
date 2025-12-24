@@ -94,11 +94,19 @@ nav img:hover {
   right: 0;
   z-index: 999;
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   padding: 12px 30px;
   background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf3 100%);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+#search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 #manager input {
@@ -106,7 +114,7 @@ nav img:hover {
   font-size: 14px;
   border: 2px solid #e0e0e0;
   border-radius: 10px;
-  width: 180px;
+  width: 160px;
   outline: none;
   background: white;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -119,63 +127,85 @@ nav img:hover {
   transform: translateY(-2px);
 }
 
-#manager button,
-.manager-buttons button {
+#search button {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  padding: 12px 24px;
-  border-radius: 12px;
+  padding: 10px 16px;
+  border-radius: 10px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-  margin-left: 10px;
+  white-space: nowrap;
 }
 
-#manager button:hover,
-.manager-buttons button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+#search button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.controls-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .manager-buttons {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .manager-buttons button {
-  margin-left: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  white-space: nowrap;
+}
+
+.manager-buttons button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
 }
 
 .employee-count {
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-  color: white;
-  padding: 8px 16px;
-  border-radius: 20px;
   font-size: 13px;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(17, 153, 142, 0.3);
+  font-style: italic;
+  color: #666;
+  white-space: nowrap;
 }
 
 /* SIZE CONTROL */
-.size-control {
+.size-control,
+.filter-control {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
-.size-control label {
-  font-size: 13px;
+.size-control label,
+.filter-control label {
+  font-size: 12px;
   font-weight: 600;
   color: #555;
+  white-space: nowrap;
 }
 
-.size-dropdown {
-  padding: 8px 12px;
-  font-size: 13px;
+.size-dropdown,
+.filter-dropdown {
+  padding: 8px 10px;
+  font-size: 12px;
   font-weight: 500;
   border: 2px solid #e0e0e0;
   border-radius: 8px;
@@ -184,16 +214,36 @@ nav img:hover {
   cursor: pointer;
   outline: none;
   transition: all 0.2s ease;
-  min-width: 140px;
 }
 
-.size-dropdown:hover {
+.size-dropdown {
+  min-width: 120px;
+}
+
+.filter-dropdown {
+  min-width: 160px;
+}
+
+.size-dropdown:hover,
+.filter-dropdown:hover {
   border-color: #667eea;
 }
 
-.size-dropdown:focus {
+.size-dropdown:focus,
+.filter-dropdown:focus {
   border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+
+.filter-dropdown optgroup {
+  font-weight: 700;
+  color: #333;
+  background: #f5f5f5;
+}
+
+.filter-dropdown option {
+  font-weight: 500;
+  padding: 8px;
 }
 
 #calculate-pay {
@@ -203,6 +253,31 @@ nav img:hover {
 
 #calculate-pay:hover {
   box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+}
+
+/* ADD BUTTON */
+.add-btn {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  box-shadow: 0 4px 12px rgba(17, 153, 142, 0.4);
+}
+
+.add-btn:hover {
+  box-shadow: 0 6px 20px rgba(17, 153, 142, 0.5);
+  transform: translateY(-2px) rotate(90deg);
+}
+
+.add-btn .plus-icon {
+  font-size: 24px;
+  font-weight: 300;
+  line-height: 1;
 }
 
 /* EMPLOYEE GRID */
@@ -595,4 +670,447 @@ nav img:hover {
   align-items: center;
   gap: 5px;
   flex-wrap: wrap;
+}
+
+/* SEND ID MODAL */
+.send-id-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease;
+}
+
+.send-id-modal.hidden {
+  display: none;
+}
+
+.send-id-modal .modal-content {
+  background: white;
+  padding: 35px;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 500px;
+  width: 90%;
+  animation: scaleIn 0.3s ease;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.send-id-modal h2 {
+  margin: 0 0 15px;
+  color: #1a1a1a;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.send-id-modal > .modal-content > p {
+  color: #666;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.select-all-container {
+  padding: 12px 15px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 10px;
+  margin-bottom: 15px;
+}
+
+.select-all-container .checkbox-label {
+  color: white;
+  font-weight: 700;
+}
+
+.select-all-container input[type="checkbox"] {
+  accent-color: white;
+}
+
+.employee-list-container {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 10px;
+  background: #fafafa;
+}
+
+.employee-list-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.employee-list-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.employee-list-container::-webkit-scrollbar-thumb {
+  background: #667eea;
+  border-radius: 10px;
+}
+
+.employee-checkbox-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid #eee;
+}
+
+.employee-checkbox-item:last-child {
+  border-bottom: none;
+}
+
+.employee-checkbox-item:hover {
+  background: #f0f4ff;
+}
+
+.employee-checkbox-item.no-email {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  flex: 1;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #667eea;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+}
+
+.employee-checkbox-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.employee-checkbox-name {
+  font-weight: 600;
+  color: #1a1a1a;
+  font-size: 14px;
+}
+
+.employee-checkbox-email {
+  font-size: 12px;
+  color: #666;
+}
+
+.employee-checkbox-no-email {
+  font-size: 12px;
+  color: #f44336;
+  font-style: italic;
+}
+
+.cancel-send-id-btn {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.cancel-send-id-btn:hover {
+  background: #e0e0e0;
+  transform: translateY(-2px);
+}
+
+.confirm-send-id-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.confirm-send-id-btn:hover {
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+  transform: translateY(-2px);
+}
+
+.confirm-send-id-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* RESPONSIVE STYLES */
+@media screen and (max-width: 1200px) {
+  #manager {
+    padding: 10px 20px;
+  }
+
+  .controls-row {
+    gap: 12px;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  #manager {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 10px 15px;
+  }
+
+  #search {
+    justify-content: center;
+  }
+
+  .controls-row {
+    justify-content: center;
+  }
+
+  .manager-buttons {
+    justify-content: center;
+  }
+
+  /* Employee grid adjustments for tablets */
+  #employee-container {
+    padding: 15px 20px;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+
+  .employee-manager {
+    padding-top: 180px; /* More space for stacked manager bar */
+  }
+}
+
+@media screen and (max-width: 600px) {
+  /* Nav adjustments */
+  nav {
+    padding: 12px 15px;
+  }
+
+  nav span {
+    font-size: 14px;
+  }
+
+  nav img {
+    width: 32px;
+  }
+
+  /* Manager bar adjustments */
+  #manager {
+    top: 56px;
+    padding: 8px 10px;
+    gap: 8px;
+  }
+
+  #manager input {
+    width: 100%;
+    max-width: 140px;
+  }
+
+  #search {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  #search button {
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+
+  .controls-row {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .size-control,
+  .filter-control {
+    flex: 1;
+    min-width: 140px;
+  }
+
+  .size-dropdown,
+  .filter-dropdown {
+    min-width: unset;
+    width: 100%;
+    font-size: 11px;
+    padding: 6px 8px;
+  }
+
+  .size-control label,
+  .filter-control label {
+    font-size: 11px;
+  }
+
+  .manager-buttons {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .manager-buttons button {
+    padding: 8px 10px;
+    font-size: 11px;
+    flex: 1;
+    min-width: 80px;
+  }
+
+  .employee-count {
+    padding: 6px 10px;
+    font-size: 10px;
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Employee grid mobile */
+  #employee-container {
+    padding: 10px 12px;
+    gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+
+  .employee-manager {
+    padding-top: 220px; /* More space for stacked manager bar on mobile */
+  }
+
+  .employee img {
+    height: 70px;
+  }
+
+  .employee-details {
+    padding: 6px 8px;
+  }
+
+  .employee-details .name {
+    font-size: 10px;
+  }
+
+  .employee-details .role,
+  .employee-details .status {
+    font-size: 8px;
+  }
+
+  .pay-per-hour {
+    font-size: 10px;
+    padding-top: 8px;
+    margin-top: 8px;
+  }
+
+  /* Modal adjustments for mobile */
+  .edit-modal .modal-content,
+  .remove-modal .modal-content,
+  .send-id-modal .modal-content {
+    padding: 20px;
+    width: 95%;
+    max-height: 85vh;
+  }
+
+  .edit-modal h2,
+  .remove-modal h2,
+  .send-id-modal h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+  }
+
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .modal-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .modal-buttons button {
+    padding: 12px;
+    font-size: 13px;
+  }
+
+  .employee-list-container {
+    max-height: 200px;
+  }
+
+  .employee-checkbox-item {
+    padding: 10px 12px;
+  }
+
+  .employee-checkbox-name {
+    font-size: 13px;
+  }
+
+  .employee-checkbox-email {
+    font-size: 11px;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  nav {
+    padding: 10px 12px;
+  }
+
+  nav span {
+    font-size: 12px;
+  }
+
+  #manager {
+    top: 50px;
+  }
+
+  #manager input {
+    max-width: 100px;
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+
+  #search button {
+    font-size: 10px;
+    padding: 6px 8px;
+  }
+
+  .manager-buttons button {
+    font-size: 10px;
+    padding: 6px 8px;
+  }
+
+  .employee-manager {
+    padding-top: 250px;
+  }
+
+  #employee-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 8px 10px;
+  }
+
+  .employee img {
+    height: 60px;
+  }
+
+  .employee-details {
+    padding: 5px 6px;
+  }
+
+  .employee-details .name {
+    font-size: 9px;
+  }
+
+  .employee-details .role,
+  .employee-details .status {
+    font-size: 7px;
+  }
+
+  .pay-per-hour {
+    font-size: 9px;
+  }
 }

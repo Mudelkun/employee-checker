@@ -567,6 +567,138 @@ workingTodayBtn.addEventListener("click", () => {
   }
 });
 
+// ---------------------- FILTER/SORT FUNCTIONALITY ----------------------
+const filterSelect = document.getElementById("filter-select");
+
+function applyFilter(filterValue) {
+  const employeeContainer = document.getElementById("employee-container");
+  const employees = Array.from(employeeContainer.querySelectorAll(".employee"));
+
+  // First, show all employees
+  employees.forEach((emp) => (emp.style.display = ""));
+
+  // Get employee data for sorting/filtering
+  const employeesWithData = employees.map((empEl) => {
+    const empData = globalEmployees.find((e) => e.id === empEl.id);
+    return { element: empEl, data: empData };
+  });
+
+  let filtered = employeesWithData;
+  let sorted = false;
+
+  switch (filterValue) {
+    case "none":
+      // Reset to original order (by ID or as loaded)
+      break;
+
+    case "alpha-asc":
+      filtered.sort((a, b) => {
+        const nameA = a.data?.name?.toLowerCase() || "";
+        const nameB = b.data?.name?.toLowerCase() || "";
+        return nameA.localeCompare(nameB, "fr");
+      });
+      sorted = true;
+      break;
+
+    case "alpha-desc":
+      filtered.sort((a, b) => {
+        const nameA = a.data?.name?.toLowerCase() || "";
+        const nameB = b.data?.name?.toLowerCase() || "";
+        return nameB.localeCompare(nameA, "fr");
+      });
+      sorted = true;
+      break;
+
+    case "pay-asc":
+      filtered.sort((a, b) => {
+        const payA = a.data?.payAmount || 0;
+        const payB = b.data?.payAmount || 0;
+        return payA - payB;
+      });
+      sorted = true;
+      break;
+
+    case "pay-desc":
+      filtered.sort((a, b) => {
+        const payA = a.data?.payAmount || 0;
+        const payB = b.data?.payAmount || 0;
+        return payB - payA;
+      });
+      sorted = true;
+      break;
+
+    case "pay-type-hourly":
+      filtered.forEach(({ element, data }) => {
+        element.style.display = data?.payType === "hourly" ? "" : "none";
+      });
+      break;
+
+    case "pay-type-weekly":
+      filtered.forEach(({ element, data }) => {
+        element.style.display = data?.payType === "weekly" ? "" : "none";
+      });
+      break;
+
+    case "pay-type-monthly":
+      filtered.forEach(({ element, data }) => {
+        element.style.display = data?.payType === "monthly" ? "" : "none";
+      });
+      break;
+
+    case "pay-type-none":
+      filtered.forEach(({ element, data }) => {
+        element.style.display = !data?.payType ? "" : "none";
+      });
+      break;
+
+    case "has-email":
+      filtered.forEach(({ element, data }) => {
+        const hasEmail = data?.email && data.email.trim() !== "";
+        element.style.display = hasEmail ? "" : "none";
+      });
+      break;
+
+    case "no-email":
+      filtered.forEach(({ element, data }) => {
+        const hasEmail = data?.email && data.email.trim() !== "";
+        element.style.display = !hasEmail ? "" : "none";
+      });
+      break;
+  }
+
+  // If sorted, reorder DOM elements
+  if (sorted) {
+    filtered.forEach(({ element }) => {
+      employeeContainer.appendChild(element);
+    });
+  }
+
+  // Update visible count
+  const visibleCount = employeeContainer.querySelectorAll(
+    '.employee[style=""], .employee:not([style])'
+  ).length;
+  const actualVisible = Array.from(
+    employeeContainer.querySelectorAll(".employee")
+  ).filter((emp) => emp.style.display !== "none").length;
+
+  const employeeCountEl = document.getElementById("employee-count");
+  if (employeeCountEl && filterValue !== "none") {
+    employeeCountEl.textContent = actualVisible;
+  } else if (employeeCountEl) {
+    employeeCountEl.textContent = globalEmployees.length;
+  }
+}
+
+filterSelect.addEventListener("change", (e) => {
+  // Reset working today filter when applying a new filter
+  if (isShowingWorkingOnly) {
+    isShowingWorkingOnly = false;
+    workingTodayBtn.style.backgroundColor = "";
+    workingTodayBtn.style.color = "";
+  }
+  applyFilter(e.target.value);
+});
+
 // ---------------------- EDIT EMPLOYEE MODAL ----------------------
 // Generate unique 6-digit ID for edit modal
 function generateUniqueEditID() {
@@ -833,9 +965,162 @@ function openRemoveModal(empData, card, manager) {
   };
 }
 
+// ---------------------- SEND ID TO EMPLOYEES MODAL ----------------------
+function openSendIdModal() {
+  const sendIdModal = document.querySelector(".send-id-modal");
+  const employeeListContainer = document.getElementById(
+    "send-id-employee-list"
+  );
+  const selectAllCheckbox = document.getElementById("select-all-employees");
+  const cancelBtn = document.querySelector(".cancel-send-id-btn");
+  const confirmBtn = document.querySelector(".confirm-send-id-btn");
+
+  // Populate employee list
+  employeeListContainer.innerHTML = globalEmployees
+    .map((emp) => {
+      const hasEmail = emp.email && emp.email.trim() !== "";
+      return `
+        <div class="employee-checkbox-item ${!hasEmail ? "no-email" : ""}">
+          <label class="checkbox-label">
+            <input 
+              type="checkbox" 
+              class="employee-send-checkbox" 
+              data-id="${emp.id}" 
+              data-email="${emp.email || ""}"
+              data-name="${emp.name}"
+              ${!hasEmail ? "disabled" : ""}
+            />
+            <div class="employee-checkbox-info">
+              <span class="employee-checkbox-name">${emp.name}</span>
+              ${
+                hasEmail
+                  ? `<span class="employee-checkbox-email">${emp.email}</span>`
+                  : `<span class="employee-checkbox-no-email">Pas d'email</span>`
+              }
+            </div>
+          </label>
+        </div>
+      `;
+    })
+    .join("");
+
+  // Reset select all checkbox
+  selectAllCheckbox.checked = false;
+
+  // Show modal
+  sendIdModal.classList.remove("hidden");
+
+  // Select all functionality
+  const handleSelectAll = () => {
+    const checkboxes = employeeListContainer.querySelectorAll(
+      ".employee-send-checkbox:not(:disabled)"
+    );
+    checkboxes.forEach((cb) => {
+      cb.checked = selectAllCheckbox.checked;
+    });
+  };
+
+  // Update select all based on individual checkboxes
+  const updateSelectAll = () => {
+    const checkboxes = employeeListContainer.querySelectorAll(
+      ".employee-send-checkbox:not(:disabled)"
+    );
+    const checkedCount = employeeListContainer.querySelectorAll(
+      ".employee-send-checkbox:not(:disabled):checked"
+    ).length;
+    selectAllCheckbox.checked =
+      checkedCount === checkboxes.length && checkboxes.length > 0;
+  };
+
+  // Attach event listeners
+  selectAllCheckbox.addEventListener("change", handleSelectAll);
+  employeeListContainer.addEventListener("change", (e) => {
+    if (e.target.classList.contains("employee-send-checkbox")) {
+      updateSelectAll();
+    }
+  });
+
+  // Cancel button
+  const handleCancel = () => {
+    sendIdModal.classList.add("hidden");
+    // Clean up event listeners
+    selectAllCheckbox.removeEventListener("change", handleSelectAll);
+    cancelBtn.removeEventListener("click", handleCancel);
+    confirmBtn.removeEventListener("click", handleConfirm);
+  };
+
+  // Confirm/Send button
+  const handleConfirm = async () => {
+    const selectedCheckboxes = employeeListContainer.querySelectorAll(
+      ".employee-send-checkbox:checked"
+    );
+
+    if (selectedCheckboxes.length === 0) {
+      alert("Veuillez sélectionner au moins un employé.");
+      return;
+    }
+
+    const employeesToSend = Array.from(selectedCheckboxes).map((cb) => ({
+      id: cb.dataset.id,
+      email: cb.dataset.email,
+      name: cb.dataset.name,
+    }));
+
+    // Disable button during sending
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = "Envoi en cours...";
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const emp of employeesToSend) {
+      try {
+        const response = await fetch("/send-id-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            employeeEmail: emp.email,
+            employeeName: emp.name,
+            employeeId: emp.id,
+          }),
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          successCount++;
+        } else {
+          failCount++;
+          console.error(`Failed to send to ${emp.email}: ${result.message}`);
+        }
+      } catch (error) {
+        failCount++;
+        console.error(`Error sending to ${emp.email}:`, error);
+      }
+    }
+
+    // Reset button
+    confirmBtn.disabled = false;
+    confirmBtn.textContent = "📤 Envoyer";
+
+    // Show result
+    if (failCount === 0) {
+      alert(`✅ Email envoyé avec succès à ${successCount} employé(s)!`);
+    } else {
+      alert(`Envoi terminé: ${successCount} succès, ${failCount} échec(s).`);
+    }
+
+    // Close modal
+    handleCancel();
+  };
+
+  cancelBtn.addEventListener("click", handleCancel);
+  confirmBtn.addEventListener("click", handleConfirm);
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   const add = document.getElementById("add");
   const calculatePayBtn = document.getElementById("calculate-pay");
+  const sendIdToAllBtn = document.getElementById("send-id-to-all-button");
 
   add.addEventListener("click", () => {
     window.location.href = "/create_emp.html";
@@ -843,6 +1128,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   calculatePayBtn.addEventListener("click", () => {
     window.location.href = "/calculate-pay.html";
+  });
+
+  // Send ID to All button
+  sendIdToAllBtn.addEventListener("click", () => {
+    openSendIdModal();
   });
 
   // Size control dropdown
@@ -884,9 +1174,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Update employee count
   const employeeCountEl = document.getElementById("employee-count");
   if (employeeCountEl) {
-    employeeCountEl.textContent = `${employees.length} employé${
-      employees.length !== 1 ? "s" : ""
-    }`;
+    employeeCountEl.textContent = employees.length;
   }
 
   // Logout button functionality
