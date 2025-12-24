@@ -300,9 +300,21 @@ function attachCardListeners() {
       // Attach send ID button listener (if email exists)
       const sendIdBtn = card.querySelector(".send-id-btn");
       if (sendIdBtn) {
+        // Show sent indicator if already sent
+        if (empData.emailSentDate) {
+          const sentDate = new Date(empData.emailSentDate).toLocaleDateString(
+            "fr-FR"
+          );
+          sendIdBtn.innerHTML = `✉️ <span class="sent-indicator" title="Envoyé le ${sentDate}">✓</span>`;
+          sendIdBtn.classList.add("already-sent");
+        }
+
         sendIdBtn.addEventListener("click", async () => {
           // Confirm before sending
-          if (!confirm(`Envoyer l'ID de pointage à ${empData.email}?`)) {
+          const confirmMsg = empData.emailSentDate
+            ? `L'ID a déjà été envoyé. Renvoyer à ${empData.email}?`
+            : `Envoyer l'ID de pointage à ${empData.email}?`;
+          if (!confirm(confirmMsg)) {
             return;
           }
 
@@ -324,6 +336,11 @@ function attachCardListeners() {
 
             if (result.success) {
               alert(`✅ Email envoyé à ${empData.email}!`);
+              // Update local data and button
+              empData.emailSentDate = new Date().toISOString();
+              const sentDate = new Date().toLocaleDateString("fr-FR");
+              sendIdBtn.innerHTML = `✉️ <span class="sent-indicator" title="Envoyé le ${sentDate}">✓</span>`;
+              sendIdBtn.classList.add("already-sent");
             } else {
               alert(`❌ Échec: ${result.message}`);
             }
@@ -332,7 +349,6 @@ function attachCardListeners() {
             alert(`❌ Erreur: ${error.message}`);
           } finally {
             sendIdBtn.disabled = false;
-            sendIdBtn.textContent = "📤 Envoyer ID";
           }
         });
       }
@@ -979,8 +995,14 @@ function openSendIdModal() {
   employeeListContainer.innerHTML = globalEmployees
     .map((emp) => {
       const hasEmail = emp.email && emp.email.trim() !== "";
+      const alreadySent = emp.emailSentDate;
+      const sentDate = alreadySent
+        ? new Date(emp.emailSentDate).toLocaleDateString("fr-FR")
+        : null;
       return `
-        <div class="employee-checkbox-item ${!hasEmail ? "no-email" : ""}">
+        <div class="employee-checkbox-item ${!hasEmail ? "no-email" : ""} ${
+        alreadySent ? "already-sent" : ""
+      }">
           <label class="checkbox-label">
             <input 
               type="checkbox" 
@@ -991,7 +1013,14 @@ function openSendIdModal() {
               ${!hasEmail ? "disabled" : ""}
             />
             <div class="employee-checkbox-info">
-              <span class="employee-checkbox-name">${emp.name}</span>
+              <span class="employee-checkbox-name">
+                ${emp.name}
+                ${
+                  alreadySent
+                    ? `<span class="sent-badge" title="Envoyé le ${sentDate}">✓ envoyé</span>`
+                    : ""
+                }
+              </span>
               ${
                 hasEmail
                   ? `<span class="employee-checkbox-email">${emp.email}</span>`
@@ -1088,6 +1117,11 @@ function openSendIdModal() {
         const result = await response.json();
         if (result.success) {
           successCount++;
+          // Update local employee data
+          const empIndex = globalEmployees.findIndex((e) => e.id === emp.id);
+          if (empIndex !== -1) {
+            globalEmployees[empIndex].emailSentDate = new Date().toISOString();
+          }
         } else {
           failCount++;
           console.error(`Failed to send to ${emp.email}: ${result.message}`);

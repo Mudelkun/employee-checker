@@ -326,6 +326,17 @@ app.post("/send-id-email", async (req, res) => {
     }
 
     console.log(`Email sent to ${employeeEmail}`, data);
+
+    // Update employee record with emailSentDate
+    const db = getDB();
+    const empIndex = db.employees.findIndex(
+      (emp) => String(emp.id) === String(employeeId)
+    );
+    if (empIndex !== -1) {
+      db.employees[empIndex].emailSentDate = new Date().toISOString();
+      saveDB(db);
+    }
+
     res.json({
       success: true,
       message: "Email envoyé avec succès!",
