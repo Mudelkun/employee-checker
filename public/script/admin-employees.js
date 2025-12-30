@@ -92,6 +92,232 @@ function parseTimeToMinutes(timeStr) {
   return hours * 60 + minutes;
 }
 
+// Helper function to generate year options dynamically
+function generateYearOptions() {
+  const currentYear = new Date().getFullYear();
+  const startYear = 2022; // Starting year for records
+  let options = "";
+
+  for (let year = currentYear; year >= startYear; year--) {
+    options += `<option value="${year}">${year}</option>`;
+  }
+
+  return options;
+}
+
+// ---------------------------------------------
+// PDF GENERATION FUNCTION
+// ---------------------------------------------
+function generateEmployeePDF(empData, year, month) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  // Month names in French
+  const monthNames = {
+    "01": "Janvier",
+    "02": "Février",
+    "03": "Mars",
+    "04": "Avril",
+    "05": "Mai",
+    "06": "Juin",
+    "07": "Juillet",
+    "08": "Août",
+    "09": "Septembre",
+    10: "Octobre",
+    11: "Novembre",
+    12: "Décembre",
+  };
+
+  const monthName = monthNames[month] || month;
+
+  // Colors
+  const primaryColor = [41, 128, 185]; // Blue
+  const headerBg = [52, 73, 94]; // Dark blue-gray
+  const lightBg = [236, 240, 241]; // Light gray
+
+  // Header section with company branding
+  doc.setFillColor(...headerBg);
+  doc.rect(0, 0, 210, 45, "F");
+
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(24);
+  doc.setFont("helvetica", "bold");
+  doc.text("FIERBOUT", 20, 20);
+
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "normal");
+  doc.text("Rapport de Pointage", 20, 30);
+  doc.text(`${monthName} ${year}`, 20, 38);
+
+  // Generated date on the right
+  doc.setFontSize(10);
+  const today = new Date().toLocaleDateString("fr-FR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+  doc.text(`Généré le: ${today}`, 140, 38);
+
+  // Employee Information Section
+  doc.setTextColor(0, 0, 0);
+  doc.setFillColor(...primaryColor);
+  doc.rect(15, 55, 180, 8, "F");
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.text("INFORMATIONS DE L'EMPLOYÉ", 20, 61);
+
+  // Employee details box
+  doc.setFillColor(...lightBg);
+  doc.rect(15, 65, 180, 40, "F");
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(11);
+
+  // Left column
+  doc.setFont("helvetica", "bold");
+  doc.text("Nom:", 20, 75);
+  doc.setFont("helvetica", "normal");
+  doc.text(empData.name || "N/A", 50, 75);
+
+  doc.setFont("helvetica", "bold");
+  doc.text("ID:", 20, 83);
+  doc.setFont("helvetica", "normal");
+  doc.text(empData.id || "N/A", 50, 83);
+
+  doc.setFont("helvetica", "bold");
+  doc.text("Poste:", 20, 91);
+  doc.setFont("helvetica", "normal");
+  doc.text(empData.role || "N/A", 50, 91);
+
+  // Right column
+  doc.setFont("helvetica", "bold");
+  doc.text("Email:", 110, 75);
+  doc.setFont("helvetica", "normal");
+  doc.text(empData.email || "N/A", 130, 75);
+
+  // Pay information
+  let payDisplay = "Non défini";
+  if (empData.payType === "hourly" && empData.payAmount) {
+    payDisplay = `$${empData.payAmount.toFixed(2)}/heure`;
+  } else if (empData.payType === "weekly" && empData.payAmount) {
+    payDisplay = `$${empData.payAmount.toFixed(2)}/semaine`;
+  } else if (empData.payType === "monthly" && empData.payAmount) {
+    payDisplay = `$${empData.payAmount.toFixed(2)}/mois`;
+  }
+  doc.setFont("helvetica", "bold");
+  doc.text("Salaire:", 110, 83);
+  doc.setFont("helvetica", "normal");
+  doc.text(payDisplay, 135, 83);
+
+  // Filter history data
+  let filteredHistory = empData.hdePointage
+    .filter((h) => {
+      const [hMonth, hDay, hYear] = h.date.split("/");
+      return hYear === year && hMonth === month;
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+      return dateA - dateB;
+    });
+
+  // Pointage History Section
+  doc.setFillColor(...primaryColor);
+  doc.rect(15, 115, 180, 8, "F");
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.text(
+    `HISTORIQUE DE POINTAGE - ${monthName.toUpperCase()} ${year}`,
+    20,
+    121
+  );
+
+  // Table data
+  const tableData = filteredHistory.map((h) => [
+    h.date,
+    h.entrer || "-",
+    h.sorti || "-",
+    h.heureTravailer ? `${h.heureTravailer.toFixed(2)} h` : "-",
+  ]);
+
+  // Calculate totals
+  const totalHours = filteredHistory.reduce(
+    (sum, h) => sum + (h.heureTravailer || 0),
+    0
+  );
+  const totalDays = filteredHistory.length;
+
+  if (tableData.length > 0) {
+    doc.autoTable({
+      startY: 128,
+      head: [["Date", "Entrée", "Sortie", "Heures Travaillées"]],
+      body: tableData,
+      theme: "striped",
+      headStyles: {
+        fillColor: headerBg,
+        textColor: [255, 255, 255],
+        fontStyle: "bold",
+        halign: "center",
+      },
+      bodyStyles: {
+        halign: "center",
+      },
+      alternateRowStyles: {
+        fillColor: [245, 248, 250],
+      },
+      columnStyles: {
+        0: { cellWidth: 40 },
+        1: { cellWidth: 45 },
+        2: { cellWidth: 45 },
+        3: { cellWidth: 50 },
+      },
+      margin: { left: 15, right: 15 },
+    });
+
+    // Summary section after table
+    const finalY = doc.lastAutoTable.finalY + 10;
+
+    doc.setFillColor(...lightBg);
+    doc.rect(15, finalY, 180, 25, "F");
+
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("RÉSUMÉ DU MOIS", 20, finalY + 8);
+
+    doc.setFont("helvetica", "normal");
+    doc.text(`Jours travaillés: ${totalDays}`, 20, finalY + 18);
+    doc.text(`Total heures: ${totalHours.toFixed(2)} h`, 80, finalY + 18);
+
+    if (empData.payType === "hourly" && empData.payAmount) {
+      const estimatedPay = totalHours * empData.payAmount;
+      doc.text(`Salaire estimé: $${estimatedPay.toFixed(2)}`, 140, finalY + 18);
+    }
+  } else {
+    doc.setTextColor(100, 100, 100);
+    doc.setFontSize(12);
+    doc.text("Aucun pointage enregistré pour cette période.", 60, 145);
+  }
+
+  // Footer
+  const pageHeight = doc.internal.pageSize.height;
+  doc.setFillColor(...headerBg);
+  doc.rect(0, pageHeight - 15, 210, 15, "F");
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(9);
+  doc.text("Fierbout - Système de Gestion de Pointage", 105, pageHeight - 6, {
+    align: "center",
+  });
+
+  // Save the PDF
+  const fileName = `Pointage_${empData.name.replace(
+    /\s+/g,
+    "_"
+  )}_${monthName}_${year}.pdf`;
+  doc.save(fileName);
+}
+
 // ---------------------------------------------
 // 2. BUILD THE HTML UI USING REAL JSON DATA
 // ---------------------------------------------
@@ -176,10 +402,7 @@ function buildUI(employes) {
           <div class="filter-bar">
             <label for="filter-by-year">Année</label>
             <select id="filter-by-year">
-              <option value="2025">2025</option>
-              <option value="2024">2024</option>
-              <option value="2023">2023</option>
-              <option value="2022">2022</option>
+              ${generateYearOptions()}
             </select>
 
             <label for="filter-by-month">Mois</label>
@@ -199,6 +422,7 @@ function buildUI(employes) {
             </select>
 
             <button class="modifier-button">&#9998; Modifier Pointage</button>
+            <button class="download-button">&#128229; Télécharger</button>
           </div>
 
           <div class="history-table">
@@ -209,8 +433,6 @@ function buildUI(employes) {
             </div>
             ${get_emp_history(emp)}
           </div>
-
-          <button class="calculate-pay-button">Calculate Pay</button>
         </div>
       </div>
     `);
@@ -283,6 +505,14 @@ function attachCardListeners() {
       const modifierBtn = card.querySelector(".modifier-button");
       modifierBtn.addEventListener("click", () => {
         toggleEditMode(card, empData, historyTable);
+      });
+
+      // Attach download button listener
+      const downloadBtn = card.querySelector(".download-button");
+      downloadBtn.addEventListener("click", () => {
+        const year = yearSelect.value;
+        const month = monthSelect.value;
+        generateEmployeePDF(empData, year, month);
       });
 
       // Attach edit button listener

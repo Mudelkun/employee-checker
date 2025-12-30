@@ -167,6 +167,30 @@ body {
   background: #bfbb96;
 }
 
+/* Download button */
+.download-button {
+  background: #7fd8ef; /* light blue */
+  color: rgb(9, 9, 9);
+  font-size: 15px;
+  font-weight: 600;
+  padding: auto;
+
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+
+  transition: 0.25s ease;
+}
+
+.download-button:hover {
+  opacity: 0.8;
+}
+
+.download-button:active {
+  transform: translateY(0);
+  background: #5eb8cf;
+}
+
 /* --- TABLE STYLE --- */
 .history-table {
   background: #eef6ff;
@@ -360,6 +384,12 @@ body {
   }
 
   .modifier-button {
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px;
+  }
+
+  .download-button {
     width: 100%;
     margin-top: 8px;
     padding: 10px;
