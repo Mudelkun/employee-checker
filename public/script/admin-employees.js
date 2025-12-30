@@ -10,6 +10,12 @@ async function loadEmployees() {
 // Store employees globally for filtering
 let globalEmployees = [];
 
+// Currency formatting function (HTG - Haitian Gourde)
+function formatCurrency(amount) {
+  if (amount === null || amount === undefined) return "Non défini";
+  return `${amount.toFixed(2)} HTG`;
+}
+
 // Performance optimization: debounce helper function
 function debounce(func, delay) {
   let timeoutId;
@@ -198,11 +204,11 @@ function generateEmployeePDF(empData, year, month) {
   // Pay information
   let payDisplay = "Non défini";
   if (empData.payType === "hourly" && empData.payAmount) {
-    payDisplay = `$${empData.payAmount.toFixed(2)}/heure`;
+    payDisplay = `${formatCurrency(empData.payAmount)}/heure`;
   } else if (empData.payType === "weekly" && empData.payAmount) {
-    payDisplay = `$${empData.payAmount.toFixed(2)}/semaine`;
+    payDisplay = `${formatCurrency(empData.payAmount)}/semaine`;
   } else if (empData.payType === "monthly" && empData.payAmount) {
-    payDisplay = `$${empData.payAmount.toFixed(2)}/mois`;
+    payDisplay = `${formatCurrency(empData.payAmount)}/mois`;
   }
   doc.setFont("helvetica", "bold");
   doc.text("Salaire:", 110, 83);
@@ -292,7 +298,11 @@ function generateEmployeePDF(empData, year, month) {
 
     if (empData.payType === "hourly" && empData.payAmount) {
       const estimatedPay = totalHours * empData.payAmount;
-      doc.text(`Salaire estimé: $${estimatedPay.toFixed(2)}`, 140, finalY + 18);
+      doc.text(
+        `Salaire estimé: ${formatCurrency(estimatedPay)}`,
+        140,
+        finalY + 18
+      );
     }
   } else {
     doc.setTextColor(100, 100, 100);
@@ -334,11 +344,11 @@ function buildUI(employes) {
     // Format pay display based on pay type
     let payDisplay = "Aucun taux horaire";
     if (emp.payType === "hourly" && emp.payAmount) {
-      payDisplay = `$${emp.payAmount.toFixed(2)}/h`;
+      payDisplay = `${formatCurrency(emp.payAmount)}/h`;
     } else if (emp.payType === "weekly" && emp.payAmount) {
-      payDisplay = `$${emp.payAmount.toFixed(2)}/sem`;
+      payDisplay = `${formatCurrency(emp.payAmount)}/sem`;
     } else if (emp.payType === "monthly" && emp.payAmount) {
-      payDisplay = `$${emp.payAmount.toFixed(2)}/mois`;
+      payDisplay = `${formatCurrency(emp.payAmount)}/mois`;
     }
 
     arr_emp.push(`
@@ -358,11 +368,11 @@ function buildUI(employes) {
     // Format pay display for card
     let cardPayDisplay = "Taux de paie: Non défini";
     if (emp.payType === "hourly" && emp.payAmount) {
-      cardPayDisplay = `Salaire: $${emp.payAmount.toFixed(2)}/h`;
+      cardPayDisplay = `Salaire: ${formatCurrency(emp.payAmount)}/h`;
     } else if (emp.payType === "weekly" && emp.payAmount) {
-      cardPayDisplay = `Salaire: $${emp.payAmount.toFixed(2)}/sem`;
+      cardPayDisplay = `Salaire: ${formatCurrency(emp.payAmount)}/sem`;
     } else if (emp.payType === "monthly" && emp.payAmount) {
-      cardPayDisplay = `Salaire: $${emp.payAmount.toFixed(2)}/mois`;
+      cardPayDisplay = `Salaire: ${formatCurrency(emp.payAmount)}/mois`;
     }
 
     employee_card.push(`

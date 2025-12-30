@@ -188,14 +188,16 @@ nav img:hover {
 
 /* SIZE CONTROL */
 .size-control,
-.filter-control {
+.filter-control,
+.currency-control {
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
 .size-control label,
-.filter-control label {
+.filter-control label,
+.currency-control label {
   font-size: 12px;
   font-weight: 600;
   color: #555;
@@ -203,7 +205,8 @@ nav img:hover {
 }
 
 .size-dropdown,
-.filter-dropdown {
+.filter-dropdown,
+.currency-dropdown {
   padding: 8px 10px;
   font-size: 12px;
   font-weight: 500;
@@ -224,8 +227,13 @@ nav img:hover {
   min-width: 160px;
 }
 
+.currency-dropdown {
+  min-width: 110px;
+}
+
 .size-dropdown:hover,
-.filter-dropdown:hover {
+.filter-dropdown:hover,
+.currency-dropdown:hover {
   border-color: #667eea;
 }
 
@@ -959,13 +967,15 @@ nav img:hover {
   }
 
   .size-control,
-  .filter-control {
+  .filter-control,
+  .currency-control {
     flex: 1;
     min-width: 140px;
   }
 
   .size-dropdown,
-  .filter-dropdown {
+  .filter-dropdown,
+  .currency-dropdown {
     min-width: unset;
     width: 100%;
     font-size: 11px;
@@ -973,7 +983,8 @@ nav img:hover {
   }
 
   .size-control label,
-  .filter-control label {
+  .filter-control label,
+  .currency-control label {
     font-size: 11px;
   }
 
