@@ -294,7 +294,7 @@ function generateEmployeePDF(empData, year, month) {
 
     doc.setFont("helvetica", "normal");
     doc.text(`Jours travaillés: ${totalDays}`, 20, finalY + 18);
-    doc.text(`Total heures: ${totalHours.toFixed(2)} h`, 80, finalY + 18);
+    doc.text(`Total d'heures: ${totalHours.toFixed(2)} h`, 80, finalY + 18);
 
     if (empData.payType === "hourly" && empData.payAmount) {
       const estimatedPay = totalHours * empData.payAmount;
