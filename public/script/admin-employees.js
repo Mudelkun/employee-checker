@@ -710,6 +710,23 @@ function toggleEditMode(card, empData, historyTable) {
           }
           historyRecord.modifiedOn = modDate;
 
+          // Recalculate hours worked when admin updates both entrer and sorti
+          if (
+            historyRecord.entrer &&
+            historyRecord.entrer.trim() !== "" &&
+            historyRecord.sorti &&
+            historyRecord.sorti.trim() !== ""
+          ) {
+            const entrMin = parseTimeToMinutes(historyRecord.entrer);
+            const sortMin = parseTimeToMinutes(historyRecord.sorti);
+            let diffHours = (sortMin - entrMin) / 60;
+            if (diffHours < 0) diffHours += 24;
+            historyRecord.heureTravailer = Math.round(diffHours * 100) / 100;
+          } else {
+            // If either time is missing, clear heureTravailer
+            historyRecord.heureTravailer = null;
+          }
+
           modifiedEntries.push(historyRecord);
 
           // Update the HTML with new values and modified date

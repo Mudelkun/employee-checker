@@ -64,7 +64,7 @@ function playConfirmed() {
 // ---------------------------------------------
 // Update Pointage
 // ---------------------------------------------
-function updateHdePointage(emp, act) {
+async function updateHdePointage(emp, act) {
   let currentDate = new Date();
   let dateLocal = `${
     currentDate.getMonth() + 1
@@ -78,27 +78,64 @@ function updateHdePointage(emp, act) {
 
   const empPointage = emp.hdePointage;
 
+  let resultMessage = "";
+
   if (act === "entrant") {
     empPointage.push({
       date: dateLocal,
       entrer: heure,
       sorti: "",
     });
-    getMessage(`${emp.name.toUpperCase()} Pointage Entrant accepte ${heure}`);
+    // mark employee as entered and not yet exited
+    emp.estEntrer = true;
+    emp.estSorti = false;
+    resultMessage = `${emp.name.toUpperCase()} Pointage Entrant accepte ${heure}`;
   }
 
   if (act === "sortant") {
+    let found = false;
+    let changedHistory = false;
+    let sortieMessage = "";
+
     empPointage.forEach((pObj) => {
       if (pObj.date === dateLocal) {
-        pObj.sorti = heure;
-        pObj.heureTravailer = heureTravailer(pObj.entrer, pObj.sorti);
+        found = true;
+        // If admin already set a sortie, do not overwrite it — preserve admin history
+        if (!pObj.sorti || pObj.sorti.trim() === "") {
+          pObj.sorti = heure;
+          pObj.heureTravailer = heureTravailer(pObj.entrer, pObj.sorti);
+          changedHistory = true;
+          sortieMessage = `${emp.name.toUpperCase()} Pointage Sortant accepte ${heure}`;
+        } else {
+          // Keep the admin-provided sortie; still mark employee as sorted out
+          sortieMessage = `${emp.name.toUpperCase()} Sortie déjà enregistrée par l'administrateur`;
+        }
       }
     });
-    getMessage(`${emp.name.toUpperCase()} Pointage Sortant accepte ${heure}`);
+
+    if (found) {
+      // mark employee as exited and no longer entered (even if history wasn't changed)
+      emp.estSorti = true;
+      emp.estEntrer = false;
+      resultMessage =
+        sortieMessage ||
+        `${emp.name.toUpperCase()} Pointage Sortant accepte ${heure}`;
+    } else {
+      // No matching entry for today; do not mark as sorted out
+      return {
+        ok: false,
+        message: `${emp.name.toUpperCase()} Aucun enregistrement d'entrée trouvé pour aujourd'hui`,
+      };
+    }
   }
 
-  // Save updated DB to server
-  saveToServer(emp);
+  // Save updated DB to server and wait for completion so other pages can react
+  const res = await saveToServer(emp);
+  if (res && res.ok) {
+    return { ok: true, message: resultMessage };
+  } else {
+    return { ok: false, message: "Erreur lors de la sauvegarde des données" };
+  }
 }
 
 // ---------------------------------------------
@@ -131,11 +168,28 @@ function heureTravailer(entrer, sorti) {
 // SAVE UPDATED EMPLOYEES TO SERVER
 // ---------------------------------------------
 async function saveToServer(emp) {
-  await fetch(`/employees/${emp.id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(emp),
-  });
+  try {
+    const res = await fetch(`/employees/${emp.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(emp),
+    });
+
+    if (res.ok) {
+      // notify other tabs/pages that data has been saved
+      try {
+        localStorage.setItem("employees_updated_at", Date.now().toString());
+      } catch (e) {
+        // ignore localStorage errors in some environments
+      }
+    } else {
+      console.error("Failed to save employee data", res.status);
+    }
+    return res;
+  } catch (err) {
+    console.error("Error saving employee data:", err);
+    throw err;
+  }
 }
 
 // ---------------------------------------------
@@ -169,7 +223,7 @@ buttons.forEach((button) => {
 // ---------------------------------------------
 // Entrant
 // ---------------------------------------------
-pEntrant.addEventListener("click", () => {
+pEntrant.addEventListener("click", async () => {
   if (inputField.value === "") {
     getMessage("Entrez votre numero de pointage!", "red");
     return;
@@ -192,10 +246,19 @@ pEntrant.addEventListener("click", () => {
     inputField.value = "";
     return;
   } else {
-    emp.estSorti = false;
-    emp.estEntrer = true;
-    playConfirmed();
-    updateHdePointage(emp, "entrant");
+    // call update which now handles est flags and saving
+    try {
+      const res = await updateHdePointage(emp, "entrant");
+      if (res && res.ok) {
+        playConfirmed();
+        getMessage(res.message);
+      } else {
+        getMessage(res.message || "Échec de la sauvegarde", "red");
+      }
+    } catch (err) {
+      console.error("Entrant save failed:", err);
+      getMessage("Erreur lors de la sauvegarde", "red");
+    }
     inputField.value = "";
   }
 });
@@ -203,7 +266,7 @@ pEntrant.addEventListener("click", () => {
 // ---------------------------------------------
 // Sortant
 // ---------------------------------------------
-pSortant.addEventListener("click", () => {
+pSortant.addEventListener("click", async () => {
   if (inputField.value === "") {
     getMessage("Entrez votre numero de pointage!", "red");
     return;
@@ -232,9 +295,17 @@ pSortant.addEventListener("click", () => {
     return;
   }
 
-  emp.estEntrer = false;
-  emp.estSorti = true;
-  playConfirmed();
-  updateHdePointage(emp, "sortant");
+  try {
+    const res = await updateHdePointage(emp, "sortant");
+    if (res && res.ok) {
+      playConfirmed();
+      getMessage(res.message);
+    } else {
+      getMessage(res.message || "Échec de la sauvegarde", "red");
+    }
+  } catch (err) {
+    console.error("Sortant save failed:", err);
+    getMessage("Erreur lors de la sauvegarde", "red");
+  }
   inputField.value = "";
 });
