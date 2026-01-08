@@ -300,29 +300,38 @@ pEntrant.addEventListener("click", async () => {
     return;
   }
 
-  if (emp.estEntrer === true) {
-    getMessage(
-      `Vous avez deja pointez votre arrive: ${emp.name.toUpperCase()}`,
-      "red"
-    );
-    inputField.value = "";
-    return;
-  } else {
-    // call update which now handles est flags and saving
-    try {
-      const res = await updateHdePointage(emp, "entrant");
-      if (res && res.ok) {
-        playConfirmed();
-        getMessage(res.message);
-      } else {
-        getMessage(res.message || "Échec de la sauvegarde", "red");
-      }
-    } catch (err) {
-      console.error("Entrant save failed:", err);
-      getMessage("Erreur lors de la sauvegarde", "red");
+  // Use server Haiti date to determine whether an entrant was already recorded today
+  try {
+    const h = await getHaitiTime();
+    const today = h.date; // DD/MM/YYYY
+    const hasEntrantToday =
+      Array.isArray(emp.hdePointage) &&
+      emp.hdePointage.some(
+        (p) => p.date === today && p.entrer && p.entrer.toString().trim() !== ""
+      );
+
+    if (hasEntrantToday) {
+      getMessage(
+        `Vous avez deja pointez votre arrive: ${emp.name.toUpperCase()}`,
+        "red"
+      );
+      inputField.value = "";
+      return;
     }
-    inputField.value = "";
+
+    // call update which now handles est flags and saving
+    const res = await updateHdePointage(emp, "entrant");
+    if (res && res.ok) {
+      playConfirmed();
+      getMessage(res.message);
+    } else {
+      getMessage(res.message || "Échec de la sauvegarde", "red");
+    }
+  } catch (err) {
+    console.error("Entrant save failed:", err);
+    getMessage("Erreur lors de la sauvegarde", "red");
   }
+  inputField.value = "";
 });
 
 // ---------------------------------------------
@@ -343,21 +352,33 @@ pSortant.addEventListener("click", async () => {
     return;
   }
 
-  if (!emp.estEntrer) {
-    getMessage(
-      `Vous n'avez pas pointez votre arrivez: ${emp.name.toUpperCase()}`,
-      "red"
-    );
-    inputField.value = "";
-    return;
-  }
-
-  if (emp.estSorti) {
-    getMessage(`Vous avez deja pointez votre sorti: ${emp.name}`, "red");
-    return;
-  }
-
+  // Use server Haiti date to check today's entry rather than stale flags
   try {
+    const h = await getHaitiTime();
+    const today = h.date; // DD/MM/YYYY
+    const entryToday =
+      Array.isArray(emp.hdePointage) &&
+      emp.hdePointage.find((p) => p.date === today);
+
+    if (
+      !entryToday ||
+      !entryToday.entrer ||
+      entryToday.entrer.toString().trim() === ""
+    ) {
+      getMessage(
+        `Vous n'avez pas pointez votre arrivez: ${emp.name.toUpperCase()}`,
+        "red"
+      );
+      inputField.value = "";
+      return;
+    }
+
+    if (entryToday.sorti && entryToday.sorti.toString().trim() !== "") {
+      getMessage(`Vous avez deja pointez votre sorti: ${emp.name}`, "red");
+      inputField.value = "";
+      return;
+    }
+
     const res = await updateHdePointage(emp, "sortant");
     if (res && res.ok) {
       playConfirmed();
