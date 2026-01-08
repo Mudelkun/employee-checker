@@ -1,33 +1,60 @@
 // Authentication check - Run on page load
-function checkAuthentication() {
+async function checkAuthentication() {
   const isAuthenticated = sessionStorage.getItem("authenticated") === "true";
   const authTime = sessionStorage.getItem("authTime");
   const TWO_HOURS = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
 
-  // Check if authenticated
+  // Redirect immediately if not authenticated
   if (!isAuthenticated) {
-    // Redirect to password page with the current page as redirect parameter
     const currentPage = window.location.pathname;
     window.location.href =
       "/pasword-require.html?redirect=" + encodeURIComponent(currentPage);
     return;
   }
 
-  // Check if session has expired
+  // If we have an authTime, compare it to a trusted server time (Haiti)
   if (authTime) {
-    const currentTime = new Date().getTime();
-    const sessionAge = currentTime - parseInt(authTime);
-
-    if (sessionAge > TWO_HOURS) {
-      // Session expired - clear authentication and redirect to login
-      sessionStorage.removeItem("authenticated");
-      sessionStorage.removeItem("authTime");
-      const currentPage = window.location.pathname;
-      window.location.href =
-        "/pasword-require.html?redirect=" + encodeURIComponent(currentPage);
+    try {
+      const res = await fetch("/haiti-time");
+      if (res.ok) {
+        const data = await res.json();
+        const currentTime = data.ts;
+        const sessionAge = currentTime - parseInt(authTime, 10);
+        if (sessionAge > TWO_HOURS) {
+          sessionStorage.removeItem("authenticated");
+          sessionStorage.removeItem("authTime");
+          const currentPage = window.location.pathname;
+          window.location.href =
+            "/pasword-require.html?redirect=" + encodeURIComponent(currentPage);
+        }
+      } else {
+        // If server unavailable, fall back to client time
+        const currentTime = Date.now();
+        const sessionAge = currentTime - parseInt(authTime, 10);
+        if (sessionAge > TWO_HOURS) {
+          sessionStorage.removeItem("authenticated");
+          sessionStorage.removeItem("authTime");
+          const currentPage = window.location.pathname;
+          window.location.href =
+            "/pasword-require.html?redirect=" + encodeURIComponent(currentPage);
+        }
+      }
+    } catch (err) {
+      // On error, fall back to client time
+      const currentTime = Date.now();
+      const sessionAge = currentTime - parseInt(authTime, 10);
+      if (sessionAge > TWO_HOURS) {
+        sessionStorage.removeItem("authenticated");
+        sessionStorage.removeItem("authTime");
+        const currentPage = window.location.pathname;
+        window.location.href =
+          "/pasword-require.html?redirect=" + encodeURIComponent(currentPage);
+      }
     }
   }
 }
 
 // Check authentication when page loads
-document.addEventListener("DOMContentLoaded", checkAuthentication);
+document.addEventListener("DOMContentLoaded", () => {
+  checkAuthentication();
+});

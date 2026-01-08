@@ -63,9 +63,9 @@ function calculateHours(entrerTime, sortiTime) {
   return Math.max(0, diffMinutes / 60);
 }
 
-// Get week number from date string (MM/DD/YYYY)
+// Get week number from date string (DD/MM/YYYY)
 function getWeekNumber(dateStr) {
-  const [month, day, year] = dateStr.split("/").map(Number);
+  const [day, month, year] = dateStr.split("/").map(Number);
   const date = new Date(year, month - 1, day);
   const firstDayOfYear = new Date(year, 0, 1);
   const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
@@ -98,7 +98,8 @@ function calculatePay() {
     const pointageRecords = employee.hdePointage || [];
 
     pointageRecords.forEach((record) => {
-      const [recordMonth, recordDay, recordYear] = record.date.split("/");
+      // record.date is now DD/MM/YYYY
+      const [recordDay, recordMonth, recordYear] = record.date.split("/");
 
       // Filter by year and month
       if (recordYear !== year) return;
@@ -278,8 +279,10 @@ function openEmployeeModal(emp) {
 
   // Sort dates in descending order (newest first)
   const sortedDays = [...emp.dayBreakdown].sort((a, b) => {
-    const dateA = new Date(a.date.split("/").reverse().join("-"));
-    const dateB = new Date(b.date.split("/").reverse().join("-"));
+    const [aDay, aMonth, aYear] = a.date.split("/").map(Number);
+    const [bDay, bMonth, bYear] = b.date.split("/").map(Number);
+    const dateA = new Date(aYear, aMonth - 1, aDay);
+    const dateB = new Date(bYear, bMonth - 1, bDay);
     return dateB - dateA;
   });
 
@@ -470,3 +473,17 @@ modal.addEventListener("click", (e) => {
 // Initialize
 loadEmployees();
 setDefaultYear();
+
+// Update cache when data-monitor notifies about changes
+window.addEventListener("employees:updated", async (e) => {
+  try {
+    allEmployees = e.detail.employees || [];
+    console.log("calculate-pay: employees updated", allEmployees.length);
+    // If the page already has filtered data visible, recalculate
+    if (filteredData && filteredData.length > 0) {
+      calculatePay();
+    }
+  } catch (err) {
+    console.error("Error handling employees:updated in calculate-pay.js", err);
+  }
+});

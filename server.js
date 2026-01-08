@@ -355,3 +355,37 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
+
+// -------------------------------------------
+// HAITI TIME ENDPOINT
+// Returns current Haiti local time (America/Port-au-Prince) and a server timestamp (ms)
+// Useful for clients that must rely on a trusted timezone-aware time source.
+app.get("/haiti-time", (req, res) => {
+  try {
+    const now = new Date();
+    const TZ = "America/Port-au-Prince";
+
+    // Return date in French format DD/MM/YYYY
+    const fmtDate = new Intl.DateTimeFormat("fr-FR", {
+      timeZone: TZ,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(now);
+
+    const fmtTime = new Intl.DateTimeFormat("fr-FR", {
+      timeZone: TZ,
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }).format(now);
+
+    // Epoch ms for the current instant (unambiguous)
+    const ts = now.getTime();
+
+    res.json({ ts, date: fmtDate, hour: fmtTime, tz: TZ });
+  } catch (err) {
+    console.error("/haiti-time error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});

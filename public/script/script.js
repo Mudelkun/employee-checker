@@ -3,22 +3,80 @@ let employes = [];
 // ---------------------------------------------
 // DISPLAY CURRENT TIME IN HEADER
 // ---------------------------------------------
-function updateTime() {
-  const timeElement = document.getElementById("current-time");
-  if (timeElement) {
-    const now = new Date();
-    const timeString = now.toLocaleTimeString("fr-FR", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-    timeElement.textContent = timeString;
-  }
+// Server-based Haiti time sync
+let __haiti_server_ts = null; // epoch ms from server representing the moment when we last fetched
+let __haiti_client_ts = null; // client Date.now() captured at the same moment
+
+async function fetchHaitiTimeOnce() {
+  const res = await fetch("/haiti-time");
+  if (!res.ok) throw new Error("Failed to fetch /haiti-time");
+  const data = await res.json();
+  // data.ts is epoch ms for the instant
+  __haiti_server_ts = data.ts;
+  __haiti_client_ts = Date.now();
+  return data;
 }
 
-// Update time immediately and then every second
-updateTime();
-setInterval(updateTime, 1000);
+// Returns a Haiti-time snapshot. If we already fetched, returns a computed snapshot
+// using the stored epoch and the client's elapsed time so we don't fetch every second.
+async function getHaitiTime() {
+  if (!__haiti_server_ts) {
+    return await fetchHaitiTimeOnce();
+  }
+
+  const elapsed = Date.now() - __haiti_client_ts;
+  const currentTs = __haiti_server_ts + elapsed;
+
+  const TZ = "America/Port-au-Prince";
+  const date = new Intl.DateTimeFormat("fr-FR", {
+    timeZone: TZ,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date(currentTs));
+
+  const hour = new Intl.DateTimeFormat("fr-FR", {
+    timeZone: TZ,
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+  }).format(new Date(currentTs));
+
+  return { ts: currentTs, date, hour, tz: TZ };
+}
+
+// Update time immediately and then every second (use server-backed time)
+(async () => {
+  const timeElement = document.getElementById("current-time");
+  try {
+    await fetchHaitiTimeOnce();
+  } catch (e) {
+    // fallback: still allow client-side time if server is not reachable
+    __haiti_server_ts = null;
+  }
+
+  function renderHeaderTime() {
+    if (!timeElement) return;
+    getHaitiTime()
+      .then((h) => {
+        // Format using fr-FR and show hh:mm
+        const ts = h.ts;
+        const timeString = new Intl.DateTimeFormat("fr-FR", {
+          timeZone: "America/Port-au-Prince",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        }).format(new Date(ts));
+        timeElement.textContent = timeString;
+      })
+      .catch(() => {
+        timeElement.textContent = "--:--";
+      });
+  }
+
+  renderHeaderTime();
+  setInterval(renderHeaderTime, 1000);
+})();
 
 // ---------------------------------------------
 // LOAD EMPLOYEES FROM JSON VIA SERVER
@@ -29,6 +87,16 @@ async function loadEmployees() {
 }
 
 loadEmployees();
+
+// Update local cache when data-monitor dispatches updates
+window.addEventListener("employees:updated", (e) => {
+  try {
+    employes = e.detail.employees || [];
+    console.log("script.js: employes updated", employes.length);
+  } catch (err) {
+    console.error("Error handling employees:updated in script.js", err);
+  }
+});
 
 // ---------------------------------------------
 // UI Elements
@@ -65,16 +133,10 @@ function playConfirmed() {
 // Update Pointage
 // ---------------------------------------------
 async function updateHdePointage(emp, act) {
-  let currentDate = new Date();
-  let dateLocal = `${
-    currentDate.getMonth() + 1
-  }/${currentDate.getDate()}/${currentDate.getFullYear()}`;
-
-  let heure = new Intl.DateTimeFormat("fr-FR", {
-    hour: "numeric",
-    minute: "numeric",
-    hour12: true,
-  }).format(currentDate);
+  // Use server-provided Haiti time (keeps timezone consistent)
+  const haiti = await getHaitiTime();
+  let dateLocal = haiti.date; // DD/MM/YYYY
+  let heure = haiti.hour; // hh:mm AM/PM (fr-FR formatting)
 
   const empPointage = emp.hdePointage;
 

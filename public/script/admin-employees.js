@@ -34,21 +34,27 @@ const searchInput = document.getElementById("search-input");
 function get_emp_history(emp, year = null, month = null) {
   let filtered = emp.hdePointage;
 
-  // Filter by year and month if provided
-  if (year || month) {
+  // Filter by year and month if provided (date is DD/MM/YYYY)
+  // Treat explicit 'all' values as no-filter
+  const filterYear = year === "all" ? null : year;
+  const filterMonth = month === "all" ? null : month;
+
+  if (filterYear || filterMonth) {
     filtered = filtered.filter((h) => {
-      const [hMonth, hDay, hYear] = h.date.split("/");
-      if (year && hYear !== year) return false;
-      if (month && hMonth !== month) return false;
+      const [hDay, hMonth, hYear] = h.date.split("/");
+      if (filterYear && hYear !== filterYear) return false;
+      if (filterMonth && hMonth !== filterMonth) return false;
       return true;
     });
   }
 
   return filtered
     .sort((a, b) => {
-      // First sort by date (newest first)
-      const dateA = new Date(a.date);
-      const dateB = new Date(b.date);
+      // First sort by date (newest first) - parse DD/MM/YYYY safely
+      const [aDay, aMonth, aYear] = a.date.split("/").map(Number);
+      const [bDay, bMonth, bYear] = b.date.split("/").map(Number);
+      const dateA = new Date(aYear, aMonth - 1, aDay);
+      const dateB = new Date(bYear, bMonth - 1, bDay);
       const dateCompare = dateB - dateA;
 
       // If dates are the same, sort by entry time (latest entry first)
@@ -104,6 +110,9 @@ function generateYearOptions() {
   const startYear = 2022; // Starting year for records
   let options = "";
 
+  // Add an 'All' option at the top
+  options += `<option value="all">Tous</option>`;
+
   for (let year = currentYear; year >= startYear; year--) {
     options += `<option value="${year}">${year}</option>`;
   }
@@ -134,7 +143,14 @@ function generateEmployeePDF(empData, year, month) {
     12: "Décembre",
   };
 
-  const monthName = monthNames[month] || month;
+  // Normalize filter inputs and labels. Treat null/"all" as no-filter
+  const filterYear = !year || year === "all" ? null : String(year);
+  const filterMonth =
+    !month || month === "all" ? null : String(month).padStart(2, "0");
+  const monthName = !filterMonth
+    ? "Tous"
+    : monthNames[filterMonth] || filterMonth;
+  const yearLabel = !filterYear ? "Tous" : filterYear;
 
   // Colors
   const primaryColor = [41, 128, 185]; // Blue
@@ -153,7 +169,7 @@ function generateEmployeePDF(empData, year, month) {
   doc.setFontSize(12);
   doc.setFont("helvetica", "normal");
   doc.text("Rapport de Pointage", 20, 30);
-  doc.text(`${monthName} ${year}`, 20, 38);
+  doc.text(`${monthName} ${yearLabel}`, 20, 38);
 
   // Generated date on the right
   doc.setFontSize(10);
@@ -215,17 +231,25 @@ function generateEmployeePDF(empData, year, month) {
   doc.setFont("helvetica", "normal");
   doc.text(payDisplay, 135, 83);
 
-  // Filter history data
-  let filteredHistory = empData.hdePointage
-    .filter((h) => {
-      const [hMonth, hDay, hYear] = h.date.split("/");
-      return hYear === year && hMonth === month;
-    })
-    .sort((a, b) => {
-      const dateA = new Date(a.date);
-      const dateB = new Date(b.date);
-      return dateA - dateB;
-    });
+  // Filter history data (dates stored as DD/MM/YYYY)
+  const allRecords = Array.isArray(empData.hdePointage)
+    ? empData.hdePointage
+    : [];
+  let filteredHistory = allRecords.filter((h) => {
+    const [hDay, hMonth, hYear] = h.date.split("/");
+    if (filterYear && hYear !== filterYear) return false;
+    if (filterMonth && hMonth !== filterMonth) return false;
+    return true;
+  });
+
+  // Sort newest first (latest -> oldest)
+  filteredHistory.sort((a, b) => {
+    const [aDay, aMonth, aYear] = a.date.split("/").map(Number);
+    const [bDay, bMonth, bYear] = b.date.split("/").map(Number);
+    const dateA = new Date(aYear, aMonth - 1, aDay);
+    const dateB = new Date(bYear, bMonth - 1, bDay);
+    return dateB - dateA;
+  });
 
   // Pointage History Section
   doc.setFillColor(...primaryColor);
@@ -234,7 +258,7 @@ function generateEmployeePDF(empData, year, month) {
   doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
   doc.text(
-    `HISTORIQUE DE POINTAGE - ${monthName.toUpperCase()} ${year}`,
+    `HISTORIQUE DE POINTAGE - ${monthName.toUpperCase()} ${yearLabel}`,
     20,
     121
   );
@@ -324,8 +348,81 @@ function generateEmployeePDF(empData, year, month) {
   const fileName = `Pointage_${empData.name.replace(
     /\s+/g,
     "_"
-  )}_${monthName}_${year}.pdf`;
+  )}_${monthName}_${yearLabel}.pdf`;
   doc.save(fileName);
+}
+
+// Show a modal to choose year/month before generating PDF
+function showDownloadModal(empData, defaultYear, defaultMonth) {
+  const overlay = document.createElement("div");
+  overlay.style = `position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:10000;`;
+
+  const modal = document.createElement("div");
+  modal.style = `background:#fff;padding:20px;border-radius:8px;max-width:360px;width:100%;box-shadow:0 8px 24px rgba(0,0,0,0.2);`;
+  modal.innerHTML = `
+    <h3 style="margin-top:0">Télécharger l'historique</h3>
+    <div style="margin-bottom:10px">
+      <label>Année</label>
+      <select id="pdf-year" style="width:100%;margin-top:6px">${generateYearOptions()}</select>
+    </div>
+    <div style="margin-bottom:10px">
+      <label>Mois</label>
+      <select id="pdf-month" style="width:100%;margin-top:6px">
+        <option value="all">Tous</option>
+        <option value="01">Janvier</option>
+        <option value="02">Février</option>
+        <option value="03">Mars</option>
+        <option value="04">Avril</option>
+        <option value="05">Mai</option>
+        <option value="06">Juin</option>
+        <option value="07">Juillet</option>
+        <option value="08">Août</option>
+        <option value="09">Septembre</option>
+        <option value="10">Octobre</option>
+        <option value="11">Novembre</option>
+        <option value="12">Décembre</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
+      <button id="pdf-cancel">Annuler</button>
+      <button id="pdf-download">Télécharger</button>
+    </div>
+  `;
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  const yearSelect = modal.querySelector("#pdf-year");
+  const monthSelect = modal.querySelector("#pdf-month");
+
+  if (
+    defaultYear &&
+    Array.from(yearSelect.options).some((o) => o.value === defaultYear)
+  ) {
+    yearSelect.value = defaultYear;
+  } else {
+    yearSelect.value = "all";
+  }
+
+  if (
+    defaultMonth &&
+    Array.from(monthSelect.options).some((o) => o.value === defaultMonth)
+  ) {
+    monthSelect.value = defaultMonth;
+  } else {
+    monthSelect.value = "all";
+  }
+
+  modal.querySelector("#pdf-cancel").addEventListener("click", () => {
+    document.body.removeChild(overlay);
+  });
+
+  modal.querySelector("#pdf-download").addEventListener("click", () => {
+    const selYear = yearSelect.value === "all" ? "all" : yearSelect.value;
+    const selMonth = monthSelect.value === "all" ? "all" : monthSelect.value;
+    document.body.removeChild(overlay);
+    generateEmployeePDF(empData, selYear, selMonth);
+  });
 }
 
 // ---------------------------------------------
@@ -417,6 +514,7 @@ function buildUI(employes) {
 
             <label for="filter-by-month">Mois</label>
             <select id="filter-by-month">
+              <option value="all">Tous</option>
               <option value="01">Janvier</option>
               <option value="02">Février</option>
               <option value="03">Mars</option>
@@ -454,6 +552,59 @@ function buildUI(employes) {
   attachCardListeners();
 }
 
+// Render only the employee tiles (used to update list without touching open cards)
+function renderEmployeeTiles(employes) {
+  let arr_emp = [];
+  employes.forEach((emp) => {
+    const isWorking = emp.estEntrer === true && emp.estSorti === false;
+    const statusText = isWorking ? "En train de travailler" : "Absent";
+    const statusClass = isWorking ? "" : "out";
+
+    let payDisplay = "Aucun taux horaire";
+    if (emp.payType === "hourly" && emp.payAmount) {
+      payDisplay = `${formatCurrency(emp.payAmount)}/h`;
+    } else if (emp.payType === "weekly" && emp.payAmount) {
+      payDisplay = `${formatCurrency(emp.payAmount)}/sem`;
+    } else if (emp.payType === "monthly" && emp.payAmount) {
+      payDisplay = `${formatCurrency(emp.payAmount)}/mois`;
+    }
+
+    arr_emp.push(`
+      <div class="employee" id="${emp.id}" data-working="${isWorking}">
+        <img src="${emp.image || "imgs/default-avatar.png"}" alt="${
+      emp.name
+    } picture" />
+        <div class="employee-details">
+          <p class="status ${statusClass}">${statusText}</p>
+          <p class="name">${emp.name}</p>
+          <p class="role">${emp.role}</p>
+          <p class="pay-per-hour">${payDisplay}</p>
+        </div>
+      </div>
+    `);
+  });
+
+  // Replace tiles container only
+  emp_container.innerHTML = arr_emp.join("");
+  // Re-attach click handlers for the tiles only (so opening cards still works)
+  const employees = document.querySelectorAll(".employee");
+  employees.forEach((empEl) => {
+    empEl.addEventListener("click", () => {
+      const card = document.querySelector(`[aria-controls="${empEl.id}"]`);
+      const empData = globalEmployees.find((e) => e.id === empEl.id);
+      const manager = document.querySelector(".employee-manager");
+      manager.hidden = true;
+      if (card) {
+        card.hidden = false;
+        try {
+          card.removeAttribute("hidden");
+          card.style.display = "";
+        } catch (e) {}
+      }
+    });
+  });
+}
+
 // ---------------------------------------------
 // 3. ENABLE CARD OPEN/CLOSE LOGIC
 // ---------------------------------------------
@@ -461,6 +612,25 @@ function attachCardListeners() {
   const manager = document.querySelector(".employee-manager");
   const employees = document.querySelectorAll(".employee");
   const cName = document.getElementById("compagny-name");
+  // Ensure clicking the company name returns to the manager (tiles)
+  // Attach a single handler that hides any open card and shows the manager.
+  if (cName) {
+    // Replace any previous handler to avoid duplicates and ensure predictable behavior
+    cName.onclick = () => {
+      console.log("compagny-name clicked: hiding employee cards");
+      const cards = document.querySelectorAll(".employee-card");
+      cards.forEach((c) => {
+        try {
+          c.hidden = true;
+          c.setAttribute("hidden", "");
+          // do not manipulate style.display; rely on the hidden attribute
+        } catch (e) {}
+      });
+      if (manager) {
+        manager.hidden = false;
+      }
+    };
+  }
 
   employees.forEach((emp) => {
     emp.addEventListener("click", () => {
@@ -468,24 +638,53 @@ function attachCardListeners() {
       const empData = globalEmployees.find((e) => e.id === emp.id);
 
       manager.hidden = true;
-      card.hidden = false;
+      if (card) {
+        card.hidden = false;
+        try {
+          card.removeAttribute("hidden");
+          card.style.display = "";
+        } catch (e) {}
+      }
 
       // Get the filter selects for this card
       const yearSelect = card.querySelector("#filter-by-year");
       const monthSelect = card.querySelector("#filter-by-month");
       const historyTable = card.querySelector(".history-table");
 
-      // Set default values to current year and month
+      // Set default values to current year and month (leave 'Tous' as an option)
       const now = new Date();
       const currentYear = now.getFullYear().toString();
       const currentMonth = String(now.getMonth() + 1).padStart(2, "0");
       yearSelect.value = currentYear;
-      monthSelect.value = currentMonth;
+      // Only set month if option exists (some cards may use localized static HTML)
+      if (
+        Array.from(monthSelect.options).some((o) => o.value === currentMonth)
+      ) {
+        monthSelect.value = currentMonth;
+      } else {
+        monthSelect.value = "all";
+      }
+
+      // Render initial history according to the selects so opening a card shows filtered view
+      (function renderInitialHistory() {
+        const initYear = yearSelect.value === "all" ? null : yearSelect.value;
+        const initMonth =
+          monthSelect.value === "all" ? null : monthSelect.value;
+        const historyRows = get_emp_history(empData, initYear, initMonth);
+        historyTable.innerHTML = `
+          <div class="table-header">
+            <p>Date</p>
+            <p>Entrer</p>
+            <p>Sorti</p>
+          </div>
+          ${historyRows}
+        `;
+      })();
 
       // Attach filter event listeners
       yearSelect.addEventListener("change", () => {
-        const year = yearSelect.value;
-        const month = monthSelect.value;
+        const year = yearSelect.value === "all" ? null : yearSelect.value;
+        const month = monthSelect.value === "all" ? null : monthSelect.value;
         const historyRows = get_emp_history(empData, year, month);
         historyTable.innerHTML = `
           <div class="table-header">
@@ -498,8 +697,8 @@ function attachCardListeners() {
       });
 
       monthSelect.addEventListener("change", () => {
-        const year = yearSelect.value;
-        const month = monthSelect.value;
+        const year = yearSelect.value === "all" ? null : yearSelect.value;
+        const month = monthSelect.value === "all" ? null : monthSelect.value;
         const historyRows = get_emp_history(empData, year, month);
         historyTable.innerHTML = `
           <div class="table-header">
@@ -517,12 +716,12 @@ function attachCardListeners() {
         toggleEditMode(card, empData, historyTable);
       });
 
-      // Attach download button listener
+      // Attach download button listener (open modal to choose year/month)
       const downloadBtn = card.querySelector(".download-button");
       downloadBtn.addEventListener("click", () => {
         const year = yearSelect.value;
         const month = monthSelect.value;
-        generateEmployeePDF(empData, year, month);
+        showDownloadModal(empData, year, month);
       });
 
       // Attach edit button listener
@@ -1229,8 +1428,23 @@ function openRemoveModal(empData, card, manager) {
 
       removeModal.classList.add("hidden");
 
-      // Reload the page to show updates
-      location.reload();
+      // Notify other tabs and update current UI without reloading
+      try {
+        localStorage.setItem("employees_updated_at", Date.now().toString());
+      } catch (e) {}
+      try {
+        if (typeof fetchDataAndNotify === "function") {
+          // ask data-monitor to fetch latest and dispatch update
+          fetchDataAndNotify();
+        } else {
+          // fallback: rebuild UI by reloading employees
+          const emps = await fetch("/employees").then((r) => r.json());
+          globalEmployees = emps;
+          buildUI(globalEmployees);
+        }
+      } catch (e) {
+        console.error("Error updating UI after delete:", e);
+      }
     } catch (err) {
       console.error("Failed to delete employee:", err);
       alert(`Failed to remove employee: ${err.message}`);
@@ -1476,5 +1690,77 @@ document.addEventListener("DOMContentLoaded", async () => {
       sessionStorage.removeItem("authTime");
       window.location.href = "/pasword-require.html";
     });
+  }
+});
+
+// Listen for data-monitor updates and refresh admin UI without full reload
+window.addEventListener("employees:updated", (e) => {
+  try {
+    const employees = e.detail.employees || [];
+    // Preserve currently open card and its selected filters (if any)
+    const openCard = document.querySelector(".employee-card:not([hidden])");
+    let openId = null;
+    let selYear = null;
+    let selMonth = null;
+    if (openCard) {
+      openId = openCard.getAttribute("aria-controls");
+      const ys = openCard.querySelector("#filter-by-year");
+      const ms = openCard.querySelector("#filter-by-month");
+      if (ys) selYear = ys.value;
+      if (ms) selMonth = ms.value;
+    }
+
+    // Rebuild full UI (tiles + cards)
+    globalEmployees = employees;
+    buildUI(employees);
+
+    // Restore open card view if it was open
+    if (openId) {
+      const card = document.querySelector(`[aria-controls="${openId}"]`);
+      const manager = document.querySelector(".employee-manager");
+      if (card && manager) {
+        manager.hidden = true;
+        card.hidden = false;
+        // restore select values if present
+        const yearSelect = card.querySelector("#filter-by-year");
+        const monthSelect = card.querySelector("#filter-by-month");
+        const historyTable = card.querySelector(".history-table");
+        if (yearSelect && selYear) yearSelect.value = selYear;
+        if (monthSelect && selMonth) monthSelect.value = selMonth;
+
+        // update history based on restored selects
+        const useYear =
+          yearSelect && yearSelect.value === "all"
+            ? null
+            : yearSelect && yearSelect.value;
+        const useMonth =
+          monthSelect && monthSelect.value === "all"
+            ? null
+            : monthSelect && monthSelect.value;
+        const empData = employees.find((x) => x.id === openId);
+        if (empData && historyTable) {
+          historyTable.innerHTML = `
+            <div class="table-header">
+              <p>Date</p>
+              <p>Entrer</p>
+              <p>Sorti</p>
+            </div>
+            ${get_emp_history(empData, useYear, useMonth)}
+          `;
+        }
+      }
+    }
+
+    const employeeCountEl = document.getElementById("employee-count");
+    if (employeeCountEl) employeeCountEl.textContent = employees.length;
+    console.log(
+      "admin-employees: UI refreshed from employees:updated",
+      employees.length
+    );
+  } catch (err) {
+    console.error(
+      "Error handling employees:updated in admin-employees.js",
+      err
+    );
   }
 });

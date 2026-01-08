@@ -36,7 +36,17 @@ form.addEventListener("submit", async (event) => {
     if (data.success) {
       // Store authentication in session storage
       sessionStorage.setItem("authenticated", "true");
-      sessionStorage.setItem("authTime", new Date().getTime());
+      try {
+        const t = await fetch("/haiti-time");
+        if (t.ok) {
+          const td = await t.json();
+          sessionStorage.setItem("authTime", td.ts.toString());
+        } else {
+          sessionStorage.setItem("authTime", Date.now().toString());
+        }
+      } catch (e) {
+        sessionStorage.setItem("authTime", Date.now().toString());
+      }
 
       // Get the intended destination from URL parameter, or default to admin-employees
       const destination =
