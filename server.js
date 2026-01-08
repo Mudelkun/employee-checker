@@ -935,3 +935,44 @@ app.post("/migrate/convert-old-format", (req, res) => {
     });
   }
 });
+
+// -------------------------------------------
+// ENDPOINT: Complete hdePointage Reset (Nuclear Option)
+// POST /migrate/reset-all-pointage
+// WARNING: This will delete ALL pointage history and start fresh
+// Response: { success, resetCount }
+// -------------------------------------------
+app.post("/migrate/reset-all-pointage", (req, res) => {
+  try {
+    const db = getDB();
+    const employees = db.employees || [];
+
+    let resetCount = 0;
+
+    employees.forEach((emp) => {
+      // Remove legacy flags
+      delete emp.estEntrer;
+      delete emp.estSorti;
+
+      // Reset hdePointage to empty object
+      emp.hdePointage = {};
+
+      resetCount++;
+    });
+
+    saveDB(db);
+
+    res.json({
+      success: true,
+      message: `Réinitialisation complète: ${resetCount} employés remis à zéro`,
+      resetCount,
+    });
+  } catch (err) {
+    console.error("Error in POST /migrate/reset-all-pointage:", err);
+    res.status(500).json({
+      success: false,
+      message: "Erreur serveur lors de la réinitialisation",
+      error: err.message,
+    });
+  }
+});
