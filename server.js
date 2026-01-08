@@ -389,3 +389,549 @@ app.get("/haiti-time", (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// -------------------------------------------
+// HELPER: Get current Haiti date as DD-MM-YYYY (used as key for hdePointage object)
+// -------------------------------------------
+function getHaitiDateKey() {
+  const now = new Date();
+  const TZ = "America/Port-au-Prince";
+  const fmtDate = new Intl.DateTimeFormat("fr-FR", {
+    timeZone: TZ,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(now);
+  // Convert DD/MM/YYYY -> DD-MM-YYYY for use as object key
+  return fmtDate.replace(/\//g, "-");
+}
+
+// -------------------------------------------
+// HELPER: Get current Haiti time as HH:MM AM/PM
+// -------------------------------------------
+function getHaitiTime() {
+  const now = new Date();
+  const TZ = "America/Port-au-Prince";
+  return new Intl.DateTimeFormat("fr-FR", {
+    timeZone: TZ,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  }).format(now);
+}
+
+// -------------------------------------------
+// HELPER: Verify time discrepancy (in minutes)
+// Returns { isValid: boolean, discrepancy: number, requiredTime: string }
+// -------------------------------------------
+function verifyTimeDiscrepancy(submittedTime) {
+  const TIME_TOLERANCE_MINUTES = 5;
+
+  // Parse submitted time (HH:MM AM/PM) to minutes from midnight
+  const timeRegex = /(\d+):(\d+)\s(AM|PM)/i;
+  const match = submittedTime.match(timeRegex);
+
+  if (!match) {
+    return {
+      isValid: false,
+      discrepancy: -1,
+      requiredTime: getHaitiTime(),
+      message: "Invalid time format. Expected HH:MM AM/PM",
+    };
+  }
+
+  let hours = parseInt(match[1]);
+  const minutes = parseInt(match[2]);
+  const period = match[3].toUpperCase();
+
+  // Convert to 24-hour format
+  if (period === "AM" && hours === 12) hours = 0;
+  if (period === "PM" && hours !== 12) hours += 12;
+
+  const submittedMinutes = hours * 60 + minutes;
+
+  // Get current server time in minutes
+  const now = new Date();
+  const TZ = "America/Port-au-Prince";
+  const timeStr = new Intl.DateTimeFormat("fr-FR", {
+    timeZone: TZ,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  }).format(now);
+
+  const timeMatch = timeStr.match(timeRegex);
+  let sHours = parseInt(timeMatch[1]);
+  const sMinutes = parseInt(timeMatch[2]);
+  const sPeriod = timeMatch[3].toUpperCase();
+
+  if (sPeriod === "AM" && sHours === 12) sHours = 0;
+  if (sPeriod === "PM" && sHours !== 12) sHours += 12;
+
+  const serverMinutes = sHours * 60 + sMinutes;
+  const discrepancy = Math.abs(submittedMinutes - serverMinutes);
+
+  return {
+    isValid: discrepancy <= TIME_TOLERANCE_MINUTES,
+    discrepancy,
+    requiredTime: getHaitiTime(),
+    message:
+      discrepancy <= TIME_TOLERANCE_MINUTES
+        ? "Time verified"
+        : `Time discrepancy: ${discrepancy} minutes. Server time is ${getHaitiTime()}`,
+  };
+}
+
+// -------------------------------------------
+// HELPER: Convert time string to hours worked
+// -------------------------------------------
+function heureTravailer(entrerStr, sortiStr) {
+  if (!entrerStr || !sortiStr) return 0;
+
+  function to24h(timeStr) {
+    const [time, modifier] = timeStr.split(" ");
+    let [hours, minutes] = time.split(":").map(Number);
+
+    if (modifier === "AM") {
+      if (hours === 12) hours = 0;
+    } else {
+      if (hours !== 12) hours += 12;
+    }
+
+    return hours + minutes / 60;
+  }
+
+  const hrEntrant = to24h(entrerStr);
+  const hrSortant = to24h(sortiStr);
+  let diff = hrSortant - hrEntrant;
+
+  if (diff < 0) diff += 24;
+
+  return Math.round(diff * 100) / 100;
+}
+
+// -------------------------------------------
+// ENDPOINT: Submit check-in (entrant)
+// Request: { employeeId, submittedTime }
+// Response: { success, message, dateKey, data }
+// -------------------------------------------
+app.post("/pointage/entrant", (req, res) => {
+  try {
+    const { employeeId, submittedTime } = req.body;
+
+    if (!employeeId || !submittedTime) {
+      return res.status(400).json({
+        success: false,
+        message: "Employee ID and submitted time are required",
+      });
+    }
+
+    // Verify time discrepancy
+    const timeCheck = verifyTimeDiscrepancy(submittedTime);
+    if (!timeCheck.isValid) {
+      return res.status(400).json({
+        success: false,
+        message: timeCheck.message,
+        requiredTime: timeCheck.requiredTime,
+      });
+    }
+
+    const db = getDB();
+    const empIndex = db.employees.findIndex(
+      (emp) => String(emp.id) === String(employeeId)
+    );
+
+    if (empIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        message: `Employee ${employeeId} not found`,
+      });
+    }
+
+    const emp = db.employees[empIndex];
+    const dateKey = getHaitiDateKey(); // DD-MM-YYYY
+    const serverTime = getHaitiTime();
+
+    // Ensure hdePointage is an object (new format)
+    if (!emp.hdePointage || typeof emp.hdePointage !== "object") {
+      emp.hdePointage = {};
+    }
+
+    // Check if employee already checked in today
+    if (emp.hdePointage[dateKey] && emp.hdePointage[dateKey].entrer) {
+      return res.status(400).json({
+        success: false,
+        message: `Employee ${emp.name} already checked in today`,
+        dateKey,
+      });
+    }
+
+    // Check for unclosed shift from previous day
+    const sortedDates = Object.keys(emp.hdePointage).sort((a, b) => {
+      const [aD, aM, aY] = a.split("-").map(Number);
+      const [bD, bM, bY] = b.split("-").map(Number);
+      const dateA = new Date(aY, aM - 1, aD);
+      const dateB = new Date(bY, bM - 1, bD);
+      return dateB - dateA;
+    });
+
+    let unclosedShift = null;
+    for (const date of sortedDates) {
+      if (
+        date !== dateKey &&
+        emp.hdePointage[date].entrer &&
+        !emp.hdePointage[date].sorti
+      ) {
+        unclosedShift = date;
+        break;
+      }
+    }
+
+    // Create new check-in entry
+    emp.hdePointage[dateKey] = {
+      entrer: submittedTime,
+      sorti: "",
+    };
+
+    saveDB(db);
+
+    const response = {
+      success: true,
+      message: `${emp.name} checked in at ${submittedTime}`,
+      dateKey,
+      data: emp.hdePointage[dateKey],
+    };
+
+    // Notify if there's an unclosed shift that needs admin attention
+    if (unclosedShift) {
+      response.pendingAdminReview = true;
+      response.unclosedShiftDate = unclosedShift;
+      response.message += ` (⚠️ Unclosed shift from ${unclosedShift} - admin notification sent)`;
+    }
+
+    res.json(response);
+  } catch (err) {
+    console.error("Error in /pointage/entrant:", err);
+    res.status(500).json({
+      success: false,
+      message: "Server error during check-in",
+      error: err.message,
+    });
+  }
+});
+
+// -------------------------------------------
+// ENDPOINT: Submit check-out (sortant) - can be for any date
+// Request: { employeeId, dateKey (DD-MM-YYYY), submittedTime }
+// Response: { success, message, dateKey, data, hoursWorked }
+// -------------------------------------------
+app.post("/pointage/sortant", (req, res) => {
+  try {
+    const { employeeId, dateKey, submittedTime } = req.body;
+
+    if (!employeeId || !dateKey || !submittedTime) {
+      return res.status(400).json({
+        success: false,
+        message: "Employee ID, date key, and submitted time are required",
+      });
+    }
+
+    // Verify time discrepancy
+    const timeCheck = verifyTimeDiscrepancy(submittedTime);
+    if (!timeCheck.isValid) {
+      return res.status(400).json({
+        success: false,
+        message: timeCheck.message,
+        requiredTime: timeCheck.requiredTime,
+      });
+    }
+
+    const db = getDB();
+    const empIndex = db.employees.findIndex(
+      (emp) => String(emp.id) === String(employeeId)
+    );
+
+    if (empIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        message: `Employee ${employeeId} not found`,
+      });
+    }
+
+    const emp = db.employees[empIndex];
+
+    // Ensure hdePointage is an object
+    if (!emp.hdePointage || typeof emp.hdePointage !== "object") {
+      emp.hdePointage = {};
+    }
+
+    // Check if the specified date has an entry
+    if (!emp.hdePointage[dateKey] || !emp.hdePointage[dateKey].entrer) {
+      return res.status(400).json({
+        success: false,
+        message: `No check-in found for date ${dateKey}`,
+        dateKey,
+      });
+    }
+
+    // Check if already checked out
+    if (emp.hdePointage[dateKey].sorti) {
+      return res.status(400).json({
+        success: false,
+        message: `Employee ${emp.name} already checked out for ${dateKey}`,
+        dateKey,
+      });
+    }
+
+    // Fill in checkout time and calculate hours
+    emp.hdePointage[dateKey].sorti = submittedTime;
+    emp.hdePointage[dateKey].heureTravailer = heureTravailer(
+      emp.hdePointage[dateKey].entrer,
+      submittedTime
+    );
+
+    // Mark if this was from a previous day (not today)
+    const todayKey = getHaitiDateKey();
+    if (dateKey !== todayKey) {
+      emp.hdePointage[dateKey].modifiedOn = `Auto-completed on ${todayKey}`;
+    }
+
+    saveDB(db);
+
+    res.json({
+      success: true,
+      message: `${emp.name} checked out at ${submittedTime}`,
+      dateKey,
+      data: emp.hdePointage[dateKey],
+      hoursWorked: emp.hdePointage[dateKey].heureTravailer,
+    });
+  } catch (err) {
+    console.error("Error in /pointage/sortant:", err);
+    res.status(500).json({
+      success: false,
+      message: "Server error during check-out",
+      error: err.message,
+    });
+  }
+});
+
+// -------------------------------------------
+// ENDPOINT: Get unclosed shifts for an employee
+// Request: { employeeId }
+// Response: { success, unclosedShifts: [{dateKey, entrer, hoursToNow}] }
+// -------------------------------------------
+app.get("/pointage/unclosed/:employeeId", (req, res) => {
+  try {
+    const { employeeId } = req.params;
+
+    const db = getDB();
+    const emp = db.employees.find((e) => String(e.id) === String(employeeId));
+
+    if (!emp) {
+      return res.status(404).json({
+        success: false,
+        message: `Employee ${employeeId} not found`,
+      });
+    }
+
+    // Ensure hdePointage is an object
+    if (!emp.hdePointage || typeof emp.hdePointage !== "object") {
+      return res.json({ success: true, unclosedShifts: [] });
+    }
+
+    const unclosedShifts = Object.entries(emp.hdePointage)
+      .filter(([_, record]) => record.entrer && !record.sorti)
+      .map(([dateKey, record]) => {
+        // Calculate hours from entrer to now
+        function to24h(timeStr) {
+          const [time, modifier] = timeStr.split(" ");
+          let [hours, minutes] = time.split(":").map(Number);
+          if (modifier === "AM") {
+            if (hours === 12) hours = 0;
+          } else {
+            if (hours !== 12) hours += 12;
+          }
+          return hours + minutes / 60;
+        }
+
+        const serverTime = getHaitiTime();
+        const hrNow = to24h(serverTime);
+        const hrEntrer = to24h(record.entrer);
+        let diff = hrNow - hrEntrer;
+        if (diff < 0) diff += 24;
+
+        return {
+          dateKey,
+          entrer: record.entrer,
+          hoursToNow: Math.round(diff * 100) / 100,
+        };
+      })
+      .sort((a, b) => {
+        // Sort by date (oldest first)
+        const [aD, aM, aY] = a.dateKey.split("-").map(Number);
+        const [bD, bM, bY] = b.dateKey.split("-").map(Number);
+        return new Date(aY, aM - 1, aD) - new Date(bY, bM - 1, bD);
+      });
+
+    res.json({ success: true, unclosedShifts });
+  } catch (err) {
+    console.error("Error in /pointage/unclosed:", err);
+    res.status(500).json({
+      success: false,
+      message: "Server error retrieving unclosed shifts",
+      error: err.message,
+    });
+  }
+});
+
+// -------------------------------------------
+// ENDPOINT: Get list of employees working today
+// GET /working-today
+// Response: { success, workingToday: [{id, name}, ...] }
+// -------------------------------------------
+app.get("/working-today", (req, res) => {
+  try {
+    const raw = fs.readFileSync(DATA_FILE, "utf8");
+    const data = JSON.parse(raw);
+    const employes = data.employes || [];
+
+    const todayKey = getHaitiDateKey();
+
+    const workingToday = employes
+      .filter((emp) => {
+        return (
+          emp.hdePointage &&
+          emp.hdePointage[todayKey] &&
+          emp.hdePointage[todayKey].entrer &&
+          !emp.hdePointage[todayKey].sorti
+        );
+      })
+      .map((emp) => ({
+        id: emp.id,
+        name: emp.name,
+        checkedInAt: emp.hdePointage[todayKey].entrer,
+      }));
+
+    res.json({ success: true, workingToday });
+  } catch (err) {
+    console.error("Error in /working-today:", err);
+    res.status(500).json({
+      success: false,
+      message: "Server error retrieving working employees",
+      error: err.message,
+    });
+  }
+});
+
+// -------------------------------------------
+// ENDPOINT: Delete all history for a specific date
+// DELETE /history/date/:dateKey
+// Request: /history/date/07-01-2026
+// Response: { success, deletedCount, dateKey }
+// -------------------------------------------
+app.delete("/history/date/:dateKey", (req, res) => {
+  try {
+    const { dateKey } = req.params;
+
+    // Validate dateKey format (DD-MM-YYYY)
+    if (!/^\d{2}-\d{2}-\d{4}$/.test(dateKey)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid date format. Expected DD-MM-YYYY",
+      });
+    }
+
+    const raw = fs.readFileSync(DATA_FILE, "utf8");
+    const data = JSON.parse(raw);
+    const employes = data.employes || [];
+
+    let deletedCount = 0;
+
+    // Remove the date entry from each employee's hdePointage
+    employes.forEach((emp) => {
+      if (emp.hdePointage && emp.hdePointage[dateKey]) {
+        delete emp.hdePointage[dateKey];
+        deletedCount++;
+      }
+    });
+
+    // Save updated data
+    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+
+    res.json({
+      success: true,
+      message: `Deleted history for date ${dateKey}`,
+      deletedCount,
+      dateKey,
+    });
+  } catch (err) {
+    console.error("Error in DELETE /history/date:", err);
+    res.status(500).json({
+      success: false,
+      message: "Server error deleting history",
+      error: err.message,
+    });
+  }
+});
+
+// -------------------------------------------
+// ENDPOINT: Migration - Convert old array format to new object format
+// POST /migrate/convert-old-format
+// Converts any remaining hdePointage arrays to the new DD-MM-YYYY object format
+// Response: { success, convertedCount, skippedCount }
+// -------------------------------------------
+app.post("/migrate/convert-old-format", (req, res) => {
+  try {
+    const raw = fs.readFileSync(DATA_FILE, "utf8");
+    const data = JSON.parse(raw);
+    const employes = data.employes || [];
+
+    let convertedCount = 0;
+    let skippedCount = 0;
+
+    employes.forEach((emp) => {
+      if (Array.isArray(emp.hdePointage)) {
+        // Old format detected - convert array to object
+        const newFormat = {};
+
+        emp.hdePointage.forEach((record) => {
+          // record.date is in DD/MM/YYYY format
+          const dateKey = record.date.replace(/\//g, "-");
+
+          // Only keep if not already exists (avoid duplicates)
+          if (!newFormat[dateKey]) {
+            newFormat[dateKey] = {
+              entrer: record.entrer || "",
+              sorti: record.sorti || "",
+              heureTravailer: record.heureTravailer || 0,
+              modifiedOn: record.modifiedOn || "",
+            };
+          }
+        });
+
+        emp.hdePointage = newFormat;
+        convertedCount++;
+      } else if (typeof emp.hdePointage === "object" && emp.hdePointage) {
+        // Already in new format
+        skippedCount++;
+      }
+    });
+
+    // Save converted data
+    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+
+    res.json({
+      success: true,
+      message: `Migration complete: ${convertedCount} converted, ${skippedCount} already in new format`,
+      convertedCount,
+      skippedCount,
+    });
+  } catch (err) {
+    console.error("Error in POST /migrate/convert-old-format:", err);
+    res.status(500).json({
+      success: false,
+      message: "Server error during migration",
+      error: err.message,
+    });
+  }
+});

@@ -30,9 +30,28 @@ const emp_container = document.getElementById("employee-container");
 const card_container = document.querySelector(".card-container");
 const searchInput = document.getElementById("search-input");
 
-// Generate table rows for history
+// Generate table rows for history - works with new date-keyed object format
 function get_emp_history(emp, year = null, month = null) {
-  let filtered = emp.hdePointage;
+  // Handle both old array format and new object format
+  let recordsArray = [];
+
+  if (Array.isArray(emp.hdePointage)) {
+    // Old format: array
+    recordsArray = emp.hdePointage;
+  } else if (typeof emp.hdePointage === "object" && emp.hdePointage !== null) {
+    // New format: date-keyed object (DD-MM-YYYY) -> convert to display format
+    recordsArray = Object.entries(emp.hdePointage).map(([dateKey, record]) => {
+      // Convert DD-MM-YYYY back to DD/MM/YYYY for display
+      const displayDate = dateKey.replace(/-/g, "/");
+      return {
+        date: displayDate,
+        entrer: record.entrer || "",
+        sorti: record.sorti || "",
+        heureTravailer: record.heureTravailer || 0,
+        modifiedOn: record.modifiedOn,
+      };
+    });
+  }
 
   // Filter by year and month if provided (date is DD/MM/YYYY)
   // Treat explicit 'all' values as no-filter
@@ -40,7 +59,7 @@ function get_emp_history(emp, year = null, month = null) {
   const filterMonth = month === "all" ? null : month;
 
   if (filterYear || filterMonth) {
-    filtered = filtered.filter((h) => {
+    recordsArray = recordsArray.filter((h) => {
       const [hDay, hMonth, hYear] = h.date.split("/");
       if (filterYear && hYear !== filterYear) return false;
       if (filterMonth && hMonth !== filterMonth) return false;
@@ -48,7 +67,7 @@ function get_emp_history(emp, year = null, month = null) {
     });
   }
 
-  return filtered
+  return recordsArray
     .sort((a, b) => {
       // First sort by date (newest first) - parse DD/MM/YYYY safely
       const [aDay, aMonth, aYear] = a.date.split("/").map(Number);
@@ -231,10 +250,29 @@ function generateEmployeePDF(empData, year, month) {
   doc.setFont("helvetica", "normal");
   doc.text(payDisplay, 135, 83);
 
-  // Filter history data (dates stored as DD/MM/YYYY)
-  const allRecords = Array.isArray(empData.hdePointage)
-    ? empData.hdePointage
-    : [];
+  // Filter history data - handle both old array and new object format
+  let allRecords = [];
+  if (Array.isArray(empData.hdePointage)) {
+    allRecords = empData.hdePointage;
+  } else if (
+    typeof empData.hdePointage === "object" &&
+    empData.hdePointage !== null
+  ) {
+    // New format: convert date-keyed object to array with date display
+    allRecords = Object.entries(empData.hdePointage).map(
+      ([dateKey, record]) => {
+        const displayDate = dateKey.replace(/-/g, "/");
+        return {
+          date: displayDate,
+          entrer: record.entrer || "",
+          sorti: record.sorti || "",
+          heureTravailer: record.heureTravailer || 0,
+          modifiedOn: record.modifiedOn,
+        };
+      }
+    );
+  }
+
   let filteredHistory = allRecords.filter((h) => {
     const [hDay, hMonth, hYear] = h.date.split("/");
     if (filterYear && hYear !== filterYear) return false;
@@ -434,7 +472,22 @@ function buildUI(employes) {
 
   employes.forEach((emp) => {
     // Determine if employee is working today
-    const isWorking = emp.estEntrer === true && emp.estSorti === false;
+    // Get today's date in DD-MM-YYYY format (Haiti timezone)
+    const todayKey = new Intl.DateTimeFormat("fr-FR", {
+      timeZone: "America/Port-au-Prince",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    })
+      .format(new Date())
+      .replace(/\//g, "-");
+
+    const isWorking =
+      emp.hdePointage &&
+      emp.hdePointage[todayKey] &&
+      emp.hdePointage[todayKey].entrer &&
+      !emp.hdePointage[todayKey].sorti;
+
     const statusText = isWorking ? "En train de travailler" : "Absent";
     const statusClass = isWorking ? "" : "out";
 
@@ -781,11 +834,11 @@ function attachCardListeners() {
               sendIdBtn.innerHTML = `✉️ <span class="sent-indicator" title="Envoyé le ${sentDate}">✓</span>`;
               sendIdBtn.classList.add("already-sent");
             } else {
-              alert(`❌ Échec: ${result.message}`);
+              alert(`❌ Échec d'envoi: ${result.message}`);
             }
           } catch (error) {
             console.error("Send email error:", error);
-            alert(`❌ Erreur: ${error.message}`);
+            alert(`❌ Erreur d'envoi: ${error.message}`);
           } finally {
             sendIdBtn.disabled = false;
           }
@@ -872,7 +925,7 @@ function toggleEditMode(card, empData, historyTable) {
       if (entrerInput && entrerInput.value.trim() !== "") {
         if (!timeRegex.test(entrerInput.value)) {
           alert(
-            `Format d'heure invalide: "${entrerInput.value}". Veuillez utiliser le format: HH:MM AM/PM (ex: 8:15 AM)`
+            `Format d'heure invalide: "${entrerInput.value}". Veuillez utiliser le format: HH:MM AM/PM (ex: 08:15 AM)`
           );
           return;
         }
@@ -884,7 +937,7 @@ function toggleEditMode(card, empData, historyTable) {
       if (sortiInput && sortiInput.value.trim() !== "") {
         if (!timeRegex.test(sortiInput.value)) {
           alert(
-            `Format d'heure invalide: "${sortiInput.value}". Veuillez utiliser le format: HH:MM AM/PM (ex: 5:30 PM)`
+            `Format d'heure invalide: "${sortiInput.value}". Veuillez utiliser le format: HH:MM AM/PM (ex: 05:30 PM)`
           );
           return;
         }
@@ -1447,7 +1500,7 @@ function openRemoveModal(empData, card, manager) {
       }
     } catch (err) {
       console.error("Failed to delete employee:", err);
-      alert(`Failed to remove employee: ${err.message}`);
+      alert(`Impossible de supprimer l'employé: ${err.message}`);
     }
   };
 }

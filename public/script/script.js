@@ -129,81 +129,209 @@ function playConfirmed() {
   return audio.play();
 }
 
-// ---------------------------------------------
-// Update Pointage
-// ---------------------------------------------
-async function updateHdePointage(emp, act) {
-  // Use server-provided Haiti time (keeps timezone consistent)
-  const haiti = await getHaitiTime();
-  let dateLocal = haiti.date; // DD/MM/YYYY
-  let heure = haiti.hour; // hh:mm AM/PM (fr-FR formatting)
+// -----------------------------------------------
+// HELPER: Convert DD/MM/YYYY to DD-MM-YYYY for date key
+// -----------------------------------------------
+function getDateKey(ddmmyyyy) {
+  return ddmmyyyy.replace(/\//g, "-");
+}
 
-  const empPointage = emp.hdePointage;
+// -----------------------------------------------
+// PRE-SUBMISSION VALIDATION MODAL
+// -----------------------------------------------
+function showValidationModal(data) {
+  return new Promise((resolve) => {
+    // Create modal overlay
+    const overlay = document.createElement("div");
+    overlay.style.cssText = `
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.6); display: flex; align-items: center;
+      justify-content: center; z-index: 10000;
+    `;
 
-  let resultMessage = "";
+    // Create modal box
+    const modal = document.createElement("div");
+    modal.style.cssText = `
+      background: white; border-radius: 10px; padding: 30px;
+      max-width: 400px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      animation: slideUp 0.3s ease-out;
+    `;
 
-  if (act === "entrant") {
-    empPointage.push({
-      date: dateLocal,
-      entrer: heure,
-      sorti: "",
-    });
-    // mark employee as entered and not yet exited
-    emp.estEntrer = true;
-    emp.estSorti = false;
-    resultMessage = `${emp.name.toUpperCase()} Pointage Entrant accepte ${heure}`;
-  }
+    // Add animation
+    const style = document.createElement("style");
+    style.textContent = `
+      @keyframes slideUp {
+        from { transform: translateY(50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+    `;
+    document.head.appendChild(style);
 
-  if (act === "sortant") {
-    let found = false;
-    let changedHistory = false;
-    let sortieMessage = "";
-
-    empPointage.forEach((pObj) => {
-      if (pObj.date === dateLocal) {
-        found = true;
-        // If admin already set a sortie, do not overwrite it — preserve admin history
-        if (!pObj.sorti || pObj.sorti.trim() === "") {
-          pObj.sorti = heure;
-          pObj.heureTravailer = heureTravailer(pObj.entrer, pObj.sorti);
-          changedHistory = true;
-          sortieMessage = `${emp.name.toUpperCase()} Pointage Sortant accepte ${heure}`;
-        } else {
-          // Keep the admin-provided sortie; still mark employee as sorted out
-          sortieMessage = `${emp.name.toUpperCase()} Sortie déjà enregistrée par l'administrateur`;
+    // Modal content
+    const html = `
+      <h2 style="margin-top: 0; color: #333; text-align: center;">Confirmer l'enregistrement</h2>
+      <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
+        <p style="margin: 10px 0; font-size: 14px;">
+          <strong>Employé:</strong> ${data.employeeName}
+        </p>
+        <p style="margin: 10px 0; font-size: 14px;">
+          <strong>Date:</strong> ${data.dateDisplay}
+        </p>
+        <p style="margin: 10px 0; font-size: 14px;">
+          <strong>Heure:</strong> ${data.time}
+        </p>
+        ${
+          data.action === "sortant"
+            ? `<p style="margin: 10px 0; font-size: 14px;"><strong>Heures travaillées:</strong> ${data.hoursWorked}h</p>`
+            : ""
         }
+        ${
+          data.unclosedShiftWarning
+            ? `<p style="margin: 10px 0; font-size: 12px; color: #e74c3c; font-weight: bold;">
+                ⚠️ ${data.unclosedShiftWarning}
+              </p>`
+            : ""
+        }
+      </div>
+      <div style="display: flex; gap: 10px; justify-content: center;">
+        <button id="confirm-btn" style="
+          padding: 10px 30px; background: #27ae60; color: white;
+          border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold;
+        ">Confirmer</button>
+        <button id="cancel-btn" style="
+          padding: 10px 30px; background: #95a5a6; color: white;
+          border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold;
+        ">Annuler</button>
+      </div>
+    `;
+
+    modal.innerHTML = html;
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    // Event listeners
+    modal.querySelector("#confirm-btn").addEventListener("click", () => {
+      overlay.remove();
+      resolve(true);
+    });
+
+    modal.querySelector("#cancel-btn").addEventListener("click", () => {
+      overlay.remove();
+      resolve(false);
+    });
+
+    // Close on overlay click
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) {
+        overlay.remove();
+        resolve(false);
       }
     });
+  });
+}
 
-    if (found) {
-      // mark employee as exited and no longer entered (even if history wasn't changed)
-      emp.estSorti = true;
-      emp.estEntrer = false;
-      resultMessage =
-        sortieMessage ||
-        `${emp.name.toUpperCase()} Pointage Sortant accepte ${heure}`;
-    } else {
-      // No matching entry for today; do not mark as sorted out
+// -----------------------------------------------
+// NEW: Unclosed Shift Handler
+// -----------------------------------------------
+async function handleUnclosedShift(emp) {
+  try {
+    const res = await fetch(`/pointage/unclosed/${emp.id}`);
+    if (!res.ok) return null;
+
+    const data = await res.json();
+    if (data.unclosedShifts && data.unclosedShifts.length > 0) {
+      return data.unclosedShifts[0]; // Return most recent unclosed shift
+    }
+  } catch (err) {
+    console.error("Error checking unclosed shifts:", err);
+  }
+  return null;
+}
+
+// -----------------------------------------------
+// NEW: Submit check-in via API
+// -----------------------------------------------
+async function submitCheckIn(employeeId, submittedTime) {
+  try {
+    const res = await fetch("/pointage/entrant", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        employeeId,
+        submittedTime,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
       return {
         ok: false,
-        message: `${emp.name.toUpperCase()} Aucun enregistrement d'entrée trouvé pour aujourd'hui`,
+        message: data.message || "Pointage entrant échoué",
+        requiredTime: data.requiredTime,
       };
     }
-  }
 
-  // Save updated DB to server and wait for completion so other pages can react
-  const res = await saveToServer(emp);
-  if (res && res.ok) {
-    return { ok: true, message: resultMessage };
-  } else {
-    return { ok: false, message: "Erreur lors de la sauvegarde des données" };
+    return {
+      ok: true,
+      message: data.message,
+      dateKey: data.dateKey,
+      pendingAdminReview: data.pendingAdminReview || false,
+    };
+  } catch (err) {
+    console.error("Error submitting check-in:", err);
+    return {
+      ok: false,
+      message: "Erreur réseau lors du pointage entrant",
+    };
   }
 }
 
-// ---------------------------------------------
-// Convert Time & Calculate Hours Worked
-// ---------------------------------------------
+// -----------------------------------------------
+// NEW: Submit check-out via API
+// -----------------------------------------------
+async function submitCheckOut(employeeId, dateKey, submittedTime) {
+  try {
+    const res = await fetch("/pointage/sortant", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        employeeId,
+        dateKey,
+        submittedTime,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      return {
+        ok: false,
+        message: data.message || "Pointage sortant échoué",
+        requiredTime: data.requiredTime,
+      };
+    }
+
+    return {
+      ok: true,
+      message: data.message,
+      hoursWorked: data.hoursWorked,
+    };
+  } catch (err) {
+    console.error("Error submitting check-out:", err);
+    return {
+      ok: false,
+      message: "Erreur réseau lors du pointage sortant",
+    };
+  }
+}
+
+// -----------------------------------------------
+// Convert Time & Calculate Hours Worked (kept for backward compat with admin panel)
+// -----------------------------------------------
 function heureTravailer(entrer, sorti) {
+  if (!entrer || !sorti) return 0;
+
   function to24h(timeStr) {
     const [time, modifier] = timeStr.split(" ");
     let [hours, minutes] = time.split(":").map(Number);
@@ -224,34 +352,6 @@ function heureTravailer(entrer, sorti) {
   if (diff < 0) diff += 24;
 
   return Math.round(diff * 100) / 100;
-}
-
-// ---------------------------------------------
-// SAVE UPDATED EMPLOYEES TO SERVER
-// ---------------------------------------------
-async function saveToServer(emp) {
-  try {
-    const res = await fetch(`/employees/${emp.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(emp),
-    });
-
-    if (res.ok) {
-      // notify other tabs/pages that data has been saved
-      try {
-        localStorage.setItem("employees_updated_at", Date.now().toString());
-      } catch (e) {
-        // ignore localStorage errors in some environments
-      }
-    } else {
-      console.error("Failed to save employee data", res.status);
-    }
-    return res;
-  } catch (err) {
-    console.error("Error saving employee data:", err);
-    throw err;
-  }
 }
 
 // ---------------------------------------------
@@ -282,12 +382,12 @@ buttons.forEach((button) => {
   });
 });
 
-// ---------------------------------------------
-// Entrant
-// ---------------------------------------------
+// -----------------------------------------------
+// Entrant (Check-In)
+// -----------------------------------------------
 pEntrant.addEventListener("click", async () => {
   if (inputField.value === "") {
-    getMessage("Entrez votre numero de pointage!", "red");
+    getMessage("Entrez votre numéro d'employé!", "red");
     return;
   }
 
@@ -295,51 +395,67 @@ pEntrant.addEventListener("click", async () => {
   const emp = employes.find((emp) => emp.id === uInputId);
 
   if (!emp) {
-    getMessage(`Identification de l'employer ${uInputId} Echouer!`, "red");
+    getMessage(`❌ Employé ${uInputId} introuvable!`, "red");
     inputField.value = "";
     return;
   }
 
-  // Use server Haiti date to determine whether an entrant was already recorded today
   try {
+    // Get current Haiti time
     const h = await getHaitiTime();
-    const today = h.date; // DD/MM/YYYY
-    const hasEntrantToday =
-      Array.isArray(emp.hdePointage) &&
-      emp.hdePointage.some(
-        (p) => p.date === today && p.entrer && p.entrer.toString().trim() !== ""
-      );
+    const submittedTime = h.hour; // HH:MM AM/PM
 
-    if (hasEntrantToday) {
+    // Check for unclosed shift from previous day
+    const unclosedShift = await handleUnclosedShift(emp);
+
+    if (unclosedShift) {
+      // Show message about unclosed shift - still proceed with submission
       getMessage(
-        `Vous avez deja pointez votre arrive: ${emp.name.toUpperCase()}`,
-        "red"
+        `⚠️ ${emp.name} - Shift antérieur détecté (${unclosedShift.dateKey})`,
+        "orange"
       );
-      inputField.value = "";
-      return;
     }
 
-    // call update which now handles est flags and saving
-    const res = await updateHdePointage(emp, "entrant");
-    if (res && res.ok) {
+    // Submit check-in directly without confirmation modal
+    const result = await submitCheckIn(uInputId, submittedTime);
+
+    if (result.ok) {
       playConfirmed();
-      getMessage(res.message);
+      getMessage(`✅ ${emp.name} - Pointage entrant accepté`, "green");
+      inputField.value = "";
+
+      // Refresh employee data from server
+      setTimeout(loadEmployees, 500);
     } else {
-      getMessage(res.message || "Échec de la sauvegarde", "red");
+      if (
+        result.message.includes("already checked in") ||
+        result.message.includes("already")
+      ) {
+        getMessage(`❌ ${emp.name} - Déjà pointée arrivée aujourd'hui`, "red");
+      } else {
+        getMessage(
+          `❌ ${emp.name} - ${result.message || "Pointage entrant rejeté"}`,
+          "red"
+        );
+      }
+      if (result.requiredTime) {
+        getMessage(`⏰ Heure serveur: ${result.requiredTime}`, "orange");
+      }
+      inputField.value = "";
     }
   } catch (err) {
-    console.error("Entrant save failed:", err);
-    getMessage("Erreur lors de la sauvegarde", "red");
+    console.error("Entrant error:", err);
+    getMessage("❌ Erreur lors du pointage entrant", "red");
+    inputField.value = "";
   }
-  inputField.value = "";
 });
 
-// ---------------------------------------------
-// Sortant
-// ---------------------------------------------
+// -----------------------------------------------
+// Sortant (Check-Out)
+// -----------------------------------------------
 pSortant.addEventListener("click", async () => {
   if (inputField.value === "") {
-    getMessage("Entrez votre numero de pointage!", "red");
+    getMessage("Entrez votre numéro d'employé!", "red");
     return;
   }
 
@@ -347,48 +463,60 @@ pSortant.addEventListener("click", async () => {
   const emp = employes.find((emp) => emp.id === uInputId);
 
   if (!emp) {
-    getMessage(`Identification de l'employer ${uInputId} Echouer!`, "red");
+    getMessage(`❌ Employé ${uInputId} introuvable!`, "red");
     inputField.value = "";
     return;
   }
 
-  // Use server Haiti date to check today's entry rather than stale flags
   try {
+    // Get current Haiti time
     const h = await getHaitiTime();
-    const today = h.date; // DD/MM/YYYY
-    const entryToday =
-      Array.isArray(emp.hdePointage) &&
-      emp.hdePointage.find((p) => p.date === today);
+    const submittedTime = h.hour; // HH:MM AM/PM
 
-    if (
-      !entryToday ||
-      !entryToday.entrer ||
-      entryToday.entrer.toString().trim() === ""
-    ) {
+    // Check for unclosed shifts (can be from today or previous days)
+    const unclosedShifts = await handleUnclosedShift(emp);
+
+    if (!unclosedShifts) {
+      getMessage(`❌ ${emp.name} - Aucun pointage ouvert à fermer`, "red");
+      inputField.value = "";
+      return;
+    }
+
+    // Get the first unclosed shift (oldest one)
+    const unclosedShift = await handleUnclosedShift(emp);
+    const dateKeyToClose = unclosedShift.dateKey;
+    const hoursWorked = unclosedShift.hoursToNow;
+
+    // Submit check-out directly without confirmation modal
+    const result = await submitCheckOut(
+      uInputId,
+      dateKeyToClose,
+      submittedTime
+    );
+
+    if (result.ok) {
+      playConfirmed();
       getMessage(
-        `Vous n'avez pas pointez votre arrivez: ${emp.name.toUpperCase()}`,
-        "red"
+        `✅ ${emp.name} - Pointage sortant accepté (${result.hoursWorked}h)`,
+        "green"
       );
       inputField.value = "";
-      return;
-    }
 
-    if (entryToday.sorti && entryToday.sorti.toString().trim() !== "") {
-      getMessage(`Vous avez deja pointez votre sorti: ${emp.name}`, "red");
-      inputField.value = "";
-      return;
-    }
-
-    const res = await updateHdePointage(emp, "sortant");
-    if (res && res.ok) {
-      playConfirmed();
-      getMessage(res.message);
+      // Refresh employee data from server
+      setTimeout(loadEmployees, 500);
     } else {
-      getMessage(res.message || "Échec de la sauvegarde", "red");
+      getMessage(
+        `❌ ${emp.name} - ${result.message || "Pointage sortant rejeté"}`,
+        "red"
+      );
+      if (result.requiredTime) {
+        getMessage(`⏰ Heure serveur: ${result.requiredTime}`, "orange");
+      }
+      inputField.value = "";
     }
   } catch (err) {
-    console.error("Sortant save failed:", err);
-    getMessage("Erreur lors de la sauvegarde", "red");
+    console.error("Sortant error:", err);
+    getMessage("❌ Erreur lors du pointage sortant", "red");
+    inputField.value = "";
   }
-  inputField.value = "";
 });
