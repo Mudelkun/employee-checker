@@ -81,6 +81,48 @@ if (
   }
 })();
 
+// ----------- MIGRATION: Convert hourly employees to array format -----------
+(function migrateHourlyEmployeesToArrayFormat() {
+  try {
+    if (fs.existsSync(DATA_FILE)) {
+      const raw = fs.readFileSync(DATA_FILE, "utf8");
+      const data = JSON.parse(raw);
+      let migrated = false;
+
+      if (data.employees && Array.isArray(data.employees)) {
+        data.employees.forEach((emp) => {
+          // Only migrate hourly employees
+          if (emp.payType === "hourly" && emp.hdePointage && typeof emp.hdePointage === "object") {
+            // Check each date entry
+            Object.keys(emp.hdePointage).forEach((dateKey) => {
+              const entry = emp.hdePointage[dateKey];
+              // If it's an object with entrer/sorti (old format), convert to array
+              if (entry && !Array.isArray(entry) && entry.entrer !== undefined) {
+                emp.hdePointage[dateKey] = [entry];
+                migrated = true;
+              }
+            });
+          }
+        });
+      }
+
+      if (migrated) {
+        // Create backup before migrating
+        const backupFile = DATA_FILE.replace('.json', '.pre-hourly-migration-backup.json');
+        if (!fs.existsSync(backupFile)) {
+          fs.writeFileSync(backupFile, raw);
+          console.log(`Migration: Created backup at ${backupFile}`);
+        }
+        
+        fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+        console.log("Migration: Converted hourly employees to array format");
+      }
+    }
+  } catch (err) {
+    console.error("Migration error:", err);
+  }
+})();
+
 // ----------- HELPER: Load database safely -----------
 function getDB() {
   try {
@@ -1103,6 +1145,67 @@ app.post("/migrate/reset-all-pointage", (req, res) => {
     res.status(500).json({
       success: false,
       message: "Erreur serveur lors de la réinitialisation",
+      error: err.message,
+    });
+  }
+});
+
+// -------------------------------------------
+// ENDPOINT: Migrate hourly employees to array format
+// POST /migrate/hourly-to-array
+// Converts hourly employees' hdePointage from object to array format
+// Response: { success, migratedCount, skippedCount, employeesMigrated }
+// -------------------------------------------
+app.post("/migrate/hourly-to-array", (req, res) => {
+  try {
+    const db = getDB();
+    const employees = db.employees || [];
+
+    let migratedCount = 0;
+    let skippedCount = 0;
+    const employeesMigrated = [];
+
+    employees.forEach((emp) => {
+      // Only process hourly employees
+      if (emp.payType === "hourly" && emp.hdePointage && typeof emp.hdePointage === "object") {
+        let employeeMigrated = false;
+        
+        // Check each date entry
+        Object.keys(emp.hdePointage).forEach((dateKey) => {
+          const entry = emp.hdePointage[dateKey];
+          
+          // If it's an object with entrer/sorti (old format), convert to array
+          if (entry && !Array.isArray(entry) && entry.entrer !== undefined) {
+            emp.hdePointage[dateKey] = [entry];
+            employeeMigrated = true;
+          }
+        });
+
+        if (employeeMigrated) {
+          migratedCount++;
+          employeesMigrated.push({ id: emp.id, name: emp.name });
+        } else {
+          skippedCount++;
+        }
+      }
+    });
+
+    if (migratedCount > 0) {
+      saveDB(db);
+    }
+
+    res.json({
+      success: true,
+      message: `Migration complete: ${migratedCount} hourly employees migrated, ${skippedCount} already in array format`,
+      migratedCount,
+      skippedCount,
+      employeesMigrated,
+    });
+  } catch (err) {
+    console.error("Error in POST /migrate/hourly-to-array:", err);
+    res.status(500).json({
+      success: false,
+      message: "Server error during migration",
       error: err.message,
     });
   }
