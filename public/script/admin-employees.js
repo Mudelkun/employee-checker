@@ -482,11 +482,19 @@ function buildUI(employes) {
       .format(new Date())
       .replace(/\//g, "-");
 
-    const isWorking =
-      emp.hdePointage &&
-      emp.hdePointage[todayKey] &&
-      emp.hdePointage[todayKey].entrer &&
-      !emp.hdePointage[todayKey].sorti;
+    const isHourlyEmployee = emp.payType === "hourly";
+    let isWorking = false;
+
+    if (emp.hdePointage && emp.hdePointage[todayKey]) {
+      const todayData = emp.hdePointage[todayKey];
+      if (isHourlyEmployee && Array.isArray(todayData)) {
+        // For hourly employees, check if there's any unclosed entry
+        isWorking = todayData.some((entry) => entry.entrer && !entry.sorti);
+      } else if (!isHourlyEmployee) {
+        // For non-hourly employees, check single entry
+        isWorking = todayData.entrer && !todayData.sorti;
+      }
+    }
 
     const statusText = isWorking ? "En train de travailler" : "Absent";
     const statusClass = isWorking ? "" : "out";
