@@ -95,11 +95,13 @@ function calculatePay() {
     const uniqueDates = new Set(); // Track unique dates for accurate day count
 
     // Only process pointage if the employee has records
-    const pointageRecords = employee.hdePointage || [];
+    const pointageRecords = employee.hdePointage || {};
+    const isHourlyEmployee = employee.payType === "hourly";
 
-    pointageRecords.forEach((record) => {
-      // record.date is now DD/MM/YYYY
-      const [recordDay, recordMonth, recordYear] = record.date.split("/");
+    // hdePointage is now an object with dateKey (DD-MM-YYYY) as keys
+    Object.entries(pointageRecords).forEach(([dateKey, recordOrArray]) => {
+      // Convert DD-MM-YYYY to DD/MM/YYYY for filtering
+      const [recordDay, recordMonth, recordYear] = dateKey.split("-");
 
       // Filter by year and month
       if (recordYear !== year) return;
@@ -107,37 +109,46 @@ function calculatePay() {
 
       // Filter by week if specified
       if (week) {
-        const recordWeek = getWeekNumber(record.date);
+        const dateForWeek = `${recordDay}/${recordMonth}/${recordYear}`;
+        const recordWeek = getWeekNumber(dateForWeek);
         if (recordWeek !== parseInt(week)) return;
       }
 
-      if (record.entrer && record.sorti) {
-        const hours = calculateHours(record.entrer, record.sorti);
-        totalHours += hours;
+      // Handle both formats: array for hourly, object for others
+      const records = (isHourlyEmployee && Array.isArray(recordOrArray)) 
+        ? recordOrArray 
+        : [recordOrArray];
 
-        // Count unique dates only
-        uniqueDates.add(record.date);
+      records.forEach((record) => {
+        if (record.entrer && record.sorti) {
+          const hours = calculateHours(record.entrer, record.sorti);
+          totalHours += hours;
 
-        // Calculate daily pay based on pay type
-        let dailyPay = 0;
-        if (employee.payType === "hourly") {
-          dailyPay = hours * employee.payAmount;
-        } else if (employee.payType === "weekly") {
-          // For weekly pay, divide by 5 (work days per week) to show daily breakdown
-          dailyPay = employee.payAmount / 5;
-        } else if (employee.payType === "monthly") {
-          // For monthly pay, divide by 22 (work days per month) to show daily breakdown
-          dailyPay = employee.payAmount / 22;
+          // Count unique dates only
+          const dateFormatted = `${recordDay}/${recordMonth}/${recordYear}`;
+          uniqueDates.add(dateFormatted);
+
+          // Calculate daily pay based on pay type
+          let dailyPay = 0;
+          if (employee.payType === "hourly") {
+            dailyPay = hours * employee.payAmount;
+          } else if (employee.payType === "weekly") {
+            // For weekly pay, divide by 5 (work days per week) to show daily breakdown
+            dailyPay = employee.payAmount / 5;
+          } else if (employee.payType === "monthly") {
+            // For monthly pay, divide by 22 (work days per month) to show daily breakdown
+            dailyPay = employee.payAmount / 22;
+          }
+
+          dayBreakdown.push({
+            date: dateFormatted,
+            entrer: record.entrer,
+            sorti: record.sorti,
+            hours: hours.toFixed(2),
+            dailyPay: dailyPay.toFixed(2),
+          });
         }
-
-        dayBreakdown.push({
-          date: record.date,
-          entrer: record.entrer,
-          sorti: record.sorti,
-          hours: hours.toFixed(2),
-          dailyPay: dailyPay.toFixed(2),
-        });
-      }
+      });
     });
 
     // Set daysWorked based on unique dates

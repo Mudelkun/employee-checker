@@ -81,6 +81,48 @@ if (
   }
 })();
 
+// ----------- MIGRATION: Convert hourly employees to array format -----------
+(function migrateHourlyEmployeesToArrayFormat() {
+  try {
+    if (fs.existsSync(DATA_FILE)) {
+      const raw = fs.readFileSync(DATA_FILE, "utf8");
+      const data = JSON.parse(raw);
+      let migrated = false;
+
+      if (data.employees && Array.isArray(data.employees)) {
+        data.employees.forEach((emp) => {
+          // Only migrate hourly employees
+          if (emp.payType === "hourly" && emp.hdePointage && typeof emp.hdePointage === "object") {
+            // Check each date entry
+            Object.keys(emp.hdePointage).forEach((dateKey) => {
+              const entry = emp.hdePointage[dateKey];
+              // If it's an object with entrer/sorti (old format), convert to array
+              if (entry && !Array.isArray(entry) && entry.entrer !== undefined) {
+                emp.hdePointage[dateKey] = [entry];
+                migrated = true;
+              }
+            });
+          }
+        });
+      }
+
+      if (migrated) {
+        // Create backup before migrating
+        const backupFile = DATA_FILE.replace('.json', '.pre-hourly-migration-backup.json');
+        if (!fs.existsSync(backupFile)) {
+          fs.writeFileSync(backupFile, raw);
+          console.log(`Migration: Created backup at ${backupFile}`);
+        }
+        
+        fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+        console.log("Migration: Converted hourly employees to array format");
+      }
+    }
+  } catch (err) {
+    console.error("Migration error:", err);
+  }
+})();
+
 // ----------- HELPER: Load database safely -----------
 function getDB() {
   try {
@@ -483,23 +525,26 @@ function verifyTimeDiscrepancy(submittedTime) {
 }
 
 // -------------------------------------------
+// HELPER: Convert 12-hour time string to 24-hour decimal
+// -------------------------------------------
+function to24h(timeStr) {
+  const [time, modifier] = timeStr.split(" ");
+  let [hours, minutes] = time.split(":").map(Number);
+
+  if (modifier === "AM") {
+    if (hours === 12) hours = 0;
+  } else {
+    if (hours !== 12) hours += 12;
+  }
+
+  return hours + minutes / 60;
+}
+
+// -------------------------------------------
 // HELPER: Convert time string to hours worked
 // -------------------------------------------
 function heureTravailer(entrerStr, sortiStr) {
   if (!entrerStr || !sortiStr) return 0;
-
-  function to24h(timeStr) {
-    const [time, modifier] = timeStr.split(" ");
-    let [hours, minutes] = time.split(":").map(Number);
-
-    if (modifier === "AM") {
-      if (hours === 12) hours = 0;
-    } else {
-      if (hours !== 12) hours += 12;
-    }
-
-    return hours + minutes / 60;
-  }
 
   const hrEntrant = to24h(entrerStr);
   const hrSortant = to24h(sortiStr);
@@ -557,59 +602,100 @@ app.post("/pointage/entrant", (req, res) => {
       emp.hdePointage = {};
     }
 
-    // Check if employee already checked in today
-    if (emp.hdePointage[dateKey] && emp.hdePointage[dateKey].entrer) {
-      return res.status(400).json({
-        success: false,
-        message: `Employee ${emp.name} already checked in today`,
-        dateKey,
-      });
-    }
+    const isHourlyEmployee = emp.payType === "hourly";
 
-    // Check for unclosed shift from previous day
-    const sortedDates = Object.keys(emp.hdePointage).sort((a, b) => {
-      const [aD, aM, aY] = a.split("-").map(Number);
-      const [bD, bM, bY] = b.split("-").map(Number);
-      const dateA = new Date(aY, aM - 1, aD);
-      const dateB = new Date(bY, bM - 1, bD);
-      return dateB - dateA;
-    });
-
-    let unclosedShift = null;
-    for (const date of sortedDates) {
-      if (
-        date !== dateKey &&
-        emp.hdePointage[date].entrer &&
-        !emp.hdePointage[date].sorti
-      ) {
-        unclosedShift = date;
-        break;
+    // For hourly employees, allow multiple check-ins per day (array format)
+    // For non-hourly employees, maintain single check-in per day (object format)
+    if (isHourlyEmployee) {
+      // Initialize as array if not exists or is object (migration)
+      if (!emp.hdePointage[dateKey]) {
+        emp.hdePointage[dateKey] = [];
+      } else if (!Array.isArray(emp.hdePointage[dateKey])) {
+        // Migrate from object to array for hourly employees
+        emp.hdePointage[dateKey] = [emp.hdePointage[dateKey]];
       }
+
+      // Check if there's an unclosed check-in for today
+      const unclosedToday = emp.hdePointage[dateKey].find(
+        (entry) => entry.entrer && !entry.sorti
+      );
+      if (unclosedToday) {
+        return res.status(400).json({
+          success: false,
+          message: `Employee ${emp.name} has an unclosed check-in. Please check out first.`,
+          dateKey,
+        });
+      }
+
+      // Add new check-in entry to the array
+      emp.hdePointage[dateKey].push({
+        entrer: submittedTime,
+        sorti: "",
+      });
+
+      saveDB(db);
+
+      res.json({
+        success: true,
+        message: `${emp.name} checked in at ${submittedTime}`,
+        dateKey,
+        data: emp.hdePointage[dateKey][emp.hdePointage[dateKey].length - 1],
+      });
+    } else {
+      // Non-hourly employee: single check-in per day (existing behavior)
+      if (emp.hdePointage[dateKey] && emp.hdePointage[dateKey].entrer) {
+        return res.status(400).json({
+          success: false,
+          message: `Employee ${emp.name} already checked in today`,
+          dateKey,
+        });
+      }
+
+      // Check for unclosed shift from previous day
+      const sortedDates = Object.keys(emp.hdePointage).sort((a, b) => {
+        const [aD, aM, aY] = a.split("-").map(Number);
+        const [bD, bM, bY] = b.split("-").map(Number);
+        const dateA = new Date(aY, aM - 1, aD);
+        const dateB = new Date(bY, bM - 1, bD);
+        return dateB - dateA;
+      });
+
+      let unclosedShift = null;
+      for (const date of sortedDates) {
+        if (
+          date !== dateKey &&
+          emp.hdePointage[date].entrer &&
+          !emp.hdePointage[date].sorti
+        ) {
+          unclosedShift = date;
+          break;
+        }
+      }
+
+      // Create new check-in entry
+      emp.hdePointage[dateKey] = {
+        entrer: submittedTime,
+        sorti: "",
+      };
+
+      saveDB(db);
+
+      const response = {
+        success: true,
+        message: `${emp.name} checked in at ${submittedTime}`,
+        dateKey,
+        data: emp.hdePointage[dateKey],
+      };
+
+      // Notify if there's an unclosed shift that needs admin attention
+      if (unclosedShift) {
+        response.pendingAdminReview = true;
+        response.unclosedShiftDate = unclosedShift;
+        response.message += ` (⚠️ Unclosed shift from ${unclosedShift} - admin notification sent)`;
+      }
+
+      res.json(response);
     }
-
-    // Create new check-in entry
-    emp.hdePointage[dateKey] = {
-      entrer: submittedTime,
-      sorti: "",
-    };
-
-    saveDB(db);
-
-    const response = {
-      success: true,
-      message: `${emp.name} checked in at ${submittedTime}`,
-      dateKey,
-      data: emp.hdePointage[dateKey],
-    };
-
-    // Notify if there's an unclosed shift that needs admin attention
-    if (unclosedShift) {
-      response.pendingAdminReview = true;
-      response.unclosedShiftDate = unclosedShift;
-      response.message += ` (⚠️ Unclosed shift from ${unclosedShift} - admin notification sent)`;
-    }
-
-    res.json(response);
   } catch (err) {
     console.error("Error in /pointage/entrant:", err);
     res.status(500).json({
@@ -659,52 +745,102 @@ app.post("/pointage/sortant", (req, res) => {
     }
 
     const emp = db.employees[empIndex];
+    const isHourlyEmployee = emp.payType === "hourly";
 
     // Ensure hdePointage is an object
     if (!emp.hdePointage || typeof emp.hdePointage !== "object") {
       emp.hdePointage = {};
     }
 
-    // Check if the specified date has an entry
-    if (!emp.hdePointage[dateKey] || !emp.hdePointage[dateKey].entrer) {
-      return res.status(400).json({
-        success: false,
-        message: `No check-in found for date ${dateKey}`,
+    if (isHourlyEmployee) {
+      // Hourly employee: handle array format
+      if (!emp.hdePointage[dateKey] || !Array.isArray(emp.hdePointage[dateKey])) {
+        return res.status(400).json({
+          success: false,
+          message: `No check-in found for date ${dateKey}`,
+          dateKey,
+        });
+      }
+
+      // Find the most recent unclosed check-in entry
+      const unclosedEntry = emp.hdePointage[dateKey]
+        .slice()
+        .reverse()
+        .find((entry) => entry.entrer && !entry.sorti);
+
+      if (!unclosedEntry) {
+        return res.status(400).json({
+          success: false,
+          message: `No open check-in found for date ${dateKey}`,
+          dateKey,
+        });
+      }
+
+      // Fill in checkout time and calculate hours
+      unclosedEntry.sorti = submittedTime;
+      unclosedEntry.heureTravailer = heureTravailer(
+        unclosedEntry.entrer,
+        submittedTime
+      );
+
+      // Mark if this was from a previous day (not today)
+      const todayKey = getHaitiDateKey();
+      if (dateKey !== todayKey) {
+        unclosedEntry.modifiedOn = `Auto-completed on ${todayKey}`;
+      }
+
+      saveDB(db);
+
+      res.json({
+        success: true,
+        message: `${emp.name} checked out at ${submittedTime}`,
         dateKey,
+        data: unclosedEntry,
+        hoursWorked: unclosedEntry.heureTravailer,
+      });
+    } else {
+      // Non-hourly employee: handle object format (existing behavior)
+      // Check if the specified date has an entry
+      if (!emp.hdePointage[dateKey] || !emp.hdePointage[dateKey].entrer) {
+        return res.status(400).json({
+          success: false,
+          message: `No check-in found for date ${dateKey}`,
+          dateKey,
+        });
+      }
+
+      // Check if already checked out
+      if (emp.hdePointage[dateKey].sorti) {
+        return res.status(400).json({
+          success: false,
+          message: `Employee ${emp.name} already checked out for ${dateKey}`,
+          dateKey,
+        });
+      }
+
+      // Fill in checkout time and calculate hours
+      emp.hdePointage[dateKey].sorti = submittedTime;
+      emp.hdePointage[dateKey].heureTravailer = heureTravailer(
+        emp.hdePointage[dateKey].entrer,
+        submittedTime
+      );
+
+      // Mark if this was from a previous day (not today)
+      const todayKey = getHaitiDateKey();
+      if (dateKey !== todayKey) {
+        emp.hdePointage[dateKey].modifiedOn = `Auto-completed on ${todayKey}`;
+      }
+
+      saveDB(db);
+
+      res.json({
+        success: true,
+        message: `${emp.name} checked out at ${submittedTime}`,
+        dateKey,
+        data: emp.hdePointage[dateKey],
+        hoursWorked: emp.hdePointage[dateKey].heureTravailer,
       });
     }
-
-    // Check if already checked out
-    if (emp.hdePointage[dateKey].sorti) {
-      return res.status(400).json({
-        success: false,
-        message: `Employee ${emp.name} already checked out for ${dateKey}`,
-        dateKey,
-      });
-    }
-
-    // Fill in checkout time and calculate hours
-    emp.hdePointage[dateKey].sorti = submittedTime;
-    emp.hdePointage[dateKey].heureTravailer = heureTravailer(
-      emp.hdePointage[dateKey].entrer,
-      submittedTime
-    );
-
-    // Mark if this was from a previous day (not today)
-    const todayKey = getHaitiDateKey();
-    if (dateKey !== todayKey) {
-      emp.hdePointage[dateKey].modifiedOn = `Auto-completed on ${todayKey}`;
-    }
-
-    saveDB(db);
-
-    res.json({
-      success: true,
-      message: `${emp.name} checked out at ${submittedTime}`,
-      dateKey,
-      data: emp.hdePointage[dateKey],
-      hoursWorked: emp.hdePointage[dateKey].heureTravailer,
-    });
   } catch (err) {
     console.error("Error in /pointage/sortant:", err);
     res.status(500).json({
@@ -739,39 +875,49 @@ app.get("/pointage/unclosed/:employeeId", (req, res) => {
       return res.json({ success: true, unclosedShifts: [] });
     }
 
-    const unclosedShifts = Object.entries(emp.hdePointage)
-      .filter(([_, record]) => record.entrer && !record.sorti)
-      .map(([dateKey, record]) => {
-        // Calculate hours from entrer to now
-        function to24h(timeStr) {
-          const [time, modifier] = timeStr.split(" ");
-          let [hours, minutes] = time.split(":").map(Number);
-          if (modifier === "AM") {
-            if (hours === 12) hours = 0;
-          } else {
-            if (hours !== 12) hours += 12;
-          }
-          return hours + minutes / 60;
-        }
+    const isHourlyEmployee = emp.payType === "hourly";
+    const unclosedShifts = [];
 
+    Object.entries(emp.hdePointage).forEach(([dateKey, record]) => {
+      if (isHourlyEmployee && Array.isArray(record)) {
+        // For hourly employees with array format
+        record.forEach((entry) => {
+          if (entry.entrer && !entry.sorti) {
+            const serverTime = getHaitiTime();
+            const hrNow = to24h(serverTime);
+            const hrEntrer = to24h(entry.entrer);
+            let diff = hrNow - hrEntrer;
+            if (diff < 0) diff += 24;
+
+            unclosedShifts.push({
+              dateKey,
+              entrer: entry.entrer,
+              hoursToNow: Math.round(diff * 100) / 100,
+            });
+          }
+        });
+      } else if (!isHourlyEmployee && record.entrer && !record.sorti) {
+        // For non-hourly employees with object format
         const serverTime = getHaitiTime();
         const hrNow = to24h(serverTime);
         const hrEntrer = to24h(record.entrer);
         let diff = hrNow - hrEntrer;
         if (diff < 0) diff += 24;
 
-        return {
+        unclosedShifts.push({
           dateKey,
           entrer: record.entrer,
           hoursToNow: Math.round(diff * 100) / 100,
-        };
-      })
-      .sort((a, b) => {
-        // Sort by date (oldest first)
-        const [aD, aM, aY] = a.dateKey.split("-").map(Number);
-        const [bD, bM, bY] = b.dateKey.split("-").map(Number);
-        return new Date(aY, aM - 1, aD) - new Date(bY, bM - 1, bD);
-      });
+        });
+      }
+    });
+
+    // Sort by date (oldest first)
+    unclosedShifts.sort((a, b) => {
+      const [aD, aM, aY] = a.dateKey.split("-").map(Number);
+      const [bD, bM, bY] = b.dateKey.split("-").map(Number);
+      return new Date(aY, aM - 1, aD) - new Date(bY, bM - 1, bD);
+    });
 
     res.json({ success: true, unclosedShifts });
   } catch (err) {
@@ -799,18 +945,45 @@ app.get("/working-today", (req, res) => {
 
     const workingToday = employes
       .filter((emp) => {
-        return (
-          emp.hdePointage &&
-          emp.hdePointage[todayKey] &&
-          emp.hdePointage[todayKey].entrer &&
-          !emp.hdePointage[todayKey].sorti
-        );
+        if (!emp.hdePointage || !emp.hdePointage[todayKey]) {
+          return false;
+        }
+
+        const todayData = emp.hdePointage[todayKey];
+        const isHourlyEmployee = emp.payType === "hourly";
+
+        if (isHourlyEmployee && Array.isArray(todayData)) {
+          // For hourly employees, check if there's any unclosed entry
+          return todayData.some((entry) => entry.entrer && !entry.sorti);
+        } else if (!isHourlyEmployee) {
+          // For non-hourly employees, check single entry
+          return todayData.entrer && !todayData.sorti;
+        }
+
+        return false;
       })
-      .map((emp) => ({
-        id: emp.id,
-        name: emp.name,
-        checkedInAt: emp.hdePointage[todayKey].entrer,
-      }));
+      .map((emp) => {
+        const todayData = emp.hdePointage[todayKey];
+        const isHourlyEmployee = emp.payType === "hourly";
+
+        let checkedInAt;
+        if (isHourlyEmployee && Array.isArray(todayData)) {
+          // For hourly employees, get the most recent unclosed entry
+          const unclosedEntry = todayData
+            .slice()
+            .reverse()
+            .find((entry) => entry.entrer && !entry.sorti);
+          checkedInAt = unclosedEntry ? unclosedEntry.entrer : "";
+        } else {
+          checkedInAt = todayData.entrer;
+        }
+
+        return {
+          id: emp.id,
+          name: emp.name,
+          checkedInAt,
+        };
+      });
 
     res.json({ success: true, workingToday });
   } catch (err) {
@@ -972,6 +1145,67 @@ app.post("/migrate/reset-all-pointage", (req, res) => {
     res.status(500).json({
       success: false,
       message: "Erreur serveur lors de la réinitialisation",
+      error: err.message,
+    });
+  }
+});
+
+// -------------------------------------------
+// ENDPOINT: Migrate hourly employees to array format
+// POST /migrate/hourly-to-array
+// Converts hourly employees' hdePointage from object to array format
+// Response: { success, migratedCount, skippedCount, employeesMigrated }
+// -------------------------------------------
+app.post("/migrate/hourly-to-array", (req, res) => {
+  try {
+    const db = getDB();
+    const employees = db.employees || [];
+
+    let migratedCount = 0;
+    let skippedCount = 0;
+    const employeesMigrated = [];
+
+    employees.forEach((emp) => {
+      // Only process hourly employees
+      if (emp.payType === "hourly" && emp.hdePointage && typeof emp.hdePointage === "object") {
+        let employeeMigrated = false;
+        
+        // Check each date entry
+        Object.keys(emp.hdePointage).forEach((dateKey) => {
+          const entry = emp.hdePointage[dateKey];
+          
+          // If it's an object with entrer/sorti (old format), convert to array
+          if (entry && !Array.isArray(entry) && entry.entrer !== undefined) {
+            emp.hdePointage[dateKey] = [entry];
+            employeeMigrated = true;
+          }
+        });
+
+        if (employeeMigrated) {
+          migratedCount++;
+          employeesMigrated.push({ id: emp.id, name: emp.name });
+        } else {
+          skippedCount++;
+        }
+      }
+    });
+
+    if (migratedCount > 0) {
+      saveDB(db);
+    }
+
+    res.json({
+      success: true,
+      message: `Migration complete: ${migratedCount} hourly employees migrated, ${skippedCount} already in array format`,
+      migratedCount,
+      skippedCount,
+      employeesMigrated,
+    });
+  } catch (err) {
+    console.error("Error in POST /migrate/hourly-to-array:", err);
+    res.status(500).json({
+      success: false,
+      message: "Server error during migration",
       error: err.message,
     });
   }
