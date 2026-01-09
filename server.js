@@ -483,23 +483,26 @@ function verifyTimeDiscrepancy(submittedTime) {
 }
 
 // -------------------------------------------
+// HELPER: Convert 12-hour time string to 24-hour decimal
+// -------------------------------------------
+function to24h(timeStr) {
+  const [time, modifier] = timeStr.split(" ");
+  let [hours, minutes] = time.split(":").map(Number);
+
+  if (modifier === "AM") {
+    if (hours === 12) hours = 0;
+  } else {
+    if (hours !== 12) hours += 12;
+  }
+
+  return hours + minutes / 60;
+}
+
+// -------------------------------------------
 // HELPER: Convert time string to hours worked
 // -------------------------------------------
 function heureTravailer(entrerStr, sortiStr) {
   if (!entrerStr || !sortiStr) return 0;
-
-  function to24h(timeStr) {
-    const [time, modifier] = timeStr.split(" ");
-    let [hours, minutes] = time.split(":").map(Number);
-
-    if (modifier === "AM") {
-      if (hours === 12) hours = 0;
-    } else {
-      if (hours !== 12) hours += 12;
-    }
-
-    return hours + minutes / 60;
-  }
 
   const hrEntrant = to24h(entrerStr);
   const hrSortant = to24h(sortiStr);
@@ -838,18 +841,6 @@ app.get("/pointage/unclosed/:employeeId", (req, res) => {
         // For hourly employees with array format
         record.forEach((entry) => {
           if (entry.entrer && !entry.sorti) {
-            // Calculate hours from entrer to now
-            function to24h(timeStr) {
-              const [time, modifier] = timeStr.split(" ");
-              let [hours, minutes] = time.split(":").map(Number);
-              if (modifier === "AM") {
-                if (hours === 12) hours = 0;
-              } else {
-                if (hours !== 12) hours += 12;
-              }
-              return hours + minutes / 60;
-            }
-
             const serverTime = getHaitiTime();
             const hrNow = to24h(serverTime);
             const hrEntrer = to24h(entry.entrer);
@@ -865,17 +856,6 @@ app.get("/pointage/unclosed/:employeeId", (req, res) => {
         });
       } else if (!isHourlyEmployee && record.entrer && !record.sorti) {
         // For non-hourly employees with object format
-        function to24h(timeStr) {
-          const [time, modifier] = timeStr.split(" ");
-          let [hours, minutes] = time.split(":").map(Number);
-          if (modifier === "AM") {
-            if (hours === 12) hours = 0;
-          } else {
-            if (hours !== 12) hours += 12;
-          }
-          return hours + minutes / 60;
-        }
-
         const serverTime = getHaitiTime();
         const hrNow = to24h(serverTime);
         const hrEntrer = to24h(record.entrer);

@@ -115,7 +115,7 @@ function calculatePay() {
       }
 
       // Handle both formats: array for hourly, object for others
-      const records = isHourlyEmployee && Array.isArray(recordOrArray) 
+      const records = (isHourlyEmployee && Array.isArray(recordOrArray)) 
         ? recordOrArray 
         : [recordOrArray];
 

@@ -8,9 +8,8 @@ const TEST_MONTHLY_ID = "TEST_MONTHLY_001";
 
 function getDateKey() {
   const now = new Date();
-  const TZ = "America/Port-au-Prince";
   const fmtDate = new Intl.DateTimeFormat("fr-FR", {
-    timeZone: TZ,
+    timeZone: TIMEZONE,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
