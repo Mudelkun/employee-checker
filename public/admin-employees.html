@@ -542,6 +542,46 @@
       </div>
     </div>
 
+    <!-- ADD POINTAGE MODAL -->
+    <div class="add-pointage-modal hidden">
+      <div class="modal-content">
+        <h2>➕ Ajouter un pointage manuel</h2>
+        <div class="add-pointage-form">
+          <div class="form-group">
+            <label>Employé</label>
+            <input type="text" id="add-pointage-employee-name" readonly />
+          </div>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="add-pointage-date" required />
+          </div>
+          <div class="form-group">
+            <label>Heure d'entrée</label>
+            <input
+              type="text"
+              id="add-pointage-entrer"
+              placeholder="ex: 08:30 AM"
+              required
+            />
+            <small style="color: #666">Format: HH:MM AM/PM (ex: 08:30 AM, 02:45 PM)</small>
+          </div>
+          <div class="form-group">
+            <label>Heure de sortie (Optionnel)</label>
+            <input
+              type="text"
+              id="add-pointage-sorti"
+              placeholder="ex: 05:00 PM"
+            />
+            <small style="color: #666">Laisser vide si l'employé est toujours au travail</small>
+          </div>
+          <div class="modal-buttons">
+            <button class="cancel-add-pointage-btn">Annuler</button>
+            <button class="confirm-add-pointage-btn">➕ Ajouter</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <script src="script/data-monitor.js"></script>
