@@ -1313,11 +1313,11 @@ function openEditModal(empData) {
     editPayAmountField.style.display = "flex";
     const label = editPayAmountField.querySelector("#edit-pay-amount-label");
     if (empData.payType === "hourly") {
-      label.textContent = "Pay Per Hour";
+      label.textContent = "Salaire horaire";
     } else if (empData.payType === "weekly") {
-      label.textContent = "Pay Per Week";
+      label.textContent = "Salaire hebdomadaire";
     } else if (empData.payType === "monthly") {
-      label.textContent = "Pay Per Month";
+      label.textContent = "Salaire mensuel";
     }
   }
 
@@ -1330,11 +1330,11 @@ function openEditModal(empData) {
       editPayAmountField.style.display = "flex";
       const label = editPayAmountField.querySelector("#edit-pay-amount-label");
       if (payType === "hourly") {
-        label.textContent = "Pay Per Hour";
+        label.textContent = "Salaire horaire";
       } else if (payType === "weekly") {
-        label.textContent = "Pay Per Week";
+        label.textContent = "Salaire hebdomadaire";
       } else if (payType === "monthly") {
-        label.textContent = "Pay Per Month";
+        label.textContent = "Salaire mensuel";
       }
     } else {
       editPayAmountField.style.display = "none";
@@ -1384,7 +1384,7 @@ function openEditModal(empData) {
   cancelEditBtn.onclick = () => {
     editModal.classList.add("hidden");
     editImageInput.value = ""; // Reset file input
-    editUploadImageBtn.textContent = "Upload New Picture"; // Reset button text
+    editUploadImageBtn.textContent = "Télécharger une nouvelle photo"; // Reset button text
   };
 
   // Save button

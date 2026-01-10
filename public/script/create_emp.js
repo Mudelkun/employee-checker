@@ -59,13 +59,13 @@ imageInput.addEventListener("change", async (e) => {
 
   // Validate file type
   if (!file.type.startsWith("image/")) {
-    alert("Please upload an image file.");
+    alert("Veuillez télécharger un fichier image.");
     return;
   }
 
   // Validate file size (max 5MB)
   if (file.size > 5 * 1024 * 1024) {
-    alert("Image size must be less than 5MB.");
+    alert("La taille de l'image doit être inférieure à 5 Mo.");
     return;
   }
 
@@ -73,10 +73,10 @@ imageInput.addEventListener("change", async (e) => {
     uploadedImage = await fileToBase64(file);
     // Update preview
     previewOrIcon.src = uploadedImage;
-    uploadText.textContent = "Image uploaded ✓";
+    uploadText.textContent = "Image téléchargée ✓";
   } catch (err) {
     console.error("Error reading file:", err);
-    alert("Failed to read image file.");
+    alert("Échec de la lecture du fichier image.");
   }
 });
 
@@ -215,7 +215,7 @@ finalConfirm.addEventListener("click", async () => {
   // disable buttons to prevent double submits
   finalConfirm.disabled = true;
   confirme.disabled = true;
-  finalConfirm.textContent = "Saving...";
+  finalConfirm.textContent = "Enregistrement...";
 
   try {
     const res = await fetch("/employees", {
@@ -252,7 +252,7 @@ finalConfirm.addEventListener("click", async () => {
     show_id.textContent = "";
     uploadedImage = null;
     previewOrIcon.src = "imgs/07873.png";
-    uploadText.textContent = "Upload Image";
+    uploadText.textContent = "Télécharger une image";
     imageInput.value = "";
 
     // hide confirmation after a few seconds
@@ -262,12 +262,12 @@ finalConfirm.addEventListener("click", async () => {
   } catch (err) {
     console.error("Failed to save employee:", err);
     alert(
-      `Failed to save employee: ${err.message}\n\nMake sure the server is running and check the console for details.`
+      `Échec de l'enregistrement de l'employé: ${err.message}\n\nAssurez-vous que le serveur est en cours d'exécution et vérifiez la console pour plus de détails.`
     );
   } finally {
     finalConfirm.disabled = false;
     confirme.disabled = false;
-    finalConfirm.textContent = "Confirm";
+    finalConfirm.textContent = "Confirmer";
   }
 });
 
