@@ -1754,7 +1754,7 @@ function openAddPointageModal(empData) {
     }
 
     // Validate time format (HH:MM AM/PM)
-    const timeRegex = /^(0?[1-9]|1[0-2]):[0-5][0-9]\s(AM|PM)$/i;
+    const timeRegex = /^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/i;
     if (!timeRegex.test(entrer)) {
       alert("Format d'heure d'entrée invalide. Veuillez utiliser le format: HH:MM AM/PM (ex: 08:30 AM)");
       return;

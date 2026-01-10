@@ -565,231 +565,161 @@
       "details": "Operateur machine et assemblage",
       "image": "imgs/07873.png",
       "hdePointage": {
-        "03-11-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "03:30 PM",
-            "heureTravailer": 8.5
-          }
-        ],
-        "04-11-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "03:45 PM",
-            "heureTravailer": 8.75
-          }
-        ],
-        "05-11-2025": [
-          {
-            "entrer": "07:15 AM",
-            "sorti": "03:30 PM",
-            "heureTravailer": 8.25
-          }
-        ],
-        "06-11-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "04:00 PM",
-            "heureTravailer": 9
-          }
-        ],
-        "07-11-2025": [
-          {
-            "entrer": "07:30 AM",
-            "sorti": "03:00 PM",
-            "heureTravailer": 7.5
-          }
-        ],
-        "10-11-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "03:30 PM",
-            "heureTravailer": 8.5
-          }
-        ],
-        "11-11-2025": [
-          {
-            "entrer": "07:10 AM",
-            "sorti": "03:40 PM",
-            "heureTravailer": 8.5
-          }
-        ],
-        "12-11-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "04:00 PM",
-            "heureTravailer": 9
-          }
-        ],
-        "13-11-2025": [
-          {
-            "entrer": "07:20 AM",
-            "sorti": "03:35 PM",
-            "heureTravailer": 8.25
-          }
-        ],
-        "14-11-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "03:15 PM",
-            "heureTravailer": 8.25
-          }
-        ],
-        "17-11-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "03:30 PM",
-            "heureTravailer": 8.5
-          }
-        ],
-        "18-11-2025": [
-          {
-            "entrer": "07:15 AM",
-            "sorti": "03:45 PM",
-            "heureTravailer": 8.5
-          }
-        ],
-        "19-11-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "04:00 PM",
-            "heureTravailer": 9
-          }
-        ],
-        "20-11-2025": [
-          {
-            "entrer": "07:30 AM",
-            "sorti": "03:45 PM",
-            "heureTravailer": 8.25
-          }
-        ],
-        "21-11-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "03:00 PM",
-            "heureTravailer": 8
-          }
-        ],
-        "24-11-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "03:30 PM",
-            "heureTravailer": 8.5
-          }
-        ],
-        "25-11-2025": [
-          {
-            "entrer": "07:10 AM",
-            "sorti": "03:50 PM",
-            "heureTravailer": 8.67
-          }
-        ],
-        "26-11-2025": [
-          {
-            "entrer": "07:15 AM",
-            "sorti": "03:30 PM",
-            "heureTravailer": 8.25
-          }
-        ],
-        "27-11-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "04:00 PM",
-            "heureTravailer": 9
-          }
-        ],
-        "28-11-2025": [
-          {
-            "entrer": "07:30 AM",
-            "sorti": "03:00 PM",
-            "heureTravailer": 7.5
-          }
-        ],
-        "01-12-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "03:30 PM",
-            "heureTravailer": 8.5
-          }
-        ],
-        "02-12-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "03:45 PM",
-            "heureTravailer": 8.75
-          }
-        ],
-        "03-12-2025": [
-          {
-            "entrer": "07:15 AM",
-            "sorti": "03:30 PM",
-            "heureTravailer": 8.25
-          }
-        ],
-        "04-12-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "04:00 PM",
-            "heureTravailer": 9
-          }
-        ],
-        "05-12-2025": [
-          {
-            "entrer": "07:30 AM",
-            "sorti": "03:00 PM",
-            "heureTravailer": 7.5
-          }
-        ],
-        "08-12-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "03:30 PM",
-            "heureTravailer": 8.5
-          }
-        ],
-        "09-12-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "03:45 PM",
-            "heureTravailer": 8.75
-          }
-        ],
-        "10-12-2025": [
-          {
-            "entrer": "07:15 AM",
-            "sorti": "03:30 PM",
-            "heureTravailer": 8.25
-          }
-        ],
-        "11-12-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "04:00 PM",
-            "heureTravailer": 9
-          }
-        ],
-        "12-12-2025": [
-          {
-            "entrer": "07:30 AM",
-            "sorti": "03:00 PM",
-            "heureTravailer": 7.5
-          }
-        ],
-        "07-01-2026": [
-          {
-            "entrer": "7:02 PM",
-            "sorti": "",
-            "pendingAdminReview": true
-          }
-        ],
-        "10-01-2026": [
-          {
-            "entrer": "08:00 AM",
-            "sorti": "04:00 PM",
-            "modifiedOn": "10/01/2026 23:27:06",
-            "heureTravailer": 8
-          }
-        ]
+        "03-11-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "03:30 PM",
+          "heureTravailer": 8.5
+        },
+        "04-11-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "03:45 PM",
+          "heureTravailer": 8.75
+        },
+        "05-11-2025": {
+          "entrer": "07:15 AM",
+          "sorti": "03:30 PM",
+          "heureTravailer": 8.25
+        },
+        "06-11-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "04:00 PM",
+          "heureTravailer": 9
+        },
+        "07-11-2025": {
+          "entrer": "07:30 AM",
+          "sorti": "03:00 PM",
+          "heureTravailer": 7.5
+        },
+        "10-11-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "03:30 PM",
+          "heureTravailer": 8.5
+        },
+        "11-11-2025": {
+          "entrer": "07:10 AM",
+          "sorti": "03:40 PM",
+          "heureTravailer": 8.5
+        },
+        "12-11-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "04:00 PM",
+          "heureTravailer": 9
+        },
+        "13-11-2025": {
+          "entrer": "07:20 AM",
+          "sorti": "03:35 PM",
+          "heureTravailer": 8.25
+        },
+        "14-11-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "03:15 PM",
+          "heureTravailer": 8.25
+        },
+        "17-11-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "03:30 PM",
+          "heureTravailer": 8.5
+        },
+        "18-11-2025": {
+          "entrer": "07:15 AM",
+          "sorti": "03:45 PM",
+          "heureTravailer": 8.5
+        },
+        "19-11-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "04:00 PM",
+          "heureTravailer": 9
+        },
+        "20-11-2025": {
+          "entrer": "07:30 AM",
+          "sorti": "03:45 PM",
+          "heureTravailer": 8.25
+        },
+        "21-11-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "03:00 PM",
+          "heureTravailer": 8
+        },
+        "24-11-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "03:30 PM",
+          "heureTravailer": 8.5
+        },
+        "25-11-2025": {
+          "entrer": "07:10 AM",
+          "sorti": "03:50 PM",
+          "heureTravailer": 8.67
+        },
+        "26-11-2025": {
+          "entrer": "07:15 AM",
+          "sorti": "03:30 PM",
+          "heureTravailer": 8.25
+        },
+        "27-11-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "04:00 PM",
+          "heureTravailer": 9
+        },
+        "28-11-2025": {
+          "entrer": "07:30 AM",
+          "sorti": "03:00 PM",
+          "heureTravailer": 7.5
+        },
+        "01-12-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "03:30 PM",
+          "heureTravailer": 8.5
+        },
+        "02-12-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "03:45 PM",
+          "heureTravailer": 8.75
+        },
+        "03-12-2025": {
+          "entrer": "07:15 AM",
+          "sorti": "03:30 PM",
+          "heureTravailer": 8.25
+        },
+        "04-12-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "04:00 PM",
+          "heureTravailer": 9
+        },
+        "05-12-2025": {
+          "entrer": "07:30 AM",
+          "sorti": "03:00 PM",
+          "heureTravailer": 7.5
+        },
+        "08-12-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "03:30 PM",
+          "heureTravailer": 8.5
+        },
+        "09-12-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "03:45 PM",
+          "heureTravailer": 8.75
+        },
+        "10-12-2025": {
+          "entrer": "07:15 AM",
+          "sorti": "03:30 PM",
+          "heureTravailer": 8.25
+        },
+        "11-12-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "04:00 PM",
+          "heureTravailer": 9
+        },
+        "12-12-2025": {
+          "entrer": "07:30 AM",
+          "sorti": "03:00 PM",
+          "heureTravailer": 7.5
+        },
+        "07-01-2026": {
+          "entrer": "7:02 PM",
+          "sorti": "",
+          "pendingAdminReview": true
+        }
       },
       "estEntrer": true,
       "estSorti": false,
@@ -804,230 +734,166 @@
       "details": "Operateur machine et assemblage",
       "image": "imgs/07873.png",
       "hdePointage": {
-        "03-11-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "03:30 PM",
-            "heureTravailer": 8.5
-          }
-        ],
-        "04-11-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "03:45 PM",
-            "heureTravailer": 8.75
-          }
-        ],
-        "05-11-2025": [
-          {
-            "entrer": "07:15 AM",
-            "sorti": "03:30 PM",
-            "heureTravailer": 8.25
-          }
-        ],
-        "06-11-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "04:00 PM",
-            "heureTravailer": 9
-          }
-        ],
-        "07-11-2025": [
-          {
-            "entrer": "07:30 AM",
-            "sorti": "03:00 PM",
-            "heureTravailer": 7.5
-          }
-        ],
-        "10-11-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "03:30 PM",
-            "heureTravailer": 8.5
-          }
-        ],
-        "11-11-2025": [
-          {
-            "entrer": "07:10 AM",
-            "sorti": "03:40 PM",
-            "heureTravailer": 8.5
-          }
-        ],
-        "12-11-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "04:00 PM",
-            "heureTravailer": 9
-          }
-        ],
-        "13-11-2025": [
-          {
-            "entrer": "07:20 AM",
-            "sorti": "03:35 PM",
-            "heureTravailer": 8.25
-          }
-        ],
-        "14-11-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "03:15 PM",
-            "heureTravailer": 8.25
-          }
-        ],
-        "17-11-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "03:30 PM",
-            "heureTravailer": 8.5
-          }
-        ],
-        "18-11-2025": [
-          {
-            "entrer": "07:15 AM",
-            "sorti": "03:45 PM",
-            "heureTravailer": 8.5
-          }
-        ],
-        "19-11-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "04:00 PM",
-            "heureTravailer": 9
-          }
-        ],
-        "20-11-2025": [
-          {
-            "entrer": "07:30 AM",
-            "sorti": "03:45 PM",
-            "heureTravailer": 8.25
-          }
-        ],
-        "21-11-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "03:00 PM",
-            "heureTravailer": 8
-          }
-        ],
-        "24-11-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "03:30 PM",
-            "heureTravailer": 8.5
-          }
-        ],
-        "25-11-2025": [
-          {
-            "entrer": "07:10 AM",
-            "sorti": "03:50 PM",
-            "heureTravailer": 8.67
-          }
-        ],
-        "26-11-2025": [
-          {
-            "entrer": "07:15 AM",
-            "sorti": "03:30 PM",
-            "heureTravailer": 8.25
-          }
-        ],
-        "27-11-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "04:00 PM",
-            "heureTravailer": 9
-          }
-        ],
-        "28-11-2025": [
-          {
-            "entrer": "07:30 AM",
-            "sorti": "03:00 PM",
-            "heureTravailer": 7.5
-          }
-        ],
-        "01-12-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "03:30 PM",
-            "heureTravailer": 8.5
-          }
-        ],
-        "02-12-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "03:45 PM",
-            "heureTravailer": 8.75
-          }
-        ],
-        "03-12-2025": [
-          {
-            "entrer": "07:15 AM",
-            "sorti": "03:30 PM",
-            "heureTravailer": 8.25
-          }
-        ],
-        "04-12-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "04:00 PM",
-            "heureTravailer": 9
-          }
-        ],
-        "05-12-2025": [
-          {
-            "entrer": "07:30 AM",
-            "sorti": "03:00 PM",
-            "heureTravailer": 7.5
-          }
-        ],
-        "08-12-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "03:30 PM",
-            "heureTravailer": 8.5
-          }
-        ],
-        "09-12-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "03:45 PM",
-            "heureTravailer": 8.75
-          }
-        ],
-        "10-12-2025": [
-          {
-            "entrer": "07:15 AM",
-            "sorti": "03:30 PM",
-            "heureTravailer": 8.25
-          }
-        ],
-        "11-12-2025": [
-          {
-            "entrer": "07:00 AM",
-            "sorti": "04:00 PM",
-            "heureTravailer": 9
-          }
-        ],
-        "12-12-2025": [
-          {
-            "entrer": "07:30 AM",
-            "sorti": "03:00 PM",
-            "heureTravailer": 7.5
-          }
-        ],
-        "07-01-2026": [
-          {
-            "entrer": "6:54 PM",
-            "sorti": "7:03 PM",
-            "heureTravailer": 0.15
-          }
-        ],
-        "08-01-2026": [
-          {
-            "entrer": "5:25 PM",
-            "sorti": "5:26 PM",
-            "heureTravailer": 0.02
-          }
-        ]
+        "03-11-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "03:30 PM",
+          "heureTravailer": 8.5
+        },
+        "04-11-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "03:45 PM",
+          "heureTravailer": 8.75
+        },
+        "05-11-2025": {
+          "entrer": "07:15 AM",
+          "sorti": "03:30 PM",
+          "heureTravailer": 8.25
+        },
+        "06-11-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "04:00 PM",
+          "heureTravailer": 9
+        },
+        "07-11-2025": {
+          "entrer": "07:30 AM",
+          "sorti": "03:00 PM",
+          "heureTravailer": 7.5
+        },
+        "10-11-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "03:30 PM",
+          "heureTravailer": 8.5
+        },
+        "11-11-2025": {
+          "entrer": "07:10 AM",
+          "sorti": "03:40 PM",
+          "heureTravailer": 8.5
+        },
+        "12-11-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "04:00 PM",
+          "heureTravailer": 9
+        },
+        "13-11-2025": {
+          "entrer": "07:20 AM",
+          "sorti": "03:35 PM",
+          "heureTravailer": 8.25
+        },
+        "14-11-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "03:15 PM",
+          "heureTravailer": 8.25
+        },
+        "17-11-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "03:30 PM",
+          "heureTravailer": 8.5
+        },
+        "18-11-2025": {
+          "entrer": "07:15 AM",
+          "sorti": "03:45 PM",
+          "heureTravailer": 8.5
+        },
+        "19-11-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "04:00 PM",
+          "heureTravailer": 9
+        },
+        "20-11-2025": {
+          "entrer": "07:30 AM",
+          "sorti": "03:45 PM",
+          "heureTravailer": 8.25
+        },
+        "21-11-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "03:00 PM",
+          "heureTravailer": 8
+        },
+        "24-11-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "03:30 PM",
+          "heureTravailer": 8.5
+        },
+        "25-11-2025": {
+          "entrer": "07:10 AM",
+          "sorti": "03:50 PM",
+          "heureTravailer": 8.67
+        },
+        "26-11-2025": {
+          "entrer": "07:15 AM",
+          "sorti": "03:30 PM",
+          "heureTravailer": 8.25
+        },
+        "27-11-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "04:00 PM",
+          "heureTravailer": 9
+        },
+        "28-11-2025": {
+          "entrer": "07:30 AM",
+          "sorti": "03:00 PM",
+          "heureTravailer": 7.5
+        },
+        "01-12-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "03:30 PM",
+          "heureTravailer": 8.5
+        },
+        "02-12-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "03:45 PM",
+          "heureTravailer": 8.75
+        },
+        "03-12-2025": {
+          "entrer": "07:15 AM",
+          "sorti": "03:30 PM",
+          "heureTravailer": 8.25
+        },
+        "04-12-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "04:00 PM",
+          "heureTravailer": 9
+        },
+        "05-12-2025": {
+          "entrer": "07:30 AM",
+          "sorti": "03:00 PM",
+          "heureTravailer": 7.5
+        },
+        "08-12-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "03:30 PM",
+          "heureTravailer": 8.5
+        },
+        "09-12-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "03:45 PM",
+          "heureTravailer": 8.75
+        },
+        "10-12-2025": {
+          "entrer": "07:15 AM",
+          "sorti": "03:30 PM",
+          "heureTravailer": 8.25
+        },
+        "11-12-2025": {
+          "entrer": "07:00 AM",
+          "sorti": "04:00 PM",
+          "heureTravailer": 9
+        },
+        "12-12-2025": {
+          "entrer": "07:30 AM",
+          "sorti": "03:00 PM",
+          "heureTravailer": 7.5
+        },
+        "07-01-2026": {
+          "entrer": "6:54 PM",
+          "sorti": "7:03 PM",
+          "heureTravailer": 0.15
+        },
+        "08-01-2026": {
+          "entrer": "5:25 PM",
+          "sorti": "5:26 PM",
+          "heureTravailer": 0.02
+        }
       },
       "estEntrer": false,
       "estSorti": true,
@@ -1206,216 +1072,156 @@
       "details": "Gestion des stocks et livraisons",
       "image": "imgs/07873.png",
       "hdePointage": {
-        "03-11-2025": [
-          {
-            "entrer": "07:30 AM",
-            "sorti": "04:00 PM",
-            "heureTravailer": 8.5
-          }
-        ],
-        "04-11-2025": [
-          {
-            "entrer": "07:30 AM",
-            "sorti": "04:15 PM",
-            "heureTravailer": 8.75
-          }
-        ],
-        "05-11-2025": [
-          {
-            "entrer": "07:45 AM",
-            "sorti": "04:00 PM",
-            "heureTravailer": 8.25
-          }
-        ],
-        "06-11-2025": [
-          {
-            "entrer": "07:30 AM",
-            "sorti": "04:30 PM",
-            "heureTravailer": 9
-          }
-        ],
-        "07-11-2025": [
-          {
-            "entrer": "08:00 AM",
-            "sorti": "03:30 PM",
-            "heureTravailer": 7.5
-          }
-        ],
-        "10-11-2025": [
-          {
-            "entrer": "07:30 AM",
-            "sorti": "04:00 PM",
-            "heureTravailer": 8.5
-          }
-        ],
-        "11-11-2025": [
-          {
-            "entrer": "07:40 AM",
-            "sorti": "04:10 PM",
-            "heureTravailer": 8.5
-          }
-        ],
-        "12-11-2025": [
-          {
-            "entrer": "07:30 AM",
-            "sorti": "04:30 PM",
-            "heureTravailer": 9
-          }
-        ],
-        "13-11-2025": [
-          {
-            "entrer": "07:50 AM",
-            "sorti": "04:05 PM",
-            "heureTravailer": 8.25
-          }
-        ],
-        "14-11-2025": [
-          {
-            "entrer": "07:30 AM",
-            "sorti": "03:45 PM",
-            "heureTravailer": 8.25
-          }
-        ],
-        "17-11-2025": [
-          {
-            "entrer": "07:30 AM",
-            "sorti": "04:00 PM",
-            "heureTravailer": 8.5
-          }
-        ],
-        "18-11-2025": [
-          {
-            "entrer": "07:45 AM",
-            "sorti": "04:15 PM",
-            "heureTravailer": 8.5
-          }
-        ],
-        "19-11-2025": [
-          {
-            "entrer": "07:30 AM",
-            "sorti": "04:30 PM",
-            "heureTravailer": 9
-          }
-        ],
-        "20-11-2025": [
-          {
-            "entrer": "08:00 AM",
-            "sorti": "04:15 PM",
-            "heureTravailer": 8.25
-          }
-        ],
-        "21-11-2025": [
-          {
-            "entrer": "07:30 AM",
-            "sorti": "03:30 PM",
-            "heureTravailer": 8
-          }
-        ],
-        "24-11-2025": [
-          {
-            "entrer": "07:30 AM",
-            "sorti": "04:00 PM",
-            "heureTravailer": 8.5
-          }
-        ],
-        "25-11-2025": [
-          {
-            "entrer": "07:40 AM",
-            "sorti": "04:20 PM",
-            "heureTravailer": 8.67
-          }
-        ],
-        "26-11-2025": [
-          {
-            "entrer": "07:45 AM",
-            "sorti": "04:00 PM",
-            "heureTravailer": 8.25
-          }
-        ],
-        "27-11-2025": [
-          {
-            "entrer": "07:30 AM",
-            "sorti": "04:30 PM",
-            "heureTravailer": 9
-          }
-        ],
-        "28-11-2025": [
-          {
-            "entrer": "08:00 AM",
-            "sorti": "03:30 PM",
-            "heureTravailer": 7.5
-          }
-        ],
-        "01-12-2025": [
-          {
-            "entrer": "07:30 AM",
-            "sorti": "04:00 PM",
-            "heureTravailer": 8.5
-          }
-        ],
-        "02-12-2025": [
-          {
-            "entrer": "07:30 AM",
-            "sorti": "04:15 PM",
-            "heureTravailer": 8.75
-          }
-        ],
-        "03-12-2025": [
-          {
-            "entrer": "07:45 AM",
-            "sorti": "04:00 PM",
-            "heureTravailer": 8.25
-          }
-        ],
-        "04-12-2025": [
-          {
-            "entrer": "07:30 AM",
-            "sorti": "04:30 PM",
-            "heureTravailer": 9
-          }
-        ],
-        "05-12-2025": [
-          {
-            "entrer": "08:00 AM",
-            "sorti": "03:30 PM",
-            "heureTravailer": 7.5
-          }
-        ],
-        "08-12-2025": [
-          {
-            "entrer": "07:30 AM",
-            "sorti": "04:00 PM",
-            "heureTravailer": 8.5
-          }
-        ],
-        "09-12-2025": [
-          {
-            "entrer": "07:30 AM",
-            "sorti": "04:15 PM",
-            "heureTravailer": 8.75
-          }
-        ],
-        "10-12-2025": [
-          {
-            "entrer": "07:45 AM",
-            "sorti": "04:00 PM",
-            "heureTravailer": 8.25
-          }
-        ],
-        "11-12-2025": [
-          {
-            "entrer": "07:30 AM",
-            "sorti": "04:30 PM",
-            "heureTravailer": 9
-          }
-        ],
-        "12-12-2025": [
-          {
-            "entrer": "08:00 AM",
-            "sorti": "03:30 PM",
-            "heureTravailer": 7.5
-          }
-        ]
+        "03-11-2025": {
+          "entrer": "07:30 AM",
+          "sorti": "04:00 PM",
+          "heureTravailer": 8.5
+        },
+        "04-11-2025": {
+          "entrer": "07:30 AM",
+          "sorti": "04:15 PM",
+          "heureTravailer": 8.75
+        },
+        "05-11-2025": {
+          "entrer": "07:45 AM",
+          "sorti": "04:00 PM",
+          "heureTravailer": 8.25
+        },
+        "06-11-2025": {
+          "entrer": "07:30 AM",
+          "sorti": "04:30 PM",
+          "heureTravailer": 9
+        },
+        "07-11-2025": {
+          "entrer": "08:00 AM",
+          "sorti": "03:30 PM",
+          "heureTravailer": 7.5
+        },
+        "10-11-2025": {
+          "entrer": "07:30 AM",
+          "sorti": "04:00 PM",
+          "heureTravailer": 8.5
+        },
+        "11-11-2025": {
+          "entrer": "07:40 AM",
+          "sorti": "04:10 PM",
+          "heureTravailer": 8.5
+        },
+        "12-11-2025": {
+          "entrer": "07:30 AM",
+          "sorti": "04:30 PM",
+          "heureTravailer": 9
+        },
+        "13-11-2025": {
+          "entrer": "07:50 AM",
+          "sorti": "04:05 PM",
+          "heureTravailer": 8.25
+        },
+        "14-11-2025": {
+          "entrer": "07:30 AM",
+          "sorti": "03:45 PM",
+          "heureTravailer": 8.25
+        },
+        "17-11-2025": {
+          "entrer": "07:30 AM",
+          "sorti": "04:00 PM",
+          "heureTravailer": 8.5
+        },
+        "18-11-2025": {
+          "entrer": "07:45 AM",
+          "sorti": "04:15 PM",
+          "heureTravailer": 8.5
+        },
+        "19-11-2025": {
+          "entrer": "07:30 AM",
+          "sorti": "04:30 PM",
+          "heureTravailer": 9
+        },
+        "20-11-2025": {
+          "entrer": "08:00 AM",
+          "sorti": "04:15 PM",
+          "heureTravailer": 8.25
+        },
+        "21-11-2025": {
+          "entrer": "07:30 AM",
+          "sorti": "03:30 PM",
+          "heureTravailer": 8
+        },
+        "24-11-2025": {
+          "entrer": "07:30 AM",
+          "sorti": "04:00 PM",
+          "heureTravailer": 8.5
+        },
+        "25-11-2025": {
+          "entrer": "07:40 AM",
+          "sorti": "04:20 PM",
+          "heureTravailer": 8.67
+        },
+        "26-11-2025": {
+          "entrer": "07:45 AM",
+          "sorti": "04:00 PM",
+          "heureTravailer": 8.25
+        },
+        "27-11-2025": {
+          "entrer": "07:30 AM",
+          "sorti": "04:30 PM",
+          "heureTravailer": 9
+        },
+        "28-11-2025": {
+          "entrer": "08:00 AM",
+          "sorti": "03:30 PM",
+          "heureTravailer": 7.5
+        },
+        "01-12-2025": {
+          "entrer": "07:30 AM",
+          "sorti": "04:00 PM",
+          "heureTravailer": 8.5
+        },
+        "02-12-2025": {
+          "entrer": "07:30 AM",
+          "sorti": "04:15 PM",
+          "heureTravailer": 8.75
+        },
+        "03-12-2025": {
+          "entrer": "07:45 AM",
+          "sorti": "04:00 PM",
+          "heureTravailer": 8.25
+        },
+        "04-12-2025": {
+          "entrer": "07:30 AM",
+          "sorti": "04:30 PM",
+          "heureTravailer": 9
+        },
+        "05-12-2025": {
+          "entrer": "08:00 AM",
+          "sorti": "03:30 PM",
+          "heureTravailer": 7.5
+        },
+        "08-12-2025": {
+          "entrer": "07:30 AM",
+          "sorti": "04:00 PM",
+          "heureTravailer": 8.5
+        },
+        "09-12-2025": {
+          "entrer": "07:30 AM",
+          "sorti": "04:15 PM",
+          "heureTravailer": 8.75
+        },
+        "10-12-2025": {
+          "entrer": "07:45 AM",
+          "sorti": "04:00 PM",
+          "heureTravailer": 8.25
+        },
+        "11-12-2025": {
+          "entrer": "07:30 AM",
+          "sorti": "04:30 PM",
+          "heureTravailer": 9
+        },
+        "12-12-2025": {
+          "entrer": "08:00 AM",
+          "sorti": "03:30 PM",
+          "heureTravailer": 7.5
+        }
       },
       "estEntrer": false,
       "estSorti": false,
