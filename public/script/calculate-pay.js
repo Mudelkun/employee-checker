@@ -224,7 +224,7 @@ function populateTable(dataToDisplay = filteredData) {
 
   dataToDisplay.forEach((emp) => {
     // Format pay display based on pay type
-    let payDisplay = "N/A";
+    let payDisplay = "Non défini";
     if (emp.payType === "hourly") {
       payDisplay = `$${emp.payAmount.toFixed(2)}/h`;
     } else if (emp.payType === "weekly") {
@@ -258,7 +258,7 @@ function populateTable(dataToDisplay = filteredData) {
 // Open employee detail modal
 function openEmployeeModal(emp) {
   // Format pay display based on pay type
-  let payDisplay = "N/A";
+  let payDisplay = "Non défini";
   if (emp.payType === "hourly") {
     payDisplay = `$${emp.payAmount.toFixed(2)}/h`;
   } else if (emp.payType === "weekly") {
@@ -393,7 +393,7 @@ function exportToCSV() {
   csv +=
     "Employé,ID,Type de paie,Taux de paie,Jours travaillés,Total heures,Total paie\n";
   filteredData.forEach((emp) => {
-    let payDisplay = "N/A";
+    let payDisplay = "Non défini";
     if (emp.payType === "hourly") {
       payDisplay = `$${emp.payAmount.toFixed(2)}/h`;
     } else if (emp.payType === "weekly") {

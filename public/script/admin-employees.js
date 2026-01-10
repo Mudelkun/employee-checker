@@ -40,16 +40,25 @@ function get_emp_history(emp, year = null, month = null) {
     recordsArray = emp.hdePointage;
   } else if (typeof emp.hdePointage === "object" && emp.hdePointage !== null) {
     // New format: date-keyed object (DD-MM-YYYY) -> convert to display format
-    recordsArray = Object.entries(emp.hdePointage).map(([dateKey, record]) => {
+    const isHourlyEmployee = emp.payType === "hourly";
+    
+    recordsArray = Object.entries(emp.hdePointage).flatMap(([dateKey, recordOrArray]) => {
       // Convert DD-MM-YYYY back to DD/MM/YYYY for display
       const displayDate = dateKey.replace(/-/g, "/");
-      return {
+      
+      // For hourly employees, recordOrArray is an array of entries
+      // For non-hourly employees, recordOrArray is a single object
+      const records = (isHourlyEmployee && Array.isArray(recordOrArray)) 
+        ? recordOrArray 
+        : [recordOrArray];
+      
+      return records.map((record) => ({
         date: displayDate,
         entrer: record.entrer || "",
         sorti: record.sorti || "",
         heureTravailer: record.heureTravailer || 0,
         modifiedOn: record.modifiedOn,
-      };
+      }));
     });
   }
 
@@ -259,16 +268,25 @@ function generateEmployeePDF(empData, year, month) {
     empData.hdePointage !== null
   ) {
     // New format: convert date-keyed object to array with date display
-    allRecords = Object.entries(empData.hdePointage).map(
-      ([dateKey, record]) => {
+    const isHourlyEmployee = empData.payType === "hourly";
+    
+    allRecords = Object.entries(empData.hdePointage).flatMap(
+      ([dateKey, recordOrArray]) => {
         const displayDate = dateKey.replace(/-/g, "/");
-        return {
+        
+        // For hourly employees, recordOrArray is an array of entries
+        // For non-hourly employees, recordOrArray is a single object
+        const records = (isHourlyEmployee && Array.isArray(recordOrArray)) 
+          ? recordOrArray 
+          : [recordOrArray];
+        
+        return records.map((record) => ({
           date: displayDate,
           entrer: record.entrer || "",
           sorti: record.sorti || "",
           heureTravailer: record.heureTravailer || 0,
           modifiedOn: record.modifiedOn,
-        };
+        }));
       }
     );
   }
@@ -590,6 +608,7 @@ function buildUI(employes) {
               <option value="12">Décembre</option>
             </select>
 
+            <button class="add-pointage-button">➕ Ajouter Pointage</button>
             <button class="modifier-button">&#9998; Modifier Pointage</button>
             <button class="download-button">&#128229; Télécharger</button>
           </div>
@@ -775,6 +794,12 @@ function attachCardListeners() {
       const modifierBtn = card.querySelector(".modifier-button");
       modifierBtn.addEventListener("click", () => {
         toggleEditMode(card, empData, historyTable);
+      });
+
+      // Attach add pointage button listener
+      const addPointageBtn = card.querySelector(".add-pointage-button");
+      addPointageBtn.addEventListener("click", () => {
+        openAddPointageModal(empData);
       });
 
       // Attach download button listener (open modal to choose year/month)
@@ -1288,11 +1313,11 @@ function openEditModal(empData) {
     editPayAmountField.style.display = "flex";
     const label = editPayAmountField.querySelector("#edit-pay-amount-label");
     if (empData.payType === "hourly") {
-      label.textContent = "Pay Per Hour";
+      label.textContent = "Salaire horaire";
     } else if (empData.payType === "weekly") {
-      label.textContent = "Pay Per Week";
+      label.textContent = "Salaire hebdomadaire";
     } else if (empData.payType === "monthly") {
-      label.textContent = "Pay Per Month";
+      label.textContent = "Salaire mensuel";
     }
   }
 
@@ -1305,11 +1330,11 @@ function openEditModal(empData) {
       editPayAmountField.style.display = "flex";
       const label = editPayAmountField.querySelector("#edit-pay-amount-label");
       if (payType === "hourly") {
-        label.textContent = "Pay Per Hour";
+        label.textContent = "Salaire horaire";
       } else if (payType === "weekly") {
-        label.textContent = "Pay Per Week";
+        label.textContent = "Salaire hebdomadaire";
       } else if (payType === "monthly") {
-        label.textContent = "Pay Per Month";
+        label.textContent = "Salaire mensuel";
       }
     } else {
       editPayAmountField.style.display = "none";
@@ -1359,7 +1384,7 @@ function openEditModal(empData) {
   cancelEditBtn.onclick = () => {
     editModal.classList.add("hidden");
     editImageInput.value = ""; // Reset file input
-    editUploadImageBtn.textContent = "Upload New Picture"; // Reset button text
+    editUploadImageBtn.textContent = "Télécharger une nouvelle photo"; // Reset button text
   };
 
   // Save button
@@ -1681,6 +1706,178 @@ function openSendIdModal() {
 
   cancelBtn.addEventListener("click", handleCancel);
   confirmBtn.addEventListener("click", handleConfirm);
+}
+
+// ---------------------- ADD POINTAGE MODAL ----------------------
+function openAddPointageModal(empData) {
+  const addPointageModal = document.querySelector(".add-pointage-modal");
+  const employeeNameInput = document.getElementById("add-pointage-employee-name");
+  const dateInput = document.getElementById("add-pointage-date");
+  const entrerInput = document.getElementById("add-pointage-entrer");
+  const sortiInput = document.getElementById("add-pointage-sorti");
+  const cancelBtn = document.querySelector(".cancel-add-pointage-btn");
+  const confirmBtn = document.querySelector(".confirm-add-pointage-btn");
+
+  // Set default date to today
+  const today = new Date().toISOString().split("T")[0];
+  dateInput.value = today;
+  
+  // Set employee name
+  employeeNameInput.value = empData.name;
+
+  // Clear inputs
+  entrerInput.value = "";
+  sortiInput.value = "";
+
+  // Show modal
+  addPointageModal.classList.remove("hidden");
+
+  // Cancel button handler
+  const handleCancel = () => {
+    addPointageModal.classList.add("hidden");
+    entrerInput.value = "";
+    sortiInput.value = "";
+    cancelBtn.removeEventListener("click", handleCancel);
+    confirmBtn.removeEventListener("click", handleConfirm);
+  };
+
+  // Confirm button handler
+  const handleConfirm = async () => {
+    const date = dateInput.value; // YYYY-MM-DD
+    const entrer = entrerInput.value.trim();
+    const sorti = sortiInput.value.trim();
+
+    // Validate inputs
+    if (!date || !entrer) {
+      alert("Veuillez remplir la date et l'heure d'entrée.");
+      return;
+    }
+
+    // Validate time format (HH:MM AM/PM)
+    const timeRegex = /^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/i;
+    if (!timeRegex.test(entrer)) {
+      alert("Format d'heure d'entrée invalide. Veuillez utiliser le format: HH:MM AM/PM (ex: 08:30 AM)");
+      return;
+    }
+
+    if (sorti && !timeRegex.test(sorti)) {
+      alert("Format d'heure de sortie invalide. Veuillez utiliser le format: HH:MM AM/PM (ex: 05:00 PM)");
+      return;
+    }
+
+    // Convert YYYY-MM-DD to DD-MM-YYYY for storage
+    const [year, month, day] = date.split("-");
+    const dateKey = `${day}-${month}-${year}`;
+
+    try {
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = "Ajout en cours...";
+
+      // Ensure hdePointage is initialized
+      if (!empData.hdePointage || typeof empData.hdePointage !== "object") {
+        empData.hdePointage = {};
+      }
+
+      const isHourlyEmployee = empData.payType === "hourly";
+
+      // Calculate heureTravailler if both entrer and sorti are provided
+      let heureTravailler = null;
+      if (entrer && sorti) {
+        heureTravailler = calculateHeureTravailler(entrer, sorti);
+      }
+
+      // Create new pointage entry
+      const newEntry = {
+        entrer: entrer,
+        sorti: sorti || "",
+        modifiedOn: new Date().toLocaleString("fr-FR"),
+      };
+
+      if (heureTravailler !== null) {
+        newEntry.heureTravailer = heureTravailler;
+      }
+
+      // For hourly employees, use array format; for others, use object format
+      if (isHourlyEmployee) {
+        if (!empData.hdePointage[dateKey]) {
+          empData.hdePointage[dateKey] = [];
+        } else if (!Array.isArray(empData.hdePointage[dateKey])) {
+          // Convert to array if needed
+          empData.hdePointage[dateKey] = [empData.hdePointage[dateKey]];
+        }
+        empData.hdePointage[dateKey].push(newEntry);
+      } else {
+        // For non-hourly employees, check if date already has an entry
+        if (empData.hdePointage[dateKey] && empData.hdePointage[dateKey].entrer) {
+          if (!confirm(`Un pointage existe déjà pour le ${day}/${month}/${year}. Voulez-vous le remplacer?`)) {
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = "➕ Ajouter";
+            return;
+          }
+        }
+        empData.hdePointage[dateKey] = newEntry;
+      }
+
+      // Save to backend
+      const res = await fetch(`/employees/${empData.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(empData),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Échec de la sauvegarde: ${res.status}`);
+      }
+
+      alert("✅ Pointage ajouté avec succès!");
+      
+      // Update global employees
+      const empIndex = globalEmployees.findIndex(e => e.id === empData.id);
+      if (empIndex !== -1) {
+        globalEmployees[empIndex] = empData;
+      }
+
+      // Refresh the employee card
+      buildUI(globalEmployees);
+
+      // Close modal
+      handleCancel();
+    } catch (err) {
+      console.error("Erreur lors de l'ajout du pointage:", err);
+      alert(`❌ Échec de l'ajout du pointage: ${err.message}`);
+    } finally {
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = "➕ Ajouter";
+    }
+  };
+
+  cancelBtn.addEventListener("click", handleCancel);
+  confirmBtn.addEventListener("click", handleConfirm);
+}
+
+// Helper function to calculate hours worked
+function calculateHeureTravailler(entrerTime, sortiTime) {
+  if (!entrerTime || !sortiTime) return null;
+
+  const timeToMinutes = (timeStr) => {
+    const parts = timeStr.match(/(\d+):(\d+)\s(AM|PM)/i);
+    if (!parts) return 0;
+    let hours = parseInt(parts[1]);
+    const minutes = parseInt(parts[2]);
+    const period = parts[3].toUpperCase();
+    if (period === "AM" && hours === 12) hours = 0;
+    if (period === "PM" && hours !== 12) hours += 12;
+    return hours * 60 + minutes;
+  };
+
+  const entrerMinutes = timeToMinutes(entrerTime);
+  const sortiMinutes = timeToMinutes(sortiTime);
+  let diffMinutes = sortiMinutes - entrerMinutes;
+
+  if (diffMinutes < 0) diffMinutes += 24 * 60; // Handle overnight shifts
+
+  const diffHours = diffMinutes / 60;
+  return Math.round(diffHours * 100) / 100;
 }
 
 document.addEventListener("DOMContentLoaded", async () => {

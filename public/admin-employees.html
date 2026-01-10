@@ -218,8 +218,8 @@
 
           <div class="employee-actions">
             <!-- Action Buttons -->
-            <button class="edit-button">Edit</button>
-            <button class="remove-button">Remove</button>
+            <button class="edit-button">Modifier</button>
+            <button class="remove-button">Supprimer</button>
           </div>
         </div>
 
@@ -229,7 +229,7 @@
 
           <!-- Filters -->
           <div class="filter-bar">
-            <label for="filter-by-year">Year</label>
+            <label for="filter-by-year">Année</label>
             <select id="filter-by-year">
               <!-- Filled years -->
               <option value="2025">2025</option>
@@ -238,21 +238,21 @@
               <option value="2022">2022</option>
             </select>
 
-            <label for="filter-by-month">Month</label>
+            <label for="filter-by-month">Mois</label>
             <select id="filter-by-month">
               <!-- Filled months -->
-              <option value="01">January</option>
-              <option value="02">February</option>
-              <option value="03">March</option>
-              <option value="04">April</option>
-              <option value="05">May</option>
-              <option value="06">June</option>
-              <option value="07">July</option>
-              <option value="08">August</option>
-              <option value="09">September</option>
-              <option value="10">October</option>
-              <option value="11">November</option>
-              <option value="12">December</option>
+              <option value="01">Janvier</option>
+              <option value="02">Février</option>
+              <option value="03">Mars</option>
+              <option value="04">Avril</option>
+              <option value="05">Mai</option>
+              <option value="06">Juin</option>
+              <option value="07">Juillet</option>
+              <option value="08">Août</option>
+              <option value="09">Septembre</option>
+              <option value="10">Octobre</option>
+              <option value="11">Novembre</option>
+              <option value="12">Décembre</option>
             </select>
             <button class="modifier-button">&#9998; Modifier Pointage</button>
           </div>
@@ -295,20 +295,20 @@
 
           <div class="employee-info">
             <div class="id-container">
-              <span class="show-id"><u>Show id</u></span>
+              <span class="show-id"><u>Afficher l'ID</u></span>
               <span class="id">078853</span>
             </div>
             <p class="employee-name">Random</p>
             <p class="employee-role">Manager</p>
             <p class="employee-more">
-              Is a full time math teacher working in 6th and 11th grade
+              Est un enseignant de mathématiques à temps plein travaillant en 6ème et 11ème année
             </p>
           </div>
 
           <div class="employee-actions">
             <!-- Action Buttons -->
-            <button class="edit-button">Edit</button>
-            <button class="remove-button">Remove</button>
+            <button class="edit-button">Modifier</button>
+            <button class="remove-button">Supprimer</button>
           </div>
         </div>
 
@@ -318,7 +318,7 @@
 
           <!-- Filters -->
           <div class="filter-bar">
-            <label for="filter-by-year">Year</label>
+            <label for="filter-by-year">Année</label>
             <select id="filter-by-year">
               <!-- Filled years -->
               <option value="2025">2025</option>
@@ -327,21 +327,21 @@
               <option value="2022">2022</option>
             </select>
 
-            <label for="filter-by-month">Month</label>
+            <label for="filter-by-month">Mois</label>
             <select id="filter-by-month">
               <!-- Filled months -->
-              <option value="01">January</option>
-              <option value="02">February</option>
-              <option value="03">March</option>
-              <option value="04">April</option>
-              <option value="05">May</option>
-              <option value="06">June</option>
-              <option value="07">July</option>
-              <option value="08">August</option>
-              <option value="09">September</option>
-              <option value="10">October</option>
-              <option value="11">November</option>
-              <option value="12">December</option>
+              <option value="01">Janvier</option>
+              <option value="02">Février</option>
+              <option value="03">Mars</option>
+              <option value="04">Avril</option>
+              <option value="05">Mai</option>
+              <option value="06">Juin</option>
+              <option value="07">Juillet</option>
+              <option value="08">Août</option>
+              <option value="09">Septembre</option>
+              <option value="10">Octobre</option>
+              <option value="11">Novembre</option>
+              <option value="12">Décembre</option>
             </select>
             <button class="modifier-button">&#9998; Modifier Pointage</button>
           </div>
@@ -538,6 +538,46 @@
         <div class="modal-buttons">
           <button class="cancel-send-id-btn">Annuler</button>
           <button class="confirm-send-id-btn">📤 Envoyer</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADD POINTAGE MODAL -->
+    <div class="add-pointage-modal hidden">
+      <div class="modal-content">
+        <h2>➕ Ajouter un pointage manuel</h2>
+        <div class="add-pointage-form">
+          <div class="form-group">
+            <label>Employé</label>
+            <input type="text" id="add-pointage-employee-name" readonly />
+          </div>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="add-pointage-date" required />
+          </div>
+          <div class="form-group">
+            <label>Heure d'entrée</label>
+            <input
+              type="text"
+              id="add-pointage-entrer"
+              placeholder="ex: 08:30 AM"
+              required
+            />
+            <small style="color: #666">Format: HH:MM AM/PM (ex: 08:30 AM, 02:45 PM)</small>
+          </div>
+          <div class="form-group">
+            <label>Heure de sortie (Optionnel)</label>
+            <input
+              type="text"
+              id="add-pointage-sorti"
+              placeholder="ex: 05:00 PM"
+            />
+            <small style="color: #666">Laisser vide si l'employé est toujours au travail</small>
+          </div>
+          <div class="modal-buttons">
+            <button class="cancel-add-pointage-btn">Annuler</button>
+            <button class="confirm-add-pointage-btn">➕ Ajouter</button>
+          </div>
         </div>
       </div>
     </div>
