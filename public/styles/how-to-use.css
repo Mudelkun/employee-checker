@@ -31,19 +31,19 @@ body {
 .guide-header {
   background: var(--header-bg);
   color: var(--white);
-  padding: 28px 24px;
+  padding: 16px 20px;
 }
 
 .guide-title {
   margin: 0;
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 800;
   letter-spacing: 0.5px;
 }
 
 .guide-subtitle {
-  margin: 6px 0 0 0;
-  font-size: 14px;
+  margin: 8px 0 0 0;
+  font-size: 16px;
   opacity: 0.95;
 }
 
@@ -90,41 +90,46 @@ body {
 }
 
 .content {
-  padding: 24px;
+  padding: 20px;
 }
 
 .section {
-  margin-bottom: 24px;
+  margin-bottom: 18px;
 }
 
 .section-header {
   background: var(--primary);
   color: var(--white);
-  padding: 8px 12px;
+  padding: 10px 14px;
   border-radius: 8px;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .card {
   background: var(--light-bg);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 14px 16px;
-  margin-top: 10px;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 p,
 li {
-  line-height: 1.6;
+  line-height: 1.5;
+  margin: 6px 0;
+  font-size: 14px;
 }
 
 ul {
-  margin: 8px 0 0 18px;
+  margin: 6px 0 0 18px;
+  padding: 0;
 }
 
 ol.steps {
-  margin: 10px 0 0 0;
+  margin: 8px 0 0 0;
   padding: 0;
   list-style: none;
 }
@@ -135,33 +140,35 @@ ol.steps {
   align-items: start;
   gap: 10px;
   margin-bottom: 10px;
+  font-size: 14px;
 }
 
 .badge {
   background: var(--primary);
   color: var(--white);
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 999px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-weight: 800;
   font-size: 12px;
+  flex-shrink: 0;
 }
 
 .messages {
   display: grid;
   grid-template-columns: 1fr;
   gap: 8px;
-  margin-top: 14px;
+  margin-top: 10px;
 }
 
 .message {
   background: #f9fafb;
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 8px 10px;
+  border-radius: 8px;
+  padding: 10px 12px;
   display: grid;
   grid-template-columns: 160px 1fr;
   gap: 8px;
@@ -170,6 +177,8 @@ ol.steps {
 
 .message strong {
   color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
 }
 .message span.meaning {
   color: var(--muted);
@@ -179,22 +188,26 @@ ol.steps {
 .scenario {
   background: #fff8f0;
   border: 1px solid #ffd49a;
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 10px 12px;
   margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .admin-help {
   background: #e6f5ff;
   border: 1px solid #7fb3e6;
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 12px 14px;
-  margin-top: 14px;
+  margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .footer-note {
   margin-top: 10px;
-  font-size: 12px;
+  font-size: 13px;
   color: #9ca3af;
 }
 
@@ -206,6 +219,7 @@ ol.steps {
   body {
     background: transparent;
     padding: 0;
+    margin: 0;
   }
   .toolbar {
     display: none !important;
@@ -213,11 +227,21 @@ ol.steps {
   .container {
     box-shadow: none;
     border-radius: 0;
+    max-width: 100%;
   }
   .content {
-    padding: 16mm;
+    padding: 10mm;
+  }
+  .guide-header {
+    padding: 12mm 10mm;
+  }
+  .section {
+    page-break-inside: avoid;
+    margin-bottom: 10px;
   }
   .page-break {
     page-break-before: always;
+    margin: 0;
+    padding: 0;
   }
 }
