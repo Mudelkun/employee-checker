@@ -92,7 +92,6 @@ loadEmployees();
 window.addEventListener("employees:updated", (e) => {
   try {
     employes = e.detail.employees || [];
-    console.log("script.js: employes updated", employes.length);
   } catch (err) {
     console.error("Error handling employees:updated in script.js", err);
   }

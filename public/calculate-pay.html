@@ -22,10 +22,7 @@
             <div class="filter-group">
               <label for="filter-year">Année</label>
               <select id="filter-year">
-                <option value="2025">2025</option>
-                <option value="2024">2024</option>
-                <option value="2023">2023</option>
-                <option value="2022">2022</option>
+                <!-- Years will be populated dynamically by JavaScript -->
               </select>
             </div>
 
@@ -61,7 +58,7 @@
             </div>
 
             <button class="calculate-btn">Calculer</button>
-            <button class="export-csv-btn">📥 Exporter CSV</button>
+            <button class="export-pdf-btn">📄 Télécharger PDF</button>
           </div>
         </section>
 
@@ -173,14 +170,17 @@
 
             <div class="modal-footer">
               <button class="close-modal-btn">Fermer</button>
-              <button class="print-btn">🖨️ Imprimer</button>
+              <button class="download-employee-btn">📥 Télécharger</button>
             </div>
           </div>
         </div>
       </div>
     </main>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <script src="script/data-monitor.js"></script>
     <script src="script/calculate-pay.js"></script>
+    <script src="script/pdf-export.js"></script>
   </body>
 </html>

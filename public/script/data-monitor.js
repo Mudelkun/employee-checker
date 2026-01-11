@@ -61,7 +61,6 @@ async function fetchDataAndNotify(hash) {
       detail: { employees, hash: currentDataHash },
     });
     window.dispatchEvent(ev);
-    console.log("employees:updated dispatched", currentDataHash);
   } catch (err) {
     console.error("Error fetching employees for notify:", err);
   }

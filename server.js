@@ -92,12 +92,20 @@ if (
       if (data.employees && Array.isArray(data.employees)) {
         data.employees.forEach((emp) => {
           // Only migrate hourly employees
-          if (emp.payType === "hourly" && emp.hdePointage && typeof emp.hdePointage === "object") {
+          if (
+            emp.payType === "hourly" &&
+            emp.hdePointage &&
+            typeof emp.hdePointage === "object"
+          ) {
             // Check each date entry
             Object.keys(emp.hdePointage).forEach((dateKey) => {
               const entry = emp.hdePointage[dateKey];
               // If it's an object with entrer/sorti (old format), convert to array
-              if (entry && !Array.isArray(entry) && entry.entrer !== undefined) {
+              if (
+                entry &&
+                !Array.isArray(entry) &&
+                entry.entrer !== undefined
+              ) {
                 emp.hdePointage[dateKey] = [entry];
                 migrated = true;
               }
@@ -108,12 +116,15 @@ if (
 
       if (migrated) {
         // Create backup before migrating
-        const backupFile = DATA_FILE.replace('.json', '.pre-hourly-migration-backup.json');
+        const backupFile = DATA_FILE.replace(
+          ".json",
+          ".pre-hourly-migration-backup.json"
+        );
         if (!fs.existsSync(backupFile)) {
           fs.writeFileSync(backupFile, raw);
           console.log(`Migration: Created backup at ${backupFile}`);
         }
-        
+
         fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
         console.log("Migration: Converted hourly employees to array format");
       }
@@ -622,7 +633,7 @@ app.post("/pointage/entrant", (req, res) => {
       if (unclosedToday) {
         return res.status(400).json({
           success: false,
-          message: `Employee ${emp.name} has an unclosed check-in. Please check out first.`,
+          message: ` Vous avez un pointage ouvert.`,
           dateKey,
         });
       }
@@ -754,7 +765,10 @@ app.post("/pointage/sortant", (req, res) => {
 
     if (isHourlyEmployee) {
       // Hourly employee: handle array format
-      if (!emp.hdePointage[dateKey] || !Array.isArray(emp.hdePointage[dateKey])) {
+      if (
+        !emp.hdePointage[dateKey] ||
+        !Array.isArray(emp.hdePointage[dateKey])
+      ) {
         return res.status(400).json({
           success: false,
           message: `No check-in found for date ${dateKey}`,
@@ -1167,13 +1181,17 @@ app.post("/migrate/hourly-to-array", (req, res) => {
 
     employees.forEach((emp) => {
       // Only process hourly employees
-      if (emp.payType === "hourly" && emp.hdePointage && typeof emp.hdePointage === "object") {
+      if (
+        emp.payType === "hourly" &&
+        emp.hdePointage &&
+        typeof emp.hdePointage === "object"
+      ) {
         let employeeMigrated = false;
-        
+
         // Check each date entry
         Object.keys(emp.hdePointage).forEach((dateKey) => {
           const entry = emp.hdePointage[dateKey];
-          
+
           // If it's an object with entrer/sorti (old format), convert to array
           if (entry && !Array.isArray(entry) && entry.entrer !== undefined) {
             emp.hdePointage[dateKey] = [entry];

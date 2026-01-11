@@ -12,29 +12,47 @@ function debounce(func, delay) {
   };
 }
 
-// DOM elements
-const filterYearSelect = document.getElementById("filter-year");
-const filterMonthSelect = document.getElementById("filter-month");
-const filterWeekSelect = document.getElementById("filter-week");
-const calculateBtn = document.querySelector(".calculate-btn");
-const exportCsvBtn = document.querySelector(".export-csv-btn");
-const backButton = document.querySelector(".back-button");
-const summarySection = document.querySelector(".summary-section");
-const employeesSection = document.querySelector(".employees-section");
-const employeesTbody = document.getElementById("employees-tbody");
-const searchEmployee = document.getElementById("search-employee");
-const sortBtns = document.querySelectorAll(".sort-btn");
-const modal = document.getElementById("employee-detail-modal");
-const closeBtn = document.querySelector(".close-btn");
-const closeModalBtn = document.querySelector(".close-modal-btn");
-const printBtn = document.querySelector(".print-btn");
+// DOM elements - will be initialized when DOM is ready
+let filterYearSelect;
+let filterMonthSelect;
+let filterWeekSelect;
+let calculateBtn;
+let exportPdfBtn;
+let backButton;
+let summarySection;
+let employeesSection;
+let employeesTbody;
+let searchEmployee;
+let sortBtns;
+let modal;
+let closeBtn;
+let closeModalBtn;
+let downloadEmployeeBtn;
+
+// Initialize DOM elements once DOM is loaded
+function initializeDOMElements() {
+  filterYearSelect = document.getElementById("filter-year");
+  filterMonthSelect = document.getElementById("filter-month");
+  filterWeekSelect = document.getElementById("filter-week");
+  calculateBtn = document.querySelector(".calculate-btn");
+  exportPdfBtn = document.querySelector(".export-pdf-btn");
+  backButton = document.querySelector(".back-button");
+  summarySection = document.querySelector(".summary-section");
+  employeesSection = document.querySelector(".employees-section");
+  employeesTbody = document.getElementById("employees-tbody");
+  searchEmployee = document.getElementById("search-employee");
+  sortBtns = document.querySelectorAll(".sort-btn");
+  modal = document.getElementById("employee-detail-modal");
+  closeBtn = document.querySelector(".close-btn");
+  closeModalBtn = document.querySelector(".close-modal-btn");
+  downloadEmployeeBtn = document.querySelector(".download-employee-btn");
+}
 
 // Load employees from backend
 async function loadEmployees() {
   try {
     const res = await fetch("/employees");
     allEmployees = await res.json();
-    console.log("Employés chargés:", allEmployees);
   } catch (err) {
     console.error("Échec du chargement des employés:", err);
     alert("Échec du chargement des données des employés");
@@ -115,9 +133,10 @@ function calculatePay() {
       }
 
       // Handle both formats: array for hourly, object for others
-      const records = (isHourlyEmployee && Array.isArray(recordOrArray)) 
-        ? recordOrArray 
-        : [recordOrArray];
+      const records =
+        isHourlyEmployee && Array.isArray(recordOrArray)
+          ? recordOrArray
+          : [recordOrArray];
 
       records.forEach((record) => {
         if (record.entrer && record.sorti) {
@@ -204,13 +223,13 @@ function updateSummary() {
 
   document.getElementById("total-employees").textContent = totalEmployees;
   document.getElementById("total-hours").textContent = totalHours;
-  document.getElementById("total-pay").textContent = `$${parseFloat(
+  document.getElementById("total-pay").textContent = `HTG ${parseFloat(
     totalPay
   ).toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
-  document.getElementById("avg-pay").textContent = `$${parseFloat(
+  document.getElementById("avg-pay").textContent = `HTG ${parseFloat(
     avgPay
   ).toLocaleString("en-US", {
     minimumFractionDigits: 2,
@@ -226,11 +245,11 @@ function populateTable(dataToDisplay = filteredData) {
     // Format pay display based on pay type
     let payDisplay = "Non défini";
     if (emp.payType === "hourly") {
-      payDisplay = `$${emp.payAmount.toFixed(2)}/h`;
+      payDisplay = `HTG ${emp.payAmount.toFixed(2)}/h`;
     } else if (emp.payType === "weekly") {
-      payDisplay = `$${emp.payAmount.toFixed(2)}/sem`;
+      payDisplay = `HTG ${emp.payAmount.toFixed(2)}/sem`;
     } else if (emp.payType === "monthly") {
-      payDisplay = `$${emp.payAmount.toFixed(2)}/mois`;
+      payDisplay = `HTG ${emp.payAmount.toFixed(2)}/mois`;
     }
 
     const row = document.createElement("tr");
@@ -240,7 +259,7 @@ function populateTable(dataToDisplay = filteredData) {
       <td>${payDisplay}</td>
       <td>${emp.daysWorked}</td>
       <td>${emp.totalHours}h</td>
-      <td><strong>$${parseFloat(emp.totalPay).toLocaleString("en-US", {
+      <td><strong>HTG ${parseFloat(emp.totalPay).toLocaleString("en-US", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       })}</strong></td>
@@ -260,11 +279,11 @@ function openEmployeeModal(emp) {
   // Format pay display based on pay type
   let payDisplay = "Non défini";
   if (emp.payType === "hourly") {
-    payDisplay = `$${emp.payAmount.toFixed(2)}/h`;
+    payDisplay = `HTG ${emp.payAmount.toFixed(2)}/h`;
   } else if (emp.payType === "weekly") {
-    payDisplay = `$${emp.payAmount.toFixed(2)}/sem`;
+    payDisplay = `HTG ${emp.payAmount.toFixed(2)}/sem`;
   } else if (emp.payType === "monthly") {
-    payDisplay = `$${emp.payAmount.toFixed(2)}/mois`;
+    payDisplay = `HTG ${emp.payAmount.toFixed(2)}/mois`;
   }
 
   document.getElementById("modal-emp-name").textContent = emp.name;
@@ -276,7 +295,7 @@ function openEmployeeModal(emp) {
   document.getElementById(
     "modal-total-hours"
   ).textContent = `${emp.totalHours}h`;
-  document.getElementById("modal-total-pay").textContent = `$${parseFloat(
+  document.getElementById("modal-total-pay").textContent = `HTG ${parseFloat(
     emp.totalPay
   ).toLocaleString("en-US", {
     minimumFractionDigits: 2,
@@ -319,7 +338,7 @@ function openEmployeeModal(emp) {
           <td class="time-cell">${day.entrer}</td>
           <td class="time-cell">${day.sorti}</td>
           <td class="hours-cell">${day.hours}h</td>
-          <td class="pay-cell">$${parseFloat(day.dailyPay).toLocaleString(
+          <td class="pay-cell">HTG ${parseFloat(day.dailyPay).toLocaleString(
             "en-US",
             { minimumFractionDigits: 2, maximumFractionDigits: 2 }
           )}</td>
@@ -370,126 +389,188 @@ function sortEmployees(sortBy) {
   populateTable(sortedData);
 }
 
-// Export to CSV
-function exportToCSV() {
-  if (filteredData.length === 0) {
-    alert("Aucune donnée à exporter. Veuillez d'abord calculer la paie.");
+// Export employee PDF
+function exportEmployeePDF() {
+  const empName = document.getElementById("modal-emp-name").textContent;
+  const empId = document.getElementById("modal-emp-id").textContent;
+  const empRole = document.getElementById("modal-emp-role").textContent;
+  const totalHours = document.getElementById("modal-total-hours").textContent;
+  const totalPay = document.getElementById("modal-total-pay").textContent;
+  const daysWorked = document.getElementById("modal-days-worked").textContent;
+
+  // Find the current employee in filteredData
+  const empIdMatch = empId.match(/\d+/);
+  const currentEmployee = filteredData.find((emp) => emp.id === empIdMatch[0]);
+
+  if (!currentEmployee) {
+    alert("Erreur: employé non trouvé");
     return;
   }
 
-  const year = filterYearSelect.value;
-  const month = filterMonthSelect.value || "Tous";
-  const week = filterWeekSelect.value || "Tous";
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const margin = 15;
+  let yPosition = margin;
 
-  let csv = `Rapport de paie - Année: ${year}, Mois: ${month}, Semaine: ${week}\n\n`;
-  csv += `Total employés,${filteredData.length}\n`;
-  csv += `Total heures,${filteredData
-    .reduce((sum, emp) => sum + parseFloat(emp.totalHours), 0)
-    .toFixed(2)}\n`;
-  csv += `Total paie,${filteredData
-    .reduce((sum, emp) => sum + parseFloat(emp.totalPay), 0)
-    .toFixed(2)}\n\n`;
+  // Title
+  pdf.setFontSize(20);
+  pdf.setTextColor(40, 40, 40);
+  pdf.text("RAPPORT DE PAIE EMPLOYÉ", margin, yPosition);
 
-  csv +=
-    "Employé,ID,Type de paie,Taux de paie,Jours travaillés,Total heures,Total paie\n";
-  filteredData.forEach((emp) => {
-    let payDisplay = "Non défini";
-    if (emp.payType === "hourly") {
-      payDisplay = `$${emp.payAmount.toFixed(2)}/h`;
-    } else if (emp.payType === "weekly") {
-      payDisplay = `$${emp.payAmount.toFixed(2)}/sem`;
-    } else if (emp.payType === "monthly") {
-      payDisplay = `$${emp.payAmount.toFixed(2)}/mois`;
-    }
-    csv += `"${emp.name}",${emp.id},${emp.payType || "Aucun"},${payDisplay},${
-      emp.daysWorked
-    },${emp.totalHours},${emp.totalPay}\n`;
+  yPosition += 12;
+
+  // Employee info
+  pdf.setFontSize(11);
+  pdf.setTextColor(100, 100, 100);
+  pdf.text("Fierbout", margin, yPosition);
+  yPosition += 8;
+
+  // Employee details
+  pdf.setFontSize(10);
+  pdf.setTextColor(80, 80, 80);
+  pdf.text(`Employé: ${empName}`, margin, yPosition);
+  yPosition += 6;
+  pdf.text(`ID: ${empIdMatch[0]} | Rôle: ${empRole}`, margin, yPosition);
+  yPosition += 10;
+
+  // Summary box
+  pdf.setDrawColor(200, 200, 200);
+  pdf.rect(margin, yPosition, pageWidth - 2 * margin, 30);
+
+  pdf.setFontSize(9);
+  pdf.setTextColor(80, 80, 80);
+  const summaryItems = [
+    { label: "Total heures", value: totalHours },
+    { label: "Jours travaillés", value: daysWorked },
+    { label: "Total paie", value: totalPay },
+  ];
+
+  summaryItems.forEach((item, index) => {
+    const xPos = margin + 10 + (index * (pageWidth - 2 * margin)) / 3;
+    pdf.text(item.label, xPos, yPosition + 8);
+    pdf.setFontSize(11);
+    pdf.setTextColor(40, 40, 40);
+    pdf.text(item.value, xPos, yPosition + 18);
+    pdf.setFontSize(9);
+    pdf.setTextColor(80, 80, 80);
   });
 
-  // Add daily breakdown for each employee
-  csv += "\n\nDétails quotidiens par employé\n";
-  filteredData.forEach((emp) => {
-    csv += `\n${emp.name} (${emp.id})\n`;
-    csv += `Date,Entrée,Sortie,Heures,Paie quotidienne\n`;
-    emp.dayBreakdown.forEach((day) => {
-      csv += `${day.date},${day.entrer},${day.sorti},${day.hours},${day.dailyPay}\n`;
+  yPosition += 38;
+
+  // Daily breakdown table
+  if (currentEmployee.dayBreakdown && currentEmployee.dayBreakdown.length > 0) {
+    pdf.setFontSize(11);
+    pdf.setTextColor(40, 40, 40);
+    pdf.text("Détails quotidiens", margin, yPosition);
+    yPosition += 6;
+
+    const dailyData = currentEmployee.dayBreakdown.map((day) => [
+      day.date,
+      day.entrer || "-",
+      day.sorti || "-",
+      parseFloat(day.hours).toFixed(2),
+      `HTG ${parseFloat(day.dailyPay).toFixed(2)}`,
+    ]);
+
+    pdf.autoTable({
+      startY: yPosition,
+      head: [["Date", "Entrée", "Sortie", "Heures", "Paie"]],
+      body: dailyData,
+      margin: { left: margin, right: margin },
+      styles: {
+        fontSize: 8,
+        cellPadding: 3,
+        textColor: [40, 40, 40],
+        lineColor: [200, 200, 200],
+      },
+      headStyles: {
+        fillColor: [102, 126, 234],
+        textColor: [255, 255, 255],
+        fontStyle: "bold",
+      },
+      alternateRowStyles: {
+        fillColor: [245, 247, 250],
+      },
+      didDrawPage: function (data) {
+        const pageCount = pdf.internal.pages.length - 1;
+        pdf.setFontSize(8);
+        pdf.setTextColor(150, 150, 150);
+        pdf.text(
+          `Page ${data.pageNumber} of ${pageCount}`,
+          pageWidth / 2,
+          pageHeight - 10,
+          { align: "center" }
+        );
+        const today = new Date().toLocaleDateString("fr-FR");
+        pdf.text(`Généré le: ${today}`, margin, pageHeight - 10);
+      },
     });
-  });
-
-  // Download CSV
-  const element = document.createElement("a");
-  element.setAttribute(
-    "href",
-    `data:text/csv;charset=utf-8,${encodeURIComponent(csv)}`
-  );
-  element.setAttribute("download", `rapport-paie-${year}-${month}.csv`);
-  element.style.display = "none";
-  document.body.appendChild(element);
-  element.click();
-  document.body.removeChild(element);
-}
-
-// Print modal content
-function printModal() {
-  const printContent = document.querySelector(".modal-content").innerHTML;
-  const printWindow = window.open("", "", "height=600,width=800");
-  printWindow.document.write(`
-    <html>
-      <head>
-        <title>Rapport de paie des employés</title>
-        <style>
-          body { font-family: Arial, sans-serif; padding: 20px; }
-          .modal-header { background: #667eea; color: white; padding: 20px; border-radius: 8px; }
-          .modal-body { padding: 20px; }
-          .info-section { margin-bottom: 20px; }
-          .daily-entry { border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; }
-        </style>
-      </head>
-      <body>${printContent}</body>
-    </html>
-  `);
-  printWindow.document.close();
-  printWindow.print();
-}
-
-// Set default year to current year
-function setDefaultYear() {
-  const currentYear = new Date().getFullYear().toString();
-  filterYearSelect.value = currentYear;
-}
-
-// Event listeners
-calculateBtn.addEventListener("click", calculatePay);
-exportCsvBtn.addEventListener("click", exportToCSV);
-backButton.addEventListener("click", () => {
-  window.location.href = "/admin-employees.html";
-});
-// Performance optimization: debounce search input
-const debouncedSearch = debounce(searchEmployees, 300);
-searchEmployee.addEventListener("input", debouncedSearch);
-sortBtns.forEach((btn) => {
-  btn.addEventListener("click", (e) => sortEmployees(e.target.dataset.sort));
-});
-closeBtn.addEventListener("click", closeModal);
-closeModalBtn.addEventListener("click", closeModal);
-printBtn.addEventListener("click", printModal);
-
-// Modal backdrop click to close
-modal.addEventListener("click", (e) => {
-  if (e.target === modal) {
-    closeModal();
   }
-});
+
+  // Download
+  const filename = `Paie_${empName.replace(/ /g, "_")}_${
+    empIdMatch[0]
+  }_${new Date().getTime()}.pdf`;
+  pdf.save(filename);
+}
+
+// Set default year to current year and populate year options
+function setDefaultYear() {
+  const currentYear = new Date().getFullYear();
+
+  // Populate year select with current year and 4 previous years
+  filterYearSelect.innerHTML = "";
+  for (let i = 0; i < 5; i++) {
+    const year = currentYear - i;
+    const option = document.createElement("option");
+    option.value = year.toString();
+    option.textContent = year.toString();
+    filterYearSelect.appendChild(option);
+  }
+
+  // Set current year as default
+  filterYearSelect.value = currentYear.toString();
+}
+
+// Event listeners - set up after DOM is loaded
+function setupEventListeners() {
+  calculateBtn.addEventListener("click", calculatePay);
+  exportPdfBtn.addEventListener("click", exportToPDF);
+  backButton.addEventListener("click", () => {
+    window.location.href = "/admin-employees.html";
+  });
+  // Performance optimization: debounce search input
+  const debouncedSearch = debounce(searchEmployees, 300);
+  searchEmployee.addEventListener("input", debouncedSearch);
+  sortBtns.forEach((btn) => {
+    btn.addEventListener("click", (e) => sortEmployees(e.target.dataset.sort));
+  });
+  closeBtn.addEventListener("click", closeModal);
+  closeModalBtn.addEventListener("click", closeModal);
+  downloadEmployeeBtn.addEventListener("click", exportEmployeePDF);
+
+  // Modal backdrop click to close
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      closeModal();
+    }
+  });
+}
 
 // Initialize
-loadEmployees();
-setDefaultYear();
+document.addEventListener("DOMContentLoaded", () => {
+  initializeDOMElements();
+  setupEventListeners();
+  loadEmployees();
+  setDefaultYear();
+});
 
 // Update cache when data-monitor notifies about changes
 window.addEventListener("employees:updated", async (e) => {
   try {
     allEmployees = e.detail.employees || [];
-    console.log("calculate-pay: employees updated", allEmployees.length);
     // If the page already has filtered data visible, recalculate
     if (filteredData && filteredData.length > 0) {
       calculatePay();

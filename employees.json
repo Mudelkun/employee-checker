@@ -381,6 +381,30 @@
           "entrer": "5:25 PM",
           "sorti": "5:54 PM",
           "heureTravailer": 0.48
+        },
+        "09-01-2026": {
+          "entrer": "8:00 AM",
+          "sorti": "5:00 PM",
+          "modifiedOn": "10/01/2026 18:55:15",
+          "heureTravailer": 9
+        },
+        "10-01-2026": {
+          "entrer": "5:00 AM",
+          "sorti": "6:56 PM",
+          "modifiedOn": "10/01/2026 18:56:26",
+          "heureTravailer": 13.93
+        },
+        "06-01-2026": {
+          "entrer": "4:00 AM",
+          "sorti": "7:00 AM",
+          "modifiedOn": "10/01/2026 19:11:10",
+          "heureTravailer": 3
+        },
+        "01-01-2026": {
+          "entrer": "3:00 AM",
+          "sorti": "8:00 PM",
+          "modifiedOn": "10/01/2026 19:12:12",
+          "heureTravailer": 17
         }
       },
       "estEntrer": true,
@@ -548,8 +572,15 @@
         },
         "07-01-2026": {
           "entrer": "6:51 PM",
-          "sorti": "",
-          "pendingAdminReview": true
+          "sorti": "7:08 PM",
+          "pendingAdminReview": true,
+          "heureTravailer": 0.28,
+          "modifiedOn": "Auto-completed on 10-01-2026"
+        },
+        "10-01-2026": {
+          "entrer": "7:08 PM",
+          "sorti": "7:08 PM",
+          "heureTravailer": 0
         }
       },
       "estEntrer": true,
@@ -778,8 +809,10 @@
         "07-01-2026": [
           {
             "entrer": "7:02 PM",
-            "sorti": "",
-            "pendingAdminReview": true
+            "sorti": "9:00 AM",
+            "pendingAdminReview": true,
+            "modifiedOn": "10/01/2026 20:00:17",
+            "heureTravailer": 13.97
           }
         ],
         "10-01-2026": [
@@ -1026,6 +1059,14 @@
             "entrer": "5:25 PM",
             "sorti": "5:26 PM",
             "heureTravailer": 0.02
+          }
+        ],
+        "11-01-2026": [
+          {
+            "entrer": "08:00 AM",
+            "sorti": "3:00 PM",
+            "modifiedOn": "10/01/2026 19:24:15",
+            "heureTravailer": 7
           }
         ]
       },
@@ -1922,6 +1963,11 @@
           "entrer": "5:29 PM",
           "sorti": "5:31 PM",
           "heureTravailer": 0.03
+        },
+        "10-01-2026": {
+          "entrer": "9:38 PM",
+          "sorti": "9:38 PM",
+          "heureTravailer": 0
         }
       },
       "estEntrer": false,
@@ -1957,6 +2003,54 @@
       "payType": null,
       "payAmount": null,
       "email": null
+    },
+    {
+      "name": "Rodarly Clavensky PERILUS",
+      "role": "Executif officer",
+      "details": "",
+      "email": null,
+      "id": "467141",
+      "image": "imgs/07873.png",
+      "hdePointage": {
+        "10-01-2026": [
+          {
+            "entrer": "6:53 PM",
+            "sorti": "6:53 PM",
+            "heureTravailer": 0
+          },
+          {
+            "entrer": "7:17 PM",
+            "sorti": "9:00 PM",
+            "modifiedOn": "10/01/2026 19:20:25",
+            "heureTravailer": 1.72
+          },
+          {
+            "entrer": "7:20 PM",
+            "sorti": "7:20 PM",
+            "heureTravailer": 0
+          },
+          {
+            "entrer": "8:27 PM",
+            "sorti": ""
+          }
+        ],
+        "09-01-2026": [
+          {
+            "entrer": "8:00 AM",
+            "sorti": "9:00 AM",
+            "modifiedOn": "10/01/2026 20:02:02",
+            "heureTravailer": 1
+          },
+          {
+            "entrer": "8:00 AM",
+            "sorti": "8:28 PM",
+            "modifiedOn": "Auto-completed on 10-01-2026",
+            "heureTravailer": 12.47
+          }
+        ]
+      },
+      "payType": "hourly",
+      "payAmount": 200
     }
   ]
 }

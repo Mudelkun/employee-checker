@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Guide d'utilisation - Fierbout Pointage</title>
+    <link rel="stylesheet" href="styles/style.css" />
+    <link rel="stylesheet" href="styles/how-to-use.css" />
+  </head>
+  <body>
+    <div class="container" id="guide-root">
+      <div class="guide-header">
+        <h1 class="guide-title">📖 Guide de pointage</h1>
+        <p class="guide-subtitle">
+          Comment utiliser le système de pointage Fierbout
+        </p>
+      </div>
+
+      <div class="toolbar no-print">
+        <button class="btn btn-primary" id="download-guide-btn">
+          📥 Télécharger en PDF
+        </button>
+        <a class="btn btn-secondary" href="index.html">← Retour au pointage</a>
+      </div>
+
+      <div class="content" id="guide-content">
+        <!-- Page 1 -->
+        <section class="section">
+          <div class="section-header">1. INTRODUCTION</div>
+          <div class="card">
+            <p>
+              Le système de pointage Fierbout enregistre vos heures de travail
+              en Haïti (fuseau horaire Port-au-Prince). Vous devez pointer à
+              l'arrivée et au départ. Les horaires s'affichent en format 12h
+              (AM/PM).
+            </p>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-header">2. INTERFACE PRINCIPALE</div>
+          <div class="card">
+            <p><strong>Écran de pointage :</strong></p>
+            <ul>
+              <li>
+                Clavier numérique (0-9, &lt;, X) : entrez vos 6 chiffres
+                d'identifiant
+              </li>
+              <li>Icône œil : afficher/masquer votre identifiant</li>
+              <li>Pointage entrant : pointer l'arrivée</li>
+              <li>Pointage sortant : pointer le départ</li>
+              <li>Heure : affichage en temps réel de l'heure en Haïti</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-header">3. ÉTAPES POUR POINTER</div>
+          <div class="card">
+            <ol class="steps">
+              <li class="step">
+                <span class="badge">1</span
+                ><span
+                  >Entrez vos 6 chiffres d'identifiant avec le clavier
+                  numérique</span
+                >
+              </li>
+              <li class="step">
+                <span class="badge">2</span
+                ><span>Vérifiez que l'identifiant est correct (icône œil)</span>
+              </li>
+              <li class="step">
+                <span class="badge">3</span
+                ><span
+                  >Appuyez sur <strong>Pointage entrant</strong> pour pointer
+                  l'arrivée</span
+                >
+              </li>
+              <li class="step">
+                <span class="badge">4</span
+                ><span
+                  >À la fin de la journée, entrez à nouveau votre
+                  identifiant</span
+                >
+              </li>
+              <li class="step">
+                <span class="badge">5</span
+                ><span
+                  >Appuyez sur <strong>Pointage sortant</strong> pour pointer le
+                  départ</span
+                >
+              </li>
+            </ol>
+          </div>
+        </section>
+
+        <div class="page-break"></div>
+
+        <!-- Page 2 -->
+        <section class="section">
+          <div class="section-header">4. EMPLOYÉS PAYER À L'HEURE</div>
+          <div class="card">
+            <p>
+              Si vous avez plusieurs classes ou périodes dans une même journée
+              qui ne sont pas affiliées (ex. : 11 h – 12 h et 14 h – 15 h), vous
+              devez effectuer
+              <strong
+                >un pointage entrant et un pointage sortant pour chaque
+                session</strong
+              >. Dépointez à la fin de chaque classe avant de pointer la
+              suivante.
+            </p>
+            <p>
+              <strong>Note:</strong> Seuls les employés payés à l’heure peuvent
+              effectuer plusieurs pointages dans la même journée.
+            </p>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            5. MESSAGES AFFICHÉS ET SIGNIFICATION
+          </div>
+          <div class="messages">
+            <div class="message">
+              <strong>✅ Pointage accepté</strong
+              ><span class="meaning"
+                >— le pointage a été enregistré avec succès</span
+              >
+            </div>
+            <div class="message">
+              <strong>❌ Employé introuvable</strong
+              ><span class="meaning"
+                >— votre identifiant n'existe pas, vérifiez et réessayez</span
+              >
+            </div>
+            <div class="message">
+              <strong>❌ Pointage ouvert</strong
+              ><span class="meaning"
+                >— vous avez oublié de dépointer, effectuez d'abord le pointage
+                sortant</span
+              >
+            </div>
+            <div class="message">
+              <strong>❌ Aucun pointage à fermer</strong
+              ><span class="meaning">— le départ a déjà été enregistré</span>
+            </div>
+            <div class="message">
+              <strong>⚠️ Décalage horaire</strong
+              ><span class="meaning"
+                >— l'heure diffère de l'heure du serveur, l'administrateur peut
+                aider si nécessaire</span
+              >
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            6. J'AI OUBLIÉ DE POINTER / DÉPOINTER
+          </div>
+          <div class="scenario">
+            <p>
+              <strong>Oublié pointage entrant :</strong> Indiquez à
+              l’administrateur l’heure exacte de début (ex. : 08 h 30).
+              L’administrateur l’ajoutera. Vous pourrez pointer votre sortie
+              après.
+            </p>
+          </div>
+          <div class="scenario">
+            <p>
+              <strong>Oublié pointage sortant :</strong> pointez à nouveau le
+              lendemain et indiquez l'heure exacte de départ (ex. 05:15 PM).
+              L'administrateur l'ajoutera.
+            </p>
+          </div>
+          <div class="scenario">
+            <p>
+              <strong>Oubli la veille et départ aujourd'hui :</strong> indiquez
+              vos heures d'arrivée et de départ de la veille. L'administrateur
+              ajoutera les deux.
+            </p>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-header">7. L'ADMINISTRATEUR PEUT AIDER</div>
+          <div class="admin-help">
+            <p>
+              L'administrateur peut ajouter vos pointages manuellement en cas
+              d'oubli. Fournissez simplement l'heure exacte (<em>HH:MM AM/PM</em
+              >) et le jour concerné, par exemple : « Je suis arrivé à 08:30 AM
+              » ou « Je suis parti à 05:15 PM ».
+            </p>
+            <p class="footer-note">© 2026 Fierbout — Guide d'utilisation</p>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="script/how-to-use.js"></script>
+  </body>
+</html>

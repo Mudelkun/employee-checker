@@ -301,7 +301,8 @@
             <p class="employee-name">Random</p>
             <p class="employee-role">Manager</p>
             <p class="employee-more">
-              Est un enseignant de mathématiques à temps plein travaillant en 6ème et 11ème année
+              Est un enseignant de mathématiques à temps plein travaillant en
+              6ème et 11ème année
             </p>
           </div>
 
@@ -553,7 +554,15 @@
           </div>
           <div class="form-group">
             <label>Date</label>
-            <input type="date" id="add-pointage-date" required />
+            <input
+              type="text"
+              id="add-pointage-date"
+              placeholder="ex: 10/01/2026"
+              required
+            />
+            <small style="color: #666"
+              >Format: JJ/MM/YYYY (ex: 10/01/2026)</small
+            >
           </div>
           <div class="form-group">
             <label>Heure d'entrée</label>
@@ -563,7 +572,9 @@
               placeholder="ex: 08:30 AM"
               required
             />
-            <small style="color: #666">Format: HH:MM AM/PM (ex: 08:30 AM, 02:45 PM)</small>
+            <small style="color: #666"
+              >Format: HH:MM AM/PM (ex: 08:30 AM, 02:45 PM)</small
+            >
           </div>
           <div class="form-group">
             <label>Heure de sortie (Optionnel)</label>
@@ -572,7 +583,9 @@
               id="add-pointage-sorti"
               placeholder="ex: 05:00 PM"
             />
-            <small style="color: #666">Laisser vide si l'employé est toujours au travail</small>
+            <small style="color: #666"
+              >Laisser vide si l'employé est toujours au travail</small
+            >
           </div>
           <div class="modal-buttons">
             <button class="cancel-add-pointage-btn">Annuler</button>

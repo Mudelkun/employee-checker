@@ -207,7 +207,7 @@ finalConfirm.addEventListener("click", async () => {
     email: email_input.value.trim() || null,
     id: show_id.textContent.trim(),
     image: imageToUse, // Include base64 image or default image path
-    hdePointage: [],
+    hdePointage: {},
     payType: payType || null, // "hourly", "weekly", "monthly", or null
     payAmount: payType && payAmount ? parseFloat(payAmount) : null, // The actual amount
   };
@@ -230,9 +230,6 @@ finalConfirm.addEventListener("click", async () => {
       throw new Error(data.message || `Server error ${res.status}`);
     }
 
-    console.log("Saved:", data);
-
-    // Update local cache (so generateID knows about it, and other pages can use)
     employees.push(newEmployee);
 
     // UI confirmation

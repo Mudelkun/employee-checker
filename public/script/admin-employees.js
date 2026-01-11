@@ -41,25 +41,28 @@ function get_emp_history(emp, year = null, month = null) {
   } else if (typeof emp.hdePointage === "object" && emp.hdePointage !== null) {
     // New format: date-keyed object (DD-MM-YYYY) -> convert to display format
     const isHourlyEmployee = emp.payType === "hourly";
-    
-    recordsArray = Object.entries(emp.hdePointage).flatMap(([dateKey, recordOrArray]) => {
-      // Convert DD-MM-YYYY back to DD/MM/YYYY for display
-      const displayDate = dateKey.replace(/-/g, "/");
-      
-      // For hourly employees, recordOrArray is an array of entries
-      // For non-hourly employees, recordOrArray is a single object
-      const records = (isHourlyEmployee && Array.isArray(recordOrArray)) 
-        ? recordOrArray 
-        : [recordOrArray];
-      
-      return records.map((record) => ({
-        date: displayDate,
-        entrer: record.entrer || "",
-        sorti: record.sorti || "",
-        heureTravailer: record.heureTravailer || 0,
-        modifiedOn: record.modifiedOn,
-      }));
-    });
+
+    recordsArray = Object.entries(emp.hdePointage).flatMap(
+      ([dateKey, recordOrArray]) => {
+        // Convert DD-MM-YYYY back to DD/MM/YYYY for display
+        const displayDate = dateKey.replace(/-/g, "/");
+
+        // For hourly employees, recordOrArray is an array of entries
+        // For non-hourly employees, recordOrArray is a single object
+        const records =
+          isHourlyEmployee && Array.isArray(recordOrArray)
+            ? recordOrArray
+            : [recordOrArray];
+
+        return records.map((record) => ({
+          date: displayDate,
+          entrer: record.entrer || "",
+          sorti: record.sorti || "",
+          heureTravailer: record.heureTravailer || 0,
+          modifiedOn: record.modifiedOn,
+        }));
+      }
+    );
   }
 
   // Filter by year and month if provided (date is DD/MM/YYYY)
@@ -269,17 +272,18 @@ function generateEmployeePDF(empData, year, month) {
   ) {
     // New format: convert date-keyed object to array with date display
     const isHourlyEmployee = empData.payType === "hourly";
-    
+
     allRecords = Object.entries(empData.hdePointage).flatMap(
       ([dateKey, recordOrArray]) => {
         const displayDate = dateKey.replace(/-/g, "/");
-        
+
         // For hourly employees, recordOrArray is an array of entries
         // For non-hourly employees, recordOrArray is a single object
-        const records = (isHourlyEmployee && Array.isArray(recordOrArray)) 
-          ? recordOrArray 
-          : [recordOrArray];
-        
+        const records =
+          isHourlyEmployee && Array.isArray(recordOrArray)
+            ? recordOrArray
+            : [recordOrArray];
+
         return records.map((record) => ({
           date: displayDate,
           entrer: record.entrer || "",
@@ -411,19 +415,19 @@ function generateEmployeePDF(empData, year, month) {
 // Show a modal to choose year/month before generating PDF
 function showDownloadModal(empData, defaultYear, defaultMonth) {
   const overlay = document.createElement("div");
-  overlay.style = `position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:10000;`;
+  overlay.className = "download-history-overlay";
 
   const modal = document.createElement("div");
-  modal.style = `background:#fff;padding:20px;border-radius:8px;max-width:360px;width:100%;box-shadow:0 8px 24px rgba(0,0,0,0.2);`;
+  modal.className = "download-history-modal";
   modal.innerHTML = `
-    <h3 style="margin-top:0">Télécharger l'historique</h3>
-    <div style="margin-bottom:10px">
-      <label>Année</label>
-      <select id="pdf-year" style="width:100%;margin-top:6px">${generateYearOptions()}</select>
+    <h3>Télécharger l'historique</h3>
+    <div class="form-group">
+      <label for="pdf-year">Année</label>
+      <select id="pdf-year">${generateYearOptions()}</select>
     </div>
-    <div style="margin-bottom:10px">
-      <label>Mois</label>
-      <select id="pdf-month" style="width:100%;margin-top:6px">
+    <div class="form-group">
+      <label for="pdf-month">Mois</label>
+      <select id="pdf-month">
         <option value="all">Tous</option>
         <option value="01">Janvier</option>
         <option value="02">Février</option>
@@ -439,7 +443,7 @@ function showDownloadModal(empData, defaultYear, defaultMonth) {
         <option value="12">Décembre</option>
       </select>
     </div>
-    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
+    <div class="download-history-buttons">
       <button id="pdf-cancel">Annuler</button>
       <button id="pdf-download">Télécharger</button>
     </div>
@@ -697,7 +701,6 @@ function attachCardListeners() {
   if (cName) {
     // Replace any previous handler to avoid duplicates and ensure predictable behavior
     cName.onclick = () => {
-      console.log("compagny-name clicked: hiding employee cards");
       const cards = document.querySelectorAll(".employee-card");
       cards.forEach((c) => {
         try {
@@ -935,7 +938,10 @@ function toggleEditMode(card, empData, historyTable) {
 
     tableRows.forEach((row) => {
       const cells = row.querySelectorAll("p");
-      const dateCell = cells[0].textContent.trim();
+      const displayDate = cells[0].textContent.trim(); // DD/MM/YYYY format
+      // Convert display date DD/MM/YYYY to storage key format DD-MM-YYYY
+      const dateKey = displayDate.replace(/\//g, "-");
+
       const entrerCell = cells[1];
       const sortiCell = cells[2];
 
@@ -980,12 +986,24 @@ function toggleEditMode(card, empData, historyTable) {
 
       // Only save if something was actually modified
       if (wasModified) {
-        const historyRecord = empData.hdePointage.find(
-          (h) => h.date === dateCell
-        );
+        // Get the record from the new date-keyed object format
+        const isHourlyEmployee = empData.payType === "hourly";
+        let historyRecord = null;
+
+        if (isHourlyEmployee && Array.isArray(empData.hdePointage[dateKey])) {
+          // For hourly employees, find the most recent entry (last one in array)
+          historyRecord =
+            empData.hdePointage[dateKey][
+              empData.hdePointage[dateKey].length - 1
+            ];
+        } else if (empData.hdePointage[dateKey]) {
+          // For non-hourly employees, use the single object
+          historyRecord = empData.hdePointage[dateKey];
+        }
+
         if (historyRecord) {
           // Add modification date
-          const modDate = new Date().toLocaleString();
+          const modDate = new Date().toLocaleString("fr-FR");
 
           if (entrerInput && entrerInput.value.trim() !== "") {
             historyRecord.entrer = newEntrer;
@@ -1049,7 +1067,6 @@ async function saveEmployeeChanges(empData) {
     }
 
     const data = await res.json();
-    console.log("Employee updated:", data);
     alert("Les modifications de pointage ont été enregistrées avec succès!");
   } catch (err) {
     console.error("Failed to save employee:", err);
@@ -1079,7 +1096,6 @@ function filterEmployeesBySearch(searchTerm) {
 
   // Optional: show message if no results
   if (visibleCount === 0 && searchTerm.trim() !== "") {
-    console.log("No employees found matching:", searchTerm);
   }
 }
 
@@ -1469,7 +1485,6 @@ function openEditModal(empData) {
       }
 
       const data = await res.json();
-      console.log("Employee updated:", data);
       alert("Les informations de l'employé ont été mises à jour avec succès!");
       editModal.classList.add("hidden");
 
@@ -1509,7 +1524,6 @@ function openRemoveModal(empData, card, manager) {
         throw new Error(`Failed to delete: ${res.status}`);
       }
 
-      console.log("Employee deleted:", empData.id);
       alert(`${empData.name} a été supprimé avec succès!`);
 
       removeModal.classList.add("hidden");
@@ -1711,17 +1725,20 @@ function openSendIdModal() {
 // ---------------------- ADD POINTAGE MODAL ----------------------
 function openAddPointageModal(empData) {
   const addPointageModal = document.querySelector(".add-pointage-modal");
-  const employeeNameInput = document.getElementById("add-pointage-employee-name");
+  const employeeNameInput = document.getElementById(
+    "add-pointage-employee-name"
+  );
   const dateInput = document.getElementById("add-pointage-date");
   const entrerInput = document.getElementById("add-pointage-entrer");
   const sortiInput = document.getElementById("add-pointage-sorti");
-  const cancelBtn = document.querySelector(".cancel-add-pointage-btn");
-  const confirmBtn = document.querySelector(".confirm-add-pointage-btn");
 
-  // Set default date to today
-  const today = new Date().toISOString().split("T")[0];
-  dateInput.value = today;
-  
+  // Set default date to today in DD/MM/YYYY format
+  const today = new Date();
+  const day = String(today.getDate()).padStart(2, "0");
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const year = today.getFullYear();
+  dateInput.value = `${day}/${month}/${year}`;
+
   // Set employee name
   employeeNameInput.value = empData.name;
 
@@ -1729,131 +1746,181 @@ function openAddPointageModal(empData) {
   entrerInput.value = "";
   sortiInput.value = "";
 
+  // Store empData on the modal element for use in event handlers
+  addPointageModal.dataset.empDataId = empData.id;
+  addPointageModal.dataset.empDataJson = JSON.stringify(empData);
+
   // Show modal
   addPointageModal.classList.remove("hidden");
+}
+
+// Handle cancel button for add pointage modal
+document.addEventListener("DOMContentLoaded", () => {
+  const addPointageModal = document.querySelector(".add-pointage-modal");
+  const cancelBtn = document.querySelector(".cancel-add-pointage-btn");
+  const confirmBtn = document.querySelector(".confirm-add-pointage-btn");
+  const employeeNameInput = document.getElementById(
+    "add-pointage-employee-name"
+  );
+  const dateInput = document.getElementById("add-pointage-date");
+  const entrerInput = document.getElementById("add-pointage-entrer");
+  const sortiInput = document.getElementById("add-pointage-sorti");
 
   // Cancel button handler
-  const handleCancel = () => {
+  cancelBtn.addEventListener("click", () => {
     addPointageModal.classList.add("hidden");
+    employeeNameInput.value = "";
+    dateInput.value = "";
     entrerInput.value = "";
     sortiInput.value = "";
-    cancelBtn.removeEventListener("click", handleCancel);
-    confirmBtn.removeEventListener("click", handleConfirm);
-  };
+  });
 
   // Confirm button handler
-  const handleConfirm = async () => {
-    const date = dateInput.value; // YYYY-MM-DD
-    const entrer = entrerInput.value.trim();
-    const sorti = sortiInput.value.trim();
-
-    // Validate inputs
-    if (!date || !entrer) {
-      alert("Veuillez remplir la date et l'heure d'entrée.");
-      return;
-    }
-
-    // Validate time format (HH:MM AM/PM)
-    const timeRegex = /^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/i;
-    if (!timeRegex.test(entrer)) {
-      alert("Format d'heure d'entrée invalide. Veuillez utiliser le format: HH:MM AM/PM (ex: 08:30 AM)");
-      return;
-    }
-
-    if (sorti && !timeRegex.test(sorti)) {
-      alert("Format d'heure de sortie invalide. Veuillez utiliser le format: HH:MM AM/PM (ex: 05:00 PM)");
-      return;
-    }
-
-    // Convert YYYY-MM-DD to DD-MM-YYYY for storage
-    const [year, month, day] = date.split("-");
-    const dateKey = `${day}-${month}-${year}`;
-
-    try {
-      confirmBtn.disabled = true;
-      confirmBtn.textContent = "Ajout en cours...";
-
-      // Ensure hdePointage is initialized
-      if (!empData.hdePointage || typeof empData.hdePointage !== "object") {
-        empData.hdePointage = {};
+  confirmBtn.addEventListener(
+    "click",
+    async () => {
+      const empDataJson = addPointageModal.dataset.empDataJson;
+      if (!empDataJson) {
+        alert("Erreur: données d'employé manquantes");
+        return;
       }
 
-      const isHourlyEmployee = empData.payType === "hourly";
+      const empData = JSON.parse(empDataJson);
+      const date = dateInput.value; // DD/MM/YYYY format
+      const entrer = entrerInput.value.trim();
+      const sorti = sortiInput.value.trim();
 
-      // Calculate heureTravailler if both entrer and sorti are provided
-      let heureTravailler = null;
-      if (entrer && sorti) {
-        heureTravailler = calculateHeureTravailler(entrer, sorti);
+      // Validate inputs
+      if (!date || !entrer) {
+        alert("Veuillez remplir la date et l'heure d'entrée.");
+        return;
       }
 
-      // Create new pointage entry
-      const newEntry = {
-        entrer: entrer,
-        sorti: sorti || "",
-        modifiedOn: new Date().toLocaleString("fr-FR"),
-      };
-
-      if (heureTravailler !== null) {
-        newEntry.heureTravailer = heureTravailler;
+      // Validate date format (DD/MM/YYYY)
+      const dateRegex =
+        /^(0?[1-9]|[12][0-9]|3[01])\/(0?[1-9]|1[0-2])\/(\d{4})$/;
+      if (!dateRegex.test(date)) {
+        alert(
+          "Format de date invalide. Veuillez utiliser le format: JJ/MM/YYYY (ex: 10/01/2026)"
+        );
+        return;
       }
 
-      // For hourly employees, use array format; for others, use object format
-      if (isHourlyEmployee) {
-        if (!empData.hdePointage[dateKey]) {
-          empData.hdePointage[dateKey] = [];
-        } else if (!Array.isArray(empData.hdePointage[dateKey])) {
-          // Convert to array if needed
-          empData.hdePointage[dateKey] = [empData.hdePointage[dateKey]];
+      // Validate time format (HH:MM AM/PM)
+      const timeRegex = /^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/i;
+      if (!timeRegex.test(entrer)) {
+        alert(
+          "Format d'heure d'entrée invalide. Veuillez utiliser le format: HH:MM AM/PM (ex: 08:30 AM)"
+        );
+        return;
+      }
+
+      if (sorti && !timeRegex.test(sorti)) {
+        alert(
+          "Format d'heure de sortie invalide. Veuillez utiliser le format: HH:MM AM/PM (ex: 05:00 PM)"
+        );
+        return;
+      }
+
+      // Parse date and convert DD/MM/YYYY to DD-MM-YYYY for storage
+      const [day, month, year] = date.split("/");
+      const dateKey = `${day}-${month}-${year}`;
+
+      try {
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = "Ajout en cours...";
+
+        // Ensure hdePointage is initialized
+        if (!empData.hdePointage || typeof empData.hdePointage !== "object") {
+          empData.hdePointage = {};
         }
-        empData.hdePointage[dateKey].push(newEntry);
-      } else {
-        // For non-hourly employees, check if date already has an entry
-        if (empData.hdePointage[dateKey] && empData.hdePointage[dateKey].entrer) {
-          if (!confirm(`Un pointage existe déjà pour le ${day}/${month}/${year}. Voulez-vous le remplacer?`)) {
-            confirmBtn.disabled = false;
-            confirmBtn.textContent = "➕ Ajouter";
-            return;
+
+        const isHourlyEmployee = empData.payType === "hourly";
+
+        // Calculate heureTravailler if both entrer and sorti are provided
+        let heureTravailler = null;
+        if (entrer && sorti) {
+          heureTravailler = calculateHeureTravailler(entrer, sorti);
+        }
+
+        // Create new pointage entry
+        const newEntry = {
+          entrer: entrer,
+          sorti: sorti || "",
+          modifiedOn: new Date().toLocaleString("fr-FR"),
+        };
+
+        if (heureTravailler !== null) {
+          newEntry.heureTravailer = heureTravailler;
+        }
+
+        // For hourly employees, use array format; for others, use object format
+        if (isHourlyEmployee) {
+          if (!empData.hdePointage[dateKey]) {
+            empData.hdePointage[dateKey] = [];
+          } else if (!Array.isArray(empData.hdePointage[dateKey])) {
+            // Convert to array if needed
+            empData.hdePointage[dateKey] = [empData.hdePointage[dateKey]];
           }
+          empData.hdePointage[dateKey].push(newEntry);
+        } else {
+          // For non-hourly employees, check if date already has an entry
+          if (
+            empData.hdePointage[dateKey] &&
+            empData.hdePointage[dateKey].entrer
+          ) {
+            if (
+              !confirm(
+                `Un pointage existe déjà pour le ${day}/${month}/${year}. Voulez-vous le remplacer?`
+              )
+            ) {
+              confirmBtn.disabled = false;
+              confirmBtn.textContent = "➕ Ajouter";
+              return;
+            }
+          }
+          empData.hdePointage[dateKey] = newEntry;
         }
-        empData.hdePointage[dateKey] = newEntry;
+
+        // Save to backend
+        const res = await fetch(`/employees/${empData.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(empData),
+        });
+
+        if (!res.ok) {
+          throw new Error(`Échec de la sauvegarde: ${res.status}`);
+        }
+
+        alert("✅ Pointage ajouté avec succès!");
+
+        // Update global employees
+        const empIndex = globalEmployees.findIndex((e) => e.id === empData.id);
+        if (empIndex !== -1) {
+          globalEmployees[empIndex] = empData;
+        }
+
+        // Refresh the employee card
+        buildUI(globalEmployees);
+
+        // Close modal and clear form
+        addPointageModal.classList.add("hidden");
+        employeeNameInput.value = "";
+        dateInput.value = "";
+        entrerInput.value = "";
+        sortiInput.value = "";
+      } catch (err) {
+        console.error("Erreur lors de l'ajout du pointage:", err);
+        alert(`❌ Échec de l'ajout du pointage: ${err.message}`);
+      } finally {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = "➕ Ajouter";
       }
-
-      // Save to backend
-      const res = await fetch(`/employees/${empData.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(empData),
-      });
-
-      if (!res.ok) {
-        throw new Error(`Échec de la sauvegarde: ${res.status}`);
-      }
-
-      alert("✅ Pointage ajouté avec succès!");
-      
-      // Update global employees
-      const empIndex = globalEmployees.findIndex(e => e.id === empData.id);
-      if (empIndex !== -1) {
-        globalEmployees[empIndex] = empData;
-      }
-
-      // Refresh the employee card
-      buildUI(globalEmployees);
-
-      // Close modal
-      handleCancel();
-    } catch (err) {
-      console.error("Erreur lors de l'ajout du pointage:", err);
-      alert(`❌ Échec de l'ajout du pointage: ${err.message}`);
-    } finally {
-      confirmBtn.disabled = false;
-      confirmBtn.textContent = "➕ Ajouter";
-    }
-  };
-
-  cancelBtn.addEventListener("click", handleCancel);
-  confirmBtn.addEventListener("click", handleConfirm);
-}
+    },
+    { once: false }
+  );
+});
 
 // Helper function to calculate hours worked
 function calculateHeureTravailler(entrerTime, sortiTime) {
@@ -2011,10 +2078,6 @@ window.addEventListener("employees:updated", (e) => {
 
     const employeeCountEl = document.getElementById("employee-count");
     if (employeeCountEl) employeeCountEl.textContent = employees.length;
-    console.log(
-      "admin-employees: UI refreshed from employees:updated",
-      employees.length
-    );
   } catch (err) {
     console.error(
       "Error handling employees:updated in admin-employees.js",
