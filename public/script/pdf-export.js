@@ -48,62 +48,65 @@ async function exportToPDF() {
   // Set up PDF styles
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
-  const margin = 15;
+  const margin = 10;
   let yPosition = margin;
 
   // Title
-  pdf.setFontSize(20);
+  pdf.setFontSize(16);
   pdf.setTextColor(40, 40, 40);
   pdf.text("RAPPORT DE PAIE", margin, yPosition);
 
-  yPosition += 10;
-
-  // Company info
-  pdf.setFontSize(11);
-  pdf.setTextColor(100, 100, 100);
-  pdf.text("Fierbout", margin, yPosition);
   yPosition += 6;
 
-  // Period info
-  pdf.setFontSize(10);
-  pdf.text(`Période: ${monthName} ${year}`, margin, yPosition);
-  if (week && week !== "") {
-    pdf.text(`Semaine: ${week}`, margin + 80, yPosition);
-  }
-  yPosition += 10;
-
-  // Summary cards section
-  pdf.setDrawColor(200, 200, 200);
-  pdf.rect(margin, yPosition, pageWidth - 2 * margin, 35);
-
+  // Company info
   pdf.setFontSize(9);
+  pdf.setTextColor(100, 100, 100);
+  pdf.text("Fierbout", margin, yPosition);
+  yPosition += 4;
+
+  // Period info
+  pdf.setFontSize(8);
+  pdf.text(
+    `Période: ${monthName} ${year}${
+      week && week !== "" ? ` | Semaine: ${week}` : ""
+    }`,
+    margin,
+    yPosition
+  );
+  yPosition += 6;
+
+  // Summary cards section (compact)
+  pdf.setDrawColor(200, 200, 200);
+  pdf.rect(margin, yPosition, pageWidth - 2 * margin, 24);
+
+  pdf.setFontSize(7);
   pdf.setTextColor(80, 80, 80);
 
   const boxWidth = (pageWidth - 2 * margin) / 4;
   const summaryData = [
-    { label: "Total employés", value: totalEmployees.toString() },
-    { label: "Total heures", value: totalHours.toFixed(2) + " h" },
-    { label: "Total paie", value: "HTG " + totalPay.toFixed(2) },
-    { label: "Paie moy/emp", value: "HTG " + avgPay.toFixed(2) },
+    { label: "Total emp.", value: totalEmployees.toString() },
+    { label: "Total h", value: totalHours.toFixed(2) },
+    { label: "Total paie", value: totalPay.toFixed(0) },
+    { label: "Moy/emp", value: avgPay.toFixed(0) },
   ];
 
   summaryData.forEach((item, index) => {
-    const xPos = margin + index * boxWidth + 5;
-    pdf.text(item.label, xPos, yPosition + 8);
-    pdf.setFontSize(12);
-    pdf.setTextColor(40, 40, 40);
-    pdf.text(item.value, xPos, yPosition + 18);
+    const xPos = margin + index * boxWidth + 3;
+    pdf.text(item.label, xPos, yPosition + 6);
     pdf.setFontSize(9);
+    pdf.setTextColor(40, 40, 40);
+    pdf.text("HTG " + item.value, xPos, yPosition + 13);
+    pdf.setFontSize(7);
     pdf.setTextColor(80, 80, 80);
   });
 
-  yPosition += 42;
+  yPosition += 28;
 
   // Employee table
-  pdf.setFontSize(12);
+  pdf.setFontSize(9);
   pdf.setTextColor(40, 40, 40);
-  pdf.text("Détails des salaires des employés", margin, yPosition);
-  yPosition += 8;
+  pdf.text("Détails des salaires", margin, yPosition);
+  yPosition += 5;
 
   // Prepare table data
   const tableData = filteredData.map((emp) => {
@@ -128,12 +131,12 @@ async function exportToPDF() {
 
   pdf.autoTable({
     startY: yPosition,
-    head: [["Employé", "ID", "Paie/Unité", "Jours", "Total h", "Total paie"]],
+    head: [["Employé", "ID", "Paie/u", "J", "H", "Total"]],
     body: tableData,
-    margin: { left: margin, right: margin },
+    margin: { left: margin, right: margin, bottom: 15 },
     styles: {
-      fontSize: 8,
-      cellPadding: 4,
+      fontSize: 7,
+      cellPadding: 2,
       textColor: [40, 40, 40],
       lineColor: [200, 200, 200],
     },
@@ -141,6 +144,8 @@ async function exportToPDF() {
       fillColor: [102, 126, 234],
       textColor: [255, 255, 255],
       fontStyle: "bold",
+      fontSize: 7,
+      cellPadding: 2,
     },
     alternateRowStyles: {
       fillColor: [245, 247, 250],
@@ -148,18 +153,15 @@ async function exportToPDF() {
     didDrawPage: function (data) {
       // Footer
       const pageCount = pdf.internal.pages.length - 1;
-      pdf.setFontSize(8);
+      pdf.setFontSize(7);
       pdf.setTextColor(150, 150, 150);
+      const today = new Date().toLocaleDateString("fr-FR");
       pdf.text(
-        `Page ${data.pageNumber} of ${pageCount}`,
+        `Page ${data.pageNumber}/${pageCount} | Généré le: ${today}`,
         pageWidth / 2,
-        pageHeight - 10,
+        pageHeight - 5,
         { align: "center" }
       );
-
-      // Date
-      const today = new Date().toLocaleDateString("fr-FR");
-      pdf.text(`Généré le: ${today}`, margin, pageHeight - 10);
     },
   });
 

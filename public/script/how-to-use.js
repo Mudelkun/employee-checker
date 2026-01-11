@@ -12,12 +12,21 @@
       .slice(0, 10)}.pdf`;
 
     const opt = {
-      margin: [12, 12, 12, 12],
+      margin: [8, 8, 8, 8],
       filename,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
-      pagebreak: { mode: ["css", "legacy"] },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      image: { type: "jpeg", quality: 0.95 },
+      html2canvas: { scale: 2, useCORS: true, scrollY: 0, logging: false },
+      pagebreak: {
+        mode: ["css", "avoid-all"],
+        avoid: [".section"],
+        margin: [5, 5, 5, 5],
+      },
+      jsPDF: {
+        unit: "mm",
+        format: "a4",
+        orientation: "portrait",
+        compress: true,
+      },
     };
 
     window.html2pdf().from(element).set(opt).save();
