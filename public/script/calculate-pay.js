@@ -442,9 +442,9 @@ function exportEmployeePDF() {
   pdf.setFontSize(9);
   pdf.setTextColor(80, 80, 80);
   const summaryItems = [
-    { label: "Total heures", value: totalHours },
+    { label: "Total d'heures", value: totalHours },
     { label: "Jours travaillés", value: daysWorked },
-    { label: "Total paie", value: totalPay },
+    { label: "Total de la paie", value: totalPay },
   ];
 
   summaryItems.forEach((item, index) => {

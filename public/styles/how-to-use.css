@@ -11,6 +11,26 @@
   --white: #ffffff;
 }
 
+.main-title-container {
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  padding: 60px 20px;
+  text-align: center;
+  margin: 0 16px 30px 16px;
+  border-radius: 14px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.main-title {
+  margin: 0;
+  font-size: 3.5em;
+  font-weight: 900;
+  color: var(--white);
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+  font-family: "Segoe UI", "Arial", sans-serif;
+}
+
 body {
   background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
   min-height: 100vh;

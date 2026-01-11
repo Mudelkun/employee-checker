@@ -4,8 +4,16 @@
   if (!btn) return;
 
   btn.addEventListener("click", () => {
-    const element = document.getElementById("guide-content");
-    if (!element || !window.html2pdf) return;
+    const titleElement = document.querySelector(".main-title-container");
+    const contentElement = document.getElementById("guide-content");
+    if (!contentElement || !window.html2pdf) return;
+
+    // Create a wrapper that includes both title and content
+    const wrapper = document.createElement("div");
+    if (titleElement) {
+      wrapper.appendChild(titleElement.cloneNode(true));
+    }
+    wrapper.appendChild(contentElement.cloneNode(true));
 
     const filename = `Guide_Pointage_Fierbout_${new Date()
       .toISOString()
@@ -29,6 +37,6 @@
       },
     };
 
-    window.html2pdf().from(element).set(opt).save();
+    window.html2pdf().from(wrapper).set(opt).save();
   });
 })();

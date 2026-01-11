@@ -84,10 +84,18 @@ async function exportToPDF() {
 
   const boxWidth = (pageWidth - 2 * margin) / 4;
   const summaryData = [
-    { label: "Total emp.", value: totalEmployees.toString() },
-    { label: "Total h", value: totalHours.toFixed(2) },
-    { label: "Total paie", value: totalPay.toFixed(0) },
-    { label: "Moy/emp", value: avgPay.toFixed(0) },
+    {
+      label: "Total d'employés.",
+      value: totalEmployees.toFixed(0),
+      isCurrency: false,
+    },
+    {
+      label: "Total d'heures",
+      value: totalHours.toFixed(2),
+      isCurrency: false,
+    },
+    { label: "Total de la paie", value: totalPay.toFixed(0), isCurrency: true },
+    { label: "Moy/emp", value: avgPay.toFixed(0), isCurrency: true },
   ];
 
   summaryData.forEach((item, index) => {
@@ -95,7 +103,11 @@ async function exportToPDF() {
     pdf.text(item.label, xPos, yPosition + 6);
     pdf.setFontSize(9);
     pdf.setTextColor(40, 40, 40);
-    pdf.text("HTG " + item.value, xPos, yPosition + 13);
+    pdf.text(
+      (item.isCurrency ? "HTG " : "") + item.value,
+      xPos,
+      yPosition + 13
+    );
     pdf.setFontSize(7);
     pdf.setTextColor(80, 80, 80);
   });
